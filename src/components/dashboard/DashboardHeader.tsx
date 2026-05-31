@@ -10,7 +10,7 @@ import {
 import type { JSX, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
-import { getTeamName } from "../../lib/helpers";
+import { getLocale, getTeamName } from "../../lib/helpers";
 import type { PlayerData, TeamData } from "../../store/gameStore";
 import type { MatchModeType } from "../../hooks/useAdvanceTime";
 import ContextMenu, { type ContextMenuItem } from "../ContextMenu";
@@ -59,6 +59,148 @@ interface DashboardHeaderProps {
   seasonComplete: boolean;
   showContinueMenu: boolean;
   teams: TeamData[];
+}
+
+interface CalendarDay {
+  ariaLabel: string;
+  dayNumber: string;
+  isCurrent: boolean;
+  isWeekend: boolean;
+  weekday: string;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function parseGameDate(value: string): Date {
+  const dateOnly = value.slice(0, 10);
+  const parsed = /^\d{4}-\d{2}-\d{2}$/.test(dateOnly)
+    ? new Date(`${dateOnly}T12:00:00`)
+    : new Date(value);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return new Date();
+  }
+
+  return parsed;
+}
+
+function addDays(date: Date, days: number): Date {
+  return new Date(date.getTime() + days * DAY_MS);
+}
+
+function startOfGameWeek(date: Date): Date {
+  const mondayOffset = (date.getDay() + 6) % 7;
+  return addDays(date, -mondayOffset);
+}
+
+function isSameCalendarDay(left: Date, right: Date): boolean {
+  return (
+    left.getFullYear() === right.getFullYear() &&
+    left.getMonth() === right.getMonth() &&
+    left.getDate() === right.getDate()
+  );
+}
+
+function buildCalendarDays(currentDate: string, locale: string): CalendarDay[] {
+  const current = parseGameDate(currentDate);
+  const weekStart = startOfGameWeek(current);
+  const weekdayFormatter = new Intl.DateTimeFormat(getLocale(locale), {
+    weekday: "short",
+  });
+  const fullFormatter = new Intl.DateTimeFormat(getLocale(locale), {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = addDays(weekStart, index);
+    return {
+      ariaLabel: fullFormatter.format(date),
+      dayNumber: String(date.getDate()),
+      isCurrent: isSameCalendarDay(date, current),
+      isWeekend: date.getDay() === 0 || date.getDay() === 6,
+      weekday: weekdayFormatter.format(date).replace(".", ""),
+    };
+  });
+}
+
+function formatCalendarMonthLabel(currentDate: string, locale: string): string {
+  const current = parseGameDate(currentDate);
+  return new Intl.DateTimeFormat(getLocale(locale), {
+    month: "long",
+    year: "numeric",
+  }).format(current);
+}
+
+function getCalendarCellClassName(day: CalendarDay, isAdvancing: boolean): string {
+  const baseClassName =
+    "flex min-h-14 flex-col items-center justify-center border-r border-gray-200 px-2 py-2 last:border-r-0 dark:border-navy-600";
+
+  if (day.isCurrent) {
+    return `${baseClassName} bg-primary-500 text-white shadow-inner ${isAdvancing ? "animate-pulse" : ""}`;
+  }
+
+  if (day.isWeekend) {
+    return `${baseClassName} bg-gray-100 text-gray-500 dark:bg-navy-900/60 dark:text-gray-400`;
+  }
+
+  return `${baseClassName} bg-white text-gray-700 dark:bg-navy-800 dark:text-gray-200`;
+}
+
+function DashboardCalendarStrip({
+  currentDate,
+  hasMatchToday,
+  isAdvancing,
+  label,
+  locale,
+}: {
+  currentDate: string;
+  hasMatchToday: boolean;
+  isAdvancing: boolean;
+  label: string;
+  locale: string;
+}): JSX.Element {
+  const days = buildCalendarDays(currentDate, locale);
+  const monthLabel = formatCalendarMonthLabel(currentDate, locale);
+
+  return (
+    <div className="flex min-w-0 items-stretch gap-3">
+      <div className="flex w-32 shrink-0 flex-col justify-center rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-navy-600 dark:bg-navy-800">
+        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+          <CalendarIcon className="h-4 w-4" />
+          <span className="text-xs font-semibold uppercase">{label}</span>
+        </div>
+        <span className="mt-1 truncate text-sm font-heading font-bold capitalize text-gray-900 dark:text-gray-100">
+          {monthLabel}
+        </span>
+      </div>
+
+      <div className="grid min-w-0 flex-1 grid-cols-7 overflow-hidden rounded-lg border border-gray-200 dark:border-navy-600">
+        {days.map((day) => (
+          <div
+            key={day.ariaLabel}
+            aria-current={day.isCurrent ? "date" : undefined}
+            aria-label={day.ariaLabel}
+            className={getCalendarCellClassName(day, isAdvancing)}
+          >
+            <span className="text-[11px] font-semibold uppercase leading-none opacity-80">
+              {day.weekday}
+            </span>
+            <span className="mt-1 text-xl font-heading font-bold leading-none">
+              {day.dayNumber}
+            </span>
+            {day.isCurrent && hasMatchToday ? (
+              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-accent-300" />
+            ) : (
+              <span className="mt-1 h-1.5 w-1.5" />
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function getSaveButtonClassName(saveFlash: boolean, isSaving: boolean): string {
@@ -298,7 +440,8 @@ export default function DashboardHeader({
   showContinueMenu,
   teams,
 }: DashboardHeaderProps): JSX.Element {
-  const { t } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const locale = i18n.resolvedLanguage ?? i18n.language;
   const currentModeMeta = modeMeta[matchMode];
   const showSearchResults = searchOpen && searchQuery.length >= 2;
 
@@ -336,8 +479,9 @@ export default function DashboardHeader({
   }
 
   return (
-    <header className="z-10 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-3 shadow-sm transition-colors duration-300 dark:border-navy-700 dark:bg-navy-800">
-      <div className="flex items-center gap-3">
+    <header className="z-10 border-b border-gray-200 bg-white shadow-sm transition-colors duration-300 dark:border-navy-700 dark:bg-navy-800">
+      <div className="flex items-center justify-between gap-4 px-6 py-3">
+      <div className="flex min-w-0 items-center gap-3">
         {hasProfileHistory && (
           <button
             onClick={onBack}
@@ -347,18 +491,14 @@ export default function DashboardHeader({
             <ArrowLeft className="h-5 w-5" />
           </button>
         )}
-        <div>
-          <h2 className="text-xl font-heading font-bold uppercase tracking-wide text-gray-800 dark:text-gray-100">
+        <div className="min-w-0">
+          <h2 className="truncate text-xl font-heading font-bold uppercase text-gray-800 dark:text-gray-100">
             {activeTabLabel}
           </h2>
-          <p className="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-            <CalendarIcon className="h-3.5 w-3.5" />
-            <span className="font-medium">{currentDate}</span>
-          </p>
         </div>
       </div>
 
-      <div className="relative mx-auto flex-1 max-w-md">
+      <div className="relative mx-auto hidden flex-1 max-w-md min-[900px]:block">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
         <input
           type="text"
@@ -383,7 +523,7 @@ export default function DashboardHeader({
         )}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         <ThemeToggle />
         <button
           onClick={onSave}
@@ -481,6 +621,16 @@ export default function DashboardHeader({
             )}
           </div>
         )}
+      </div>
+      </div>
+      <div className="border-t border-gray-100 bg-gray-50 px-6 py-2 dark:border-navy-700 dark:bg-navy-900/35">
+        <DashboardCalendarStrip
+          currentDate={currentDate}
+          hasMatchToday={hasMatchToday}
+          isAdvancing={isAdvancing}
+          label={t("dashboard.schedule")}
+          locale={locale}
+        />
       </div>
     </header>
   );

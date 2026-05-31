@@ -13,12 +13,17 @@ vi.mock("react-i18next", () => ({
             if (key === "dashboard.searchTeams") return "Teams";
             if (key === "dashboard.searchPlaceholder") return "Search";
             if (key === "dashboard.saveGame") return "Save game";
+            if (key === "dashboard.schedule") return "Schedule";
             if (key === "common.save") return "Save";
             if (key === "dashboard.continue") return "Continue";
             if (key === "common.back") return "Back";
             if (key === "squad.viewProfile") return "View profile";
             if (key === "common.viewTeam") return "View team";
             return key;
+        },
+        i18n: {
+            language: "en",
+            resolvedLanguage: "en",
         },
     }),
 }));
@@ -148,5 +153,48 @@ describe("DashboardHeader", () => {
 
         expect(onSelectSearchTeam).toHaveBeenCalledWith("team-1");
         expect(onSelectSearchPlayer).not.toHaveBeenCalled();
+    });
+
+    it("renders a week calendar strip with the game date highlighted", () => {
+        const teams = [createTeam()];
+
+        render(
+            <DashboardHeader
+                activeTabLabel="Dashboard"
+                currentDate="2026-08-12T00:00:00+00:00"
+                hasProfileHistory={false}
+                hasMatchToday={false}
+                isAdvancing={false}
+                isUnemployed={false}
+                isSaving={false}
+                matchMode="live"
+                matchedPlayers={[]}
+                matchedTeams={[]}
+                modeMeta={createModeMeta()}
+                onBack={vi.fn()}
+                onContinue={vi.fn()}
+                onSave={vi.fn()}
+                onSearchBlur={vi.fn()}
+                onSearchFocus={vi.fn()}
+                onSearchQueryChange={vi.fn()}
+                onSelectMatchMode={vi.fn()}
+                onSelectSearchPlayer={vi.fn()}
+                onSelectSearchTeam={vi.fn()}
+                onSkipToMatchDay={vi.fn()}
+                onToggleContinueMenu={vi.fn()}
+                saveFlash={false}
+                searchOpen={false}
+                searchQuery=""
+                seasonComplete={false}
+                showContinueMenu={false}
+                teams={teams}
+            />,
+        );
+
+        expect(screen.getByText("Schedule")).toBeInTheDocument();
+        expect(screen.getByLabelText("Wednesday, August 12, 2026")).toHaveAttribute(
+            "aria-current",
+            "date",
+        );
     });
 });

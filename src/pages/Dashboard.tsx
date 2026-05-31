@@ -39,10 +39,7 @@ import {
 } from "../components/dashboard/dashboardHelpers";
 import { useAdvanceTime } from "../hooks/useAdvanceTime";
 import { Cpu, Eye, Gamepad2 } from "lucide-react";
-import {
-  formatDateFull,
-  isSeasonComplete as isLeagueSeasonComplete,
-} from "../lib/helpers";
+import { isSeasonComplete as isLeagueSeasonComplete } from "../lib/helpers";
 import { useTranslation } from "react-i18next";
 import { useSettingsStore } from "../store/settingsStore";
 
@@ -377,10 +374,7 @@ export default function Dashboard(): JSX.Element {
     );
   }
 
-  const currentDate = formatDateFull(
-    gameState.clock.current_date,
-    settings.language,
-  );
+  const currentDate = gameState.clock.current_date;
   const unreadMessagesCount = getUnreadMessagesCount(gameState);
   const myTeamName = getManagerTeamName(gameState);
   const searchResults = getDashboardSearchResults(gameState, searchQuery);
