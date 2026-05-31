@@ -92,5 +92,13 @@ export default defineConfig(async () => ({
   },
   server: {
     port: 5173,
+    proxy: {
+      "/api": {
+        target:
+          process.env.LOCAL_API_URL ??
+          `http://localhost:${process.env.API_PORT ?? "3001"}`,
+        changeOrigin: true,
+      },
+    },
   },
 }));

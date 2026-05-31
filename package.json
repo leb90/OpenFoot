@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "audit:i18n": "node scripts/audit-i18n.mjs",
-    "dev": "vite",
+    "dev": "node scripts/dev-local.mjs",
+    "dev:api": "node server/localServer.js",
+    "dev:web": "vite",
     "build": "tsc && vite build",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",

@@ -9,7 +9,7 @@ OpenFoot Manager is now a full web application. The runtime is React on the clie
 | Frontend | React + TypeScript | UI, routing, game screens, and interaction |
 | Styling | Tailwind CSS | Utility-first visual system |
 | State | Zustand | Client-side game and settings state |
-| API | Vercel serverless functions | Web command boundary at `/api/commands` |
+| API | Local Node server, Vercel-compatible function | Web command boundary at `/api/commands` |
 | Server logic | Node.js modules | Game command handlers and simulation helpers |
 | Persistence | PostgreSQL + Prisma | Saves, sessions, manager profiles, and game data |
 | Build | Vite | Frontend dev server and production bundle |
@@ -20,13 +20,14 @@ OpenFoot Manager is now a full web application. The runtime is React on the clie
 ```text
 openfootmanager/
   api/
-    commands.js              # HTTP entry point for game commands
+    commands.js              # Vercel-compatible HTTP entry point
   prisma/
     schema.prisma            # PostgreSQL data model
   server/
     data/                    # Default teams and names
     gameCommands.js          # Command dispatcher and mutations
     gameFactory.js           # New-game/world generation helpers
+    localServer.js           # Local API server for development
     prisma.js                # Prisma client setup
     session.js               # Web session cookie and persistence helpers
   src/
@@ -99,16 +100,12 @@ This lets the existing UI stay functional while backend behavior moves into web-
 
 ## Deployment
 
-Vercel hosts the frontend build and serverless API routes. Production requires a PostgreSQL database and a `DATABASE_URL` environment variable configured in Vercel.
+The current priority is local development. Vite proxies `/api` to `server/localServer.js`, so the full app runs without Vercel.
 
-Local development can use plain Vite for UI-only work:
+Run the local stack:
 
 ```bash
 npm run dev
 ```
 
-For local API route behavior, use:
-
-```bash
-npx vercel dev
-```
+Later, Vercel can host the frontend build and serverless API routes. Production will require a PostgreSQL database and a `DATABASE_URL` environment variable configured in Vercel.

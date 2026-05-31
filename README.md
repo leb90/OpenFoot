@@ -67,10 +67,10 @@ cd OpenFoot
 npm install
 ```
 
-Create `.env`:
+Create `.env` and set your local PostgreSQL password:
 
 ```bash
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/openfootmanager?schema=public"
+DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/openFoot?schema=public"
 ```
 
 Create the database tables:
@@ -79,17 +79,18 @@ Create the database tables:
 npm run prisma:push
 ```
 
-Run UI-only development:
+Run the full local app, including the Node API server:
 
 ```bash
 npm run dev
 ```
 
-Run with local API routes:
+This starts:
 
-```bash
-npx vercel dev
-```
+- Vite on `http://localhost:5173`
+- Local API on `http://localhost:3001`
+
+If PowerShell blocks `npm.ps1`, use `npm.cmd run dev`.
 
 ## Checks
 

@@ -5,7 +5,7 @@ The project is now web-only. The old native runtime has been removed from the re
 ## Active Runtime
 
 - Frontend: React, TypeScript, Vite, Tailwind CSS.
-- API: Vercel-compatible serverless function at `/api/commands`.
+- API: local Node server for development, with a Vercel-compatible function at `/api/commands` for later deployment.
 - Server logic: Node modules in `server/`.
 - Persistence: PostgreSQL through Prisma 7.
 - Deployment target: Vercel.
@@ -16,12 +16,16 @@ The project is now web-only. The old native runtime has been removed from the re
 2. Set `DATABASE_URL` to a PostgreSQL database.
 3. Run `npm install`.
 4. Run `npm run prisma:push` to create tables.
-5. Run `npx vercel dev` for local API routes.
-
-Plain Vite is still useful for UI-only work:
+5. Run the local app:
 
 ```bash
 npm run dev
+```
+
+This starts Vite and the local API server together. If PowerShell blocks `npm.ps1`, use:
+
+```bash
+npm.cmd run dev
 ```
 
 ## Current Porting Status
