@@ -608,6 +608,32 @@ export default function MainMenu() {
     }
   };
 
+  if (menuState === "world") {
+    return (
+      <div className="min-h-screen bg-gray-100 text-gray-900 transition-colors duration-500 dark:bg-navy-900 dark:text-white">
+        <ThemeToggle className="fixed right-4 top-4 z-30 sm:right-6 sm:top-6" />
+        <Suspense fallback={<MenuPanelFallback />}>
+          <WorldSelect
+            playableCountries={playableCountries}
+            selectedCountryCode={selectedCountryCode}
+            selectedTeamId={selectedTeamId}
+            isLoadingWorlds={isLoadingWorlds}
+            isStarting={isStarting}
+            startYear={parseCareerStartYear(formData.startYear) ?? MIN_CAREER_START_YEAR}
+            startPhase={formData.startPhase}
+            historyDepthYears={historyDepthYears}
+            onSelectCountry={handleSelectCountry}
+            onSelectTeam={setSelectedTeamId}
+            onChangeHistoryDepthYears={setHistoryDepthYears}
+            onStart={handleStartGame}
+            onBack={() => setMenuState("create")}
+            onClose={() => setMenuState("main")}
+          />
+        </Suspense>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-navy-900 transition-colors duration-500 relative overflow-x-hidden">
       {/* Background gradient accents */}
@@ -724,28 +750,6 @@ export default function MainMenu() {
                 onSaveNew={() => { void handleSaveAsNewProfile(); }}
                 onSkip={proceedToWorldSelect}
                 onClose={() => setShowProfileConfirm(false)}
-              />
-            </Suspense>
-          )}
-
-          {/* Step 2: World Database Selection */}
-          {menuState === "world" && (
-            <Suspense fallback={<MenuPanelFallback />}>
-              <WorldSelect
-                playableCountries={playableCountries}
-                selectedCountryCode={selectedCountryCode}
-                selectedTeamId={selectedTeamId}
-                isLoadingWorlds={isLoadingWorlds}
-                isStarting={isStarting}
-                startYear={parseCareerStartYear(formData.startYear) ?? MIN_CAREER_START_YEAR}
-                startPhase={formData.startPhase}
-                historyDepthYears={historyDepthYears}
-                onSelectCountry={handleSelectCountry}
-                onSelectTeam={setSelectedTeamId}
-                onChangeHistoryDepthYears={setHistoryDepthYears}
-                onStart={handleStartGame}
-                onBack={() => setMenuState("create")}
-                onClose={() => setMenuState("main")}
               />
             </Suspense>
           )}

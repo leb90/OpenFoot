@@ -131,7 +131,7 @@ describe("WorldSelect", () => {
     expect(screen.getByText("countries:2")).toBeInTheDocument();
     expect(screen.getByText("France")).toBeInTheDocument();
     expect(screen.getAllByText("French Ligue Elite").length).toBeGreaterThan(0);
-    expect(screen.getByText("Paris Capitol")).toBeInTheDocument();
+    expect(screen.getAllByText("Paris Capitol").length).toBeGreaterThan(0);
     expect(
       screen.getByText("Paris Capitol:French Ligue Elite:France"),
     ).toBeInTheDocument();
