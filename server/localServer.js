@@ -44,6 +44,17 @@ const server = createServer(async (req, res) => {
   }
 });
 
+server.on("error", (error) => {
+  if (error && error.code === "EADDRINUSE") {
+    console.error(
+      `Local API port ${port} is already in use. Stop the existing dev server or set API_PORT to another port.`,
+    );
+    process.exit(1);
+  }
+
+  throw error;
+});
+
 server.listen(port, () => {
   console.log(`Local API listening on http://localhost:${port}`);
 });
