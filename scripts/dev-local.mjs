@@ -1,7 +1,10 @@
 import { spawn } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const apiPort = process.env.API_PORT ?? "3001";
-const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
+const rootDir = fileURLToPath(new URL("..", import.meta.url));
+const viteBin = path.join(rootDir, "node_modules", "vite", "bin", "vite.js");
 const children = [];
 let shuttingDown = false;
 
@@ -15,6 +18,13 @@ function start(name, command, args) {
   });
 
   children.push(child);
+
+  child.on("error", (error) => {
+    if (shuttingDown) return;
+
+    console.error(`${name} failed to start: ${error.message}`);
+    shutdown(1);
+  });
 
   child.on("exit", (code, signal) => {
     if (shuttingDown) return;
@@ -44,5 +54,5 @@ process.on("SIGINT", () => shutdown(0));
 process.on("SIGTERM", () => shutdown(0));
 process.on("exit", () => shutdown(process.exitCode ?? 0));
 
-start("local API", process.execPath, ["server/localServer.js"]);
-start("Vite", npmCommand, ["run", "dev:web"]);
+start("local API", process.execPath, [path.join(rootDir, "server", "localServer.js")]);
+start("Vite", process.execPath, [viteBin]);
