@@ -1922,7 +1922,8 @@
       "directorOfFootball": "Спортивный директор",
       "intlLiaison": "Международный координатор",
       "player": "Игрок",
-      "scout": "Скаут"
+      "scout": "Скаут",
+      "matchReporter": "???????? ?????"
     },
     "source": {
       "sportsGazette": "Спортивная газета",
@@ -1931,7 +1932,8 @@
       "leagueChronicle": "Хроника Лиги",
       "leagueWire": "Лига Провод",
       "transferIntelligence": "Передача разведданных",
-      "sportsDaily": "Спорт Ежедневно"
+      "sportsDaily": "Спорт Ежедневно",
+      "openFootNews": "OpenFoot News"
     },
     "msg": {
       "world": {

@@ -1922,7 +1922,8 @@
       "directorOfFootball": "Direttore sportivo",
       "intlLiaison": "Responsabile relazioni internazionali",
       "player": "Giocatore",
-      "scout": "Osservatore"
+      "scout": "Osservatore",
+      "matchReporter": "Cronista della partita"
     },
     "source": {
       "sportsGazette": "Gazzetta Sportiva",
@@ -1932,7 +1933,8 @@
       "leagueChronicle": "Cronaca della Lega",
       "leagueWire": "Filo della Lega",
       "transferIntelligence": "Informazioni sui Trasferimenti",
-      "sportsDaily": "Quotidiano Sportivo"
+      "sportsDaily": "Quotidiano Sportivo",
+      "openFootNews": "OpenFoot News"
     },
     "msg": {
       "world": {

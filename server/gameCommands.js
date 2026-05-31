@@ -159,6 +159,9 @@ function simulateFixture(game, fixture) {
     game.manager.career_stats.matches_managed += 1;
     const myGoals = game.manager.team_id === fixture.home_team_id ? homeGoals : awayGoals;
     const opponentGoals = game.manager.team_id === fixture.home_team_id ? awayGoals : homeGoals;
+    const resultKey =
+      myGoals > opponentGoals ? "victory" : myGoals < opponentGoals ? "defeat" : "draw";
+    const bodyVariant = resultKey === "draw" ? "draw" : `${resultKey}0`;
     if (myGoals > opponentGoals) game.manager.career_stats.wins += 1;
     else if (myGoals === opponentGoals) game.manager.career_stats.draws += 1;
     else game.manager.career_stats.losses += 1;
@@ -185,7 +188,17 @@ function simulateFixture(game, fixture) {
           away_goals: awayGoals,
         },
       },
-      i18n: {},
+      subject_key: `be.msg.matchResult.subject.${resultKey}`,
+      body_key: `be.msg.matchResult.body.${bodyVariant}`,
+      sender_key: "be.sender.matchReporter",
+      sender_role_key: "be.role.matchReporter",
+      i18n_params: {
+        home: home?.name ?? "Home",
+        away: away?.name ?? "Away",
+        homeGoals: String(homeGoals),
+        awayGoals: String(awayGoals),
+        matchday: String(fixture.matchday),
+      },
     });
   }
 }

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { invoke } from "@/lib/apiClient";
+import { resolveSupportedLanguage } from "../i18n/languages";
 
 export interface AppSettings {
   theme: "dark" | "light" | "system";
@@ -46,7 +47,11 @@ const DEFAULT_CURRENCY: CurrencyDefinition = {
 };
 
 function mergeWithDefaultSettings(settings: Partial<AppSettings> = {}): AppSettings {
-  return { ...DEFAULT_SETTINGS, ...settings };
+  const merged = { ...DEFAULT_SETTINGS, ...settings };
+  return {
+    ...merged,
+    language: resolveSupportedLanguage(merged.language),
+  };
 }
 
 async function persistSettings(settings: AppSettings) {

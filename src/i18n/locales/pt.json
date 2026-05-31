@@ -1922,7 +1922,8 @@
       "directorOfFootball": "Diretor Desportivo",
       "intlLiaison": "Responsável pelas Relações Internacionais",
       "player": "Jogador",
-      "scout": "Olheiro"
+      "scout": "Olheiro",
+      "matchReporter": "Rep?rter da partida"
     },
     "source": {
       "sportsGazette": "Gazeta Desportiva",
@@ -1932,7 +1933,8 @@
       "leagueChronicle": "Crónica da Liga",
       "leagueWire": "Notícias da Liga",
       "transferIntelligence": "Inteligência de Transferências",
-      "sportsDaily": "Diário Desportivo"
+      "sportsDaily": "Diário Desportivo",
+      "openFootNews": "OpenFoot News"
     },
     "msg": {
       "world": {

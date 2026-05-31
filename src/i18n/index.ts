@@ -1,27 +1,27 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import resourcesToBackend from "i18next-resources-to-backend";
+import { resolveSupportedLanguage } from "./languages";
 
-export const SUPPORTED_LANGUAGES = [
-  { code: "en", labelKey: "settings.languages.en" },
-  { code: "es", labelKey: "settings.languages.es" },
-  { code: "pt", labelKey: "settings.languages.pt" },
-  { code: "fr", labelKey: "settings.languages.fr" },
-  { code: "de", labelKey: "settings.languages.de" },
-  { code: "it", labelKey: "settings.languages.it" },
-  { code: "ru", labelKey: "settings.languages.ru" },
-  { code: "pt-BR", labelKey: "settings.languages.ptBR" },
-  { code: "zh-CN", labelKey: "settings.languages.zhCN" },
+export { SUPPORTED_LANGUAGES, resolveSupportedLanguage } from "./languages";
+
+const RESOURCE_LANGUAGE_CODES = [
+  "en",
+  "es",
+  "fr",
+  "de",
+  "it",
+  "pt",
+  "pt-BR",
+  "ru",
+  "zh-CN",
 ] as const;
 
-const SUPPORTED_CODES = new Map(
-  SUPPORTED_LANGUAGES.map((language) => [
-    language.code.toLowerCase(),
-    language.code,
-  ]),
+const RESOURCE_CODES = new Map(
+  RESOURCE_LANGUAGE_CODES.map((code) => [code.toLowerCase(), code]),
 );
 
-const SIMPLIFIED_CHINESE_LOCALES = new Set(["zh", "zh-cn", "zh-sg", "zh-my"]);
+const SIMPLIFIED_CHINESE_RESOURCE_LOCALES = new Set(["zh", "zh-cn", "zh-sg", "zh-my"]);
 
 type TranslationResource = Record<string, unknown>;
 
@@ -29,16 +29,14 @@ const localeModules = import.meta.glob<{ default: TranslationResource }>(
   "./locales/*.json",
 );
 
-const SUPPORTED_LANGUAGE_CODES = SUPPORTED_LANGUAGES.map(
-  ({ code }) => code,
-);
+const SUPPORTED_LANGUAGE_CODES = RESOURCE_LANGUAGE_CODES.map((code) => code);
 
 function localeModulePath(language: string): string {
   return `./locales/${language}.json`;
 }
 
 function localeBackendLoader(language: string): Promise<TranslationResource> {
-  const resolvedLanguage = resolveSupportedLanguage(language);
+  const resolvedLanguage = resolveResourceLanguage(language);
   const loader = localeModules[localeModulePath(resolvedLanguage)];
 
   if (!loader) {
@@ -50,26 +48,26 @@ function localeBackendLoader(language: string): Promise<TranslationResource> {
   return loader().then((module) => module.default);
 }
 
-export function resolveSupportedLanguage(locale: string): string {
+function resolveResourceLanguage(locale: string): string {
   const normalized = locale.trim().replace(/_/g, "-").toLowerCase();
-  const exactMatch = SUPPORTED_CODES.get(normalized);
+  const exactMatch = RESOURCE_CODES.get(normalized);
   if (exactMatch) return exactMatch;
 
   if (
-    SIMPLIFIED_CHINESE_LOCALES.has(normalized) ||
+    SIMPLIFIED_CHINESE_RESOURCE_LOCALES.has(normalized) ||
     normalized.startsWith("zh-hans")
   ) {
     return "zh-CN";
   }
 
   const base = normalized.split("-")[0];
-  return SUPPORTED_CODES.get(base) ?? "en";
+  return RESOURCE_CODES.get(base) ?? resolveSupportedLanguage(locale);
 }
 
 /**
  * Detect the best initial language from the runtime locale.
  *
- * Browser environments: uses `navigator.language` (for example: "pt-BR", "es-419", "en-US").
+ * Browser environments: uses `navigator.language` (for example: "es-419", "en-US").
  * Non-browser environments (SSR/tests/Node): falls back to `"en"` when `navigator`
  * is unavailable or does not expose a valid language string.
  *

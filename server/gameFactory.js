@@ -519,6 +519,7 @@ export function managerTeamName(game) {
 
 export function addWelcomeMessages(game, team) {
   const date = game.clock.current_date;
+  const manager = managerName(game);
   game.messages.push({
     id: randomUUID(),
     subject: `Welcome to ${team.name}`,
@@ -536,13 +537,20 @@ export function addWelcomeMessages(game, team) {
       fixture_id: null,
       match_result: null,
     },
-    i18n: {},
+    subject_key: "be.msg.welcome.subject0",
+    body_key: "be.msg.welcome.body0",
+    sender_key: "be.sender.boardOfDirectors",
+    sender_role_key: "be.role.chairman",
+    i18n_params: {
+      team: team.name,
+      manager,
+    },
   });
 
   game.news.push({
     id: randomUUID(),
-    headline: `${game.manager.first_name} ${game.manager.last_name} appointed ${team.name} manager`,
-    body: `${team.name} have named ${game.manager.first_name} ${game.manager.last_name} as their new manager.`,
+    headline: `${manager} appointed ${team.name} manager`,
+    body: `${team.name} have named ${manager} as their new manager.`,
     source: "OpenFoot News",
     date,
     category: "ManagerialChange",
@@ -550,6 +558,12 @@ export function addWelcomeMessages(game, team) {
     player_ids: [],
     match_score: null,
     read: false,
-    i18n: {},
+    headline_key: "be.news.managerialAppointment.headline",
+    body_key: "be.news.managerialAppointment.body",
+    source_key: "be.source.openFootNews",
+    i18n_params: {
+      team: team.name,
+      manager,
+    },
   });
 }

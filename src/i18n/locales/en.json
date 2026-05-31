@@ -1922,7 +1922,8 @@
       "directorOfFootball": "Director of Football",
       "intlLiaison": "International Liaison",
       "player": "Player",
-      "scout": "Scout"
+      "scout": "Scout",
+      "matchReporter": "Match Reporter"
     },
     "source": {
       "sportsGazette": "Sports Gazette",
@@ -1931,7 +1932,8 @@
       "leagueChronicle": "League Chronicle",
       "leagueWire": "League Wire",
       "transferIntelligence": "Transfer Intelligence",
-      "sportsDaily": "Sports Daily"
+      "sportsDaily": "Sports Daily",
+      "openFootNews": "OpenFoot News"
     },
     "msg": {
       "world": {

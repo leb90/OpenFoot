@@ -99,7 +99,7 @@ describe("useSettingsStore", () => {
     useSettingsStore.setState({
       settings: {
         ...DEFAULT_SETTINGS,
-        language: "pt",
+        language: "es",
       },
       currency: SUPPORTED_CURRENCIES[0],
       loaded: true,
@@ -109,14 +109,14 @@ describe("useSettingsStore", () => {
 
     expect(useSettingsStore.getState().settings).toEqual({
       ...DEFAULT_SETTINGS,
-      language: "pt",
+      language: "es",
       currency: "USD",
       high_contrast: true,
     });
     expect(invoke).toHaveBeenCalledWith("save_settings", {
       settings: {
         ...DEFAULT_SETTINGS,
-        language: "pt",
+        language: "es",
         currency: "USD",
         high_contrast: true,
       },

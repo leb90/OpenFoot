@@ -1922,7 +1922,8 @@
       "directorOfFootball": "足球总监",
       "intlLiaison": "国际联络官",
       "player": "球员",
-      "scout": "球探"
+      "scout": "球探",
+      "matchReporter": "????"
     },
     "source": {
       "sportsGazette": "体育公报",
@@ -1932,7 +1933,8 @@
       "leagueChronicle": "联赛纪事",
       "leagueWire": "联赛快讯",
       "transferIntelligence": "转会情报",
-      "sportsDaily": "体育日报"
+      "sportsDaily": "体育日报",
+      "openFootNews": "OpenFoot News"
     },
     "msg": {
       "world": {

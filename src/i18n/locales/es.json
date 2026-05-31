@@ -1952,7 +1952,8 @@
       "directorOfFootball": "Director Deportivo",
       "intlLiaison": "Enlace Internacional",
       "player": "Jugador",
-      "scout": "Ojeador"
+      "scout": "Ojeador",
+      "matchReporter": "Cronista del partido"
     },
     "source": {
       "sportsGazette": "Gaceta Deportiva",
@@ -1962,7 +1963,8 @@
       "leagueChronicle": "Crónica de la Liga",
       "leagueWire": "Cable de la Liga",
       "transferIntelligence": "Inteligencia de Fichajes",
-      "sportsDaily": "Diario Deportivo"
+      "sportsDaily": "Diario Deportivo",
+      "openFootNews": "Noticias OpenFoot"
     },
     "msg": {
       "world": {
@@ -2201,7 +2203,7 @@
         }
       },
       "sponsor": {
-        "subject": "Sponsorship Offer — {{sponsor}}",
+        "subject": "Oferta de patrocinio ? {{sponsor}}",
         "body": "Buenas noticias, míster: {{sponsor}} ha mostrado interés en convertirse en patrocinador de {{team}}.\n\nOfrecen un pago semanal de {{amount}} durante las próximas 12 semanas a cambio de espacio publicitario en el campo de entrenamiento.\n\nParece un acuerdo razonable, pero la decisión es tuya.",
         "options": {
           "accept": {
@@ -2219,38 +2221,38 @@
         }
       },
       "trainingInjury": {
-        "subject": "Injury — {{player}} ({{injury}})",
-        "body0": "Bad news from the training ground. {{player}} has picked up a {{injury}} during today's session.\n\nThe medical team estimates {{days}} days on the sidelines. We'll monitor the recovery closely.",
-        "body1": "Unfortunately, {{player}} went down in training today with a {{injury}}.\n\nInitial assessment: out for approximately {{days}} days. We'll keep you updated on their progress."
+        "subject": "Lesi?n ? {{player}} ({{injury}})",
+        "body0": "Malas noticias desde el campo de entrenamiento. {{player}} ha sufrido una {{injury}} durante la sesi?n de hoy.\n\nEl equipo m?dico estima {{days}} d?as de baja. Seguiremos de cerca su recuperaci?n.",
+        "body1": "Por desgracia, {{player}} cay? lesionado hoy en el entrenamiento con una {{injury}}.\n\nEvaluaci?n inicial: aproximadamente {{days}} d?as fuera. Te mantendremos informado sobre su evoluci?n."
       },
       "mediaPositive": {
-        "subject": "Positive Press — {{player}}",
-        "body": "The local papers are running a very positive piece on {{player}} today.\n\nThey are highlighting their excellent recent form and commitment to {{team}}. This kind of coverage is great for the player's confidence and the club's image."
+        "subject": "Prensa positiva ? {{player}}",
+        "body": "Los peri?dicos locales publican hoy una nota muy positiva sobre {{player}}.\n\nDestacan su excelente forma reciente y su compromiso con {{team}}. Este tipo de cobertura es muy buena para la confianza del jugador y la imagen del club."
       },
       "mediaNegative": {
-        "subject": "Negative Press — {{player}}",
-        "body": "Some unflattering coverage of {{player}} appeared in the tabloids today.\n\nJournalists are questioning their form and commitment to {{team}}. This could affect the player's morale — you might want to have a word."
+        "subject": "Prensa negativa ? {{player}}",
+        "body": "Hoy apareci? en la prensa sensacionalista una cobertura poco favorable sobre {{player}}.\n\nLos periodistas cuestionan su forma y compromiso con {{team}}. Esto podr?a afectar la moral del jugador; quiz? convenga hablar con ?l."
       },
       "intlCallup": {
-        "subject": "International Call-Up — {{player}}",
-        "body": "{{player}} has been called up to the {{nationality}} national team for an upcoming international window.\n\nThis is a great honor for the player and reflects well on the club. They'll be in good spirits when they return, though keep an eye on their fatigue levels."
+        "subject": "Convocatoria internacional ? {{player}}",
+        "body": "{{player}} ha sido convocado por la selecci?n de {{nationality}} para la pr?xima ventana internacional.\n\nEs un gran honor para el jugador y tambi?n habla bien del club. Volver? con buen ?nimo, aunque conviene vigilar su fatiga."
       },
       "community": {
-        "subject0": "Community Open Day",
-        "subject1": "Youth Coaching Session",
-        "subject2": "Charity Match Announcement",
-        "body0": "{{team}} hosted a community open day at the training ground today.\n\nFans got to meet the players and watch a training session. The atmosphere was fantastic and it's done wonders for team spirit.",
-        "body1": "Several first-team players from {{team}} volunteered for a youth coaching session at a local school.\n\nGreat PR for the club, and the players seem energized by the experience.",
-        "body2": "The club has organized a charity initiative in partnership with a local foundation.\n\n{{team}} continues to build strong ties with the community. The board is pleased with the positive image."
+        "subject0": "Jornada de puertas abiertas",
+        "subject1": "Sesi?n de entrenamiento juvenil",
+        "subject2": "Anuncio de partido ben?fico",
+        "body0": "{{team}} organiz? hoy una jornada de puertas abiertas en el campo de entrenamiento.\n\nLos aficionados pudieron conocer a los jugadores y ver una sesi?n de trabajo. El ambiente fue fant?stico y reforz? mucho el esp?ritu del equipo.",
+        "body1": "Varios jugadores del primer equipo de {{team}} participaron como voluntarios en una sesi?n de entrenamiento juvenil en una escuela local.\n\nGran imagen p?blica para el club, y los jugadores parecen revitalizados por la experiencia.",
+        "body2": "El club ha organizado una iniciativa ben?fica junto a una fundaci?n local.\n\n{{team}} sigue fortaleciendo sus lazos con la comunidad. La directiva est? satisfecha con la imagen positiva generada."
       },
       "moodReport": {
-        "subject": "Dressing Room Report — Mood: {{mood}}",
-        "body": "Here is your weekly dressing room report:\n\n• Overall mood: {{mood}} (avg morale: {{avgMorale}})\n• Players in high spirits (80+): {{highCount}}\n• Players with low morale (<40): {{lowCount}}\n• Total squad: {{total}}"
+        "subject": "Informe del vestuario ? ?nimo: {{mood}}",
+        "body": "Aqu? tienes el informe semanal del vestuario:\n\n? ?nimo general: {{mood}} (moral media: {{avgMorale}})\n? Jugadores con gran ?nimo (80+): {{highCount}}\n? Jugadores con baja moral (<40): {{lowCount}}\n? Plantilla total: {{total}}"
       },
       "boardConfidence": {
-        "subject": "Board Meeting — Results Under Scrutiny",
-        "body0": "The board has called an urgent meeting. Three consecutive defeats have raised serious concerns about the team's direction.\n\n\"We need to see improvement quickly. The fans are restless and results must change.\"\n\nHow do you respond?",
-        "body1": "After a string of poor results, the chairman has summoned you for a difficult conversation.\n\n\"We backed you with resources and time. The results simply aren't good enough. What's your plan?\"\n\nChoose your response carefully.",
+        "subject": "Reuni?n de directiva ? Resultados bajo revisi?n",
+        "body0": "La directiva ha convocado una reuni?n urgente. Tres derrotas consecutivas han generado serias dudas sobre el rumbo del equipo.\n\n\"Necesitamos ver una mejora pronto. La afici?n est? inquieta y los resultados deben cambiar.\"\n\n?C?mo respondes?",
+        "body1": "Tras una serie de malos resultados, el presidente te ha citado para una conversaci?n dif?cil.\n\n\"Te respaldamos con recursos y tiempo. Los resultados simplemente no son suficientes. ?Cu?l es tu plan?\"\n\nElige tu respuesta con cuidado.",
         "options": {
           "reassureBoard": {
             "label": "Tranquilizarlos con un plan",
@@ -2272,12 +2274,12 @@
         }
       },
       "fanPetition": {
-        "subject0": "Fan Petition — More Attacking Football",
-        "subject1": "Fan Petition — Give Youth a Chance",
-        "subject2": "Fan Open Letter — Transparency",
-        "body0": "A group of {{team}} supporters has organized a petition calling for more attacking football.\n\n\"We pay good money to watch exciting football. We want to see the team go forward and entertain us!\"\n\nOver 500 signatures so far. How do you respond?",
-        "body1": "Supporters of {{team}} have started a campaign urging you to give more opportunities to young players from the academy.\n\n\"The future of our club depends on developing homegrown talent. Stop overlooking the kids!\"\n\nIt's getting traction on social media. What's your response?",
-        "body2": "An open letter from the {{team}} Supporters Trust has been published, asking for more transparency from the management.\n\n\"We want to understand the club's vision. Where are we heading? What's the long-term plan?\"\n\nThe local press is covering it. How do you handle this?",
+        "subject0": "Petici?n de aficionados ? F?tbol m?s ofensivo",
+        "subject1": "Petici?n de aficionados ? Dale una oportunidad a los j?venes",
+        "subject2": "Carta abierta de aficionados ? Transparencia",
+        "body0": "Un grupo de aficionados de {{team}} organiz? una petici?n para pedir un f?tbol m?s ofensivo.\n\n\"Pagamos buen dinero para ver f?tbol emocionante. ?Queremos ver al equipo atacar y entretenernos!\"\n\nYa hay m?s de 500 firmas. ?C?mo respondes?",
+        "body1": "Aficionados de {{team}} iniciaron una campa?a para pedirte m?s oportunidades para los j?venes de la cantera.\n\n\"El futuro de nuestro club depende de desarrollar talento propio. ?Dejen de ignorar a los chicos!\"\n\nEst? ganando fuerza en redes sociales. ?Cu?l es tu respuesta?",
+        "body2": "Se public? una carta abierta de la asociaci?n de aficionados de {{team}}, pidiendo mayor transparencia a la direcci?n deportiva.\n\n\"Queremos entender la visi?n del club. ?Hacia d?nde vamos? ?Cu?l es el plan a largo plazo?\"\n\nLa prensa local lo est? cubriendo. ?C?mo lo manejas?",
         "options": {
           "listenFans": {
             "label": "Escuchar a la afición",
@@ -2299,9 +2301,9 @@
         }
       },
       "rivalInterest": {
-        "subject": "Transfer Rumour — {{player}} linked with {{rival}}",
-        "body0": "We've received word that {{rival}} have been making enquiries about {{player}}.\n\nTheir scouts were spotted at our last few matches, and our sources suggest they may approach with a formal offer soon.\n\nHow would you like us to respond if they make contact?",
-        "body1": "The press are reporting that {{player}} is a target for {{rival}}.\n\nAccording to sources, the player has attracted attention after their recent performances. No formal bid yet, but it's only a matter of time.\n\nWhat's your stance?",
+        "subject": "Rumor de fichaje ? {{player}} vinculado con {{rival}}",
+        "body0": "Hemos recibido informaci?n de que {{rival}} ha estado preguntando por {{player}}.\n\nSus ojeadores fueron vistos en nuestros ?ltimos partidos, y nuestras fuentes sugieren que pronto podr?an presentar una oferta formal.\n\n?C?mo quieres que respondamos si se ponen en contacto?",
+        "body1": "La prensa informa que {{player}} es objetivo de {{rival}}.\n\nSeg?n varias fuentes, el jugador ha llamado la atenci?n por sus actuaciones recientes. Todav?a no hay oferta formal, pero parece cuesti?n de tiempo.\n\n?Cu?l es tu postura?",
         "options": {
           "notForSale": {
             "label": "No está en venta",
@@ -2466,58 +2468,58 @@
       "matchReport": {
         "headline": {
           "homeWin": {
-            "0": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}: Hosts Triumph",
-            "1": "{{home}} Edge Past {{away}} in Matchday {{matchday}}",
-            "2": "Clinical {{home}} See Off {{away}}"
+            "0": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}: triunfo local",
+            "1": "{{home}} supera a {{away}} en la jornada {{matchday}}",
+            "2": "{{home}} liquida a {{away}} con oficio"
           },
           "awayWin": {
-            "0": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}: Visitors Strike",
-            "1": "{{away}} Stun {{home}} on the Road",
-            "2": "Away Day Delight for {{away}}"
+            "0": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}: golpe visitante",
+            "1": "{{away}} sorprende a {{home}} fuera de casa",
+            "2": "Alegr?a visitante para {{away}}"
           },
           "draw": {
-            "0": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}: Honours Even",
-            "1": "{{home}} and {{away}} Share the Spoils",
-            "2": "Stalemate at {{home}}'s Ground"
+            "0": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}: reparto de puntos",
+            "1": "{{home}} y {{away}} se reparten el bot?n",
+            "2": "Tablas en el campo de {{home}}"
           }
         },
-        "body0": "In Matchday {{matchday}} action, the match ended {{home}} {{homeGoals}} - {{awayGoals}} {{away}}. The result could have implications on the league standings as the season progresses.\n\nGoals: {{scorers}}",
-        "body1": "The match ended {{home}} {{homeGoals}} - {{awayGoals}} {{away}} in a Matchday {{matchday}} clash. Both sides gave their all in an engaging contest.\n\nGoals: {{scorers}}",
-        "body2": "Matchday {{matchday}} delivered another exciting encounter as {{home}} faced {{away}} ({{homeGoals}}-{{awayGoals}}). The fans were treated to a competitive fixture.\n\nGoals: {{scorers}}",
-        "body0.noScorers": "In Matchday {{matchday}} action, the match ended {{home}} {{homeGoals}} - {{awayGoals}} {{away}}. The result could have implications on the league standings as the season progresses.",
-        "body1.noScorers": "The match ended {{home}} {{homeGoals}} - {{awayGoals}} {{away}} in a Matchday {{matchday}} clash. Both sides gave their all in an engaging contest.",
-        "body2.noScorers": "Matchday {{matchday}} delivered another exciting encounter as {{home}} faced {{away}} ({{homeGoals}}-{{awayGoals}}). The fans were treated to a competitive fixture.",
+        "body0": "En la jornada {{matchday}}, el partido termin? {{home}} {{homeGoals}} - {{awayGoals}} {{away}}. El resultado podr?a tener impacto en la clasificaci?n a medida que avance la temporada.\n\nGoles: {{scorers}}",
+        "body1": "El encuentro termin? {{home}} {{homeGoals}} - {{awayGoals}} {{away}} en un duelo de la jornada {{matchday}}. Ambos equipos lo dieron todo en un partido muy disputado.\n\nGoles: {{scorers}}",
+        "body2": "La jornada {{matchday}} dej? otro cruce emocionante entre {{home}} y {{away}} ({{homeGoals}}-{{awayGoals}}). Los aficionados disfrutaron de un partido competitivo.\n\nGoles: {{scorers}}",
+        "body0.noScorers": "En la jornada {{matchday}}, el partido termin? {{home}} {{homeGoals}} - {{awayGoals}} {{away}}. El resultado podr?a tener impacto en la clasificaci?n a medida que avance la temporada.",
+        "body1.noScorers": "El encuentro termin? {{home}} {{homeGoals}} - {{awayGoals}} {{away}} en un duelo de la jornada {{matchday}}. Ambos equipos lo dieron todo en un partido muy disputado.",
+        "body2.noScorers": "La jornada {{matchday}} dej? otro cruce emocionante entre {{home}} y {{away}} ({{homeGoals}}-{{awayGoals}}). Los aficionados disfrutaron de un partido competitivo.",
         "scorer": "{{player}} ({{minute}}', {{team}})",
-        "scorersSection": "\n\nGoals: {{scorers}}",
+        "scorersSection": "\n\nGoles: {{scorers}}",
         "reportFriendly": {
-          "title": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}: Friendly report",
-          "body": "In friendly action, {{home}} {{homeGoals}} - {{awayGoals}} {{away}}. Both sides used the fixture to build sharpness before the competitive campaign.{{scorersSection}}"
+          "title": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}: informe del amistoso",
+          "body": "En acci?n amistosa, {{home}} {{homeGoals}} - {{awayGoals}} {{away}}. Ambos equipos usaron el partido para ganar ritmo antes de la competici?n.{{scorersSection}}"
         },
         "reportPreseason": {
-          "title": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}: Preseason tournament report",
-          "body": "In preseason tournament action, {{home}} {{homeGoals}} - {{awayGoals}} {{away}}. Both sides used the fixture to build sharpness before the competitive campaign.{{scorersSection}}"
+          "title": "{{home}} {{homeGoals}} - {{awayGoals}} {{away}}: informe del torneo de pretemporada",
+          "body": "En el torneo de pretemporada, {{home}} {{homeGoals}} - {{awayGoals}} {{away}}. Ambos equipos usaron el partido para ganar ritmo antes de la competici?n.{{scorersSection}}"
         }
       },
       "roundup": {
-        "headline0": "Matchday {{matchday}} Round-Up: {{totalGoals}} Goals in Action-Packed Day",
-        "headline1": "Premier Division Matchday {{matchday}}: All the Results",
-        "headline2": "Goals Galore in Matchday {{matchday}} Action",
-        "body": "Matchday {{matchday}} is in the books. Here are the full results:\n\n{{results}}\n\n{{totalGoals}} goals scored across {{matchCount}} matches.{{biggestWinnerLine}}",
+        "headline0": "Resumen de la jornada {{matchday}}: {{totalGoals}} goles en un d?a cargado de acci?n",
+        "headline1": "Divisi?n Premier, jornada {{matchday}}: todos los resultados",
+        "headline2": "Festival de goles en la jornada {{matchday}}",
+        "body": "La jornada {{matchday}} ya es historia. Estos son todos los resultados:\n\n{{results}}\n\n{{totalGoals}} goles en {{matchCount}} partidos.{{biggestWinnerLine}}",
         "resultLine": "  {{home}} {{homeGoals}} - {{awayGoals}} {{away}}",
-        "biggestWinnerLine": " {{biggestWinner}} recorded the biggest win of the day."
+        "biggestWinnerLine": " {{biggestWinner}} logr? la victoria m?s amplia del d?a."
       },
       "standings": {
-        "headline0": "{{leader}} Lead the Way After Matchday {{matchday}}",
-        "headline1": "Premier Division Table: {{leader}} on Top",
-        "headline2": "Standings Update — Matchday {{matchday}}",
-        "body": "After Matchday {{matchday}}, {{leader}} sit at the top of the Premier Division table.\n\nStandings:\n{{standings}}",
-        "entry": "  {{rank}}. {{team}} — {{points}} pts (GD: {{goalDifference}})"
+        "headline0": "{{leader}} marca el ritmo tras la jornada {{matchday}}",
+        "headline1": "Tabla de la Divisi?n Premier: {{leader}} en lo m?s alto",
+        "headline2": "Actualizaci?n de clasificaci?n ? jornada {{matchday}}",
+        "body": "Tras la jornada {{matchday}}, {{leader}} lidera la tabla de la Divisi?n Premier.\n\nClasificaci?n:\n{{standings}}",
+        "entry": "  {{rank}}. {{team}} ? {{points}} pts (DG: {{goalDifference}})"
       },
       "seasonPreview": {
-        "headline0": "Season Preview: {{teamCount}} Teams Battle for Glory",
-        "headline1": "Premier Division Season Set to Begin",
-        "headline2": "Can {{favourite}} Claim the Title? Season Preview",
-        "body": "The Premier Division is set to kick off with {{teamCount}} teams vying for the title.\n\nPre-season predictions have {{favourite}} as the early favourites, but {{darkHorse}} could be the dark horse to watch this campaign.\n\nWith new managers taking the reins at some clubs, this season promises to be one of the most competitive in recent memory. Every point will matter as the race for the title heats up.\n\nTeams: {{teamList}}"
+        "headline0": "Previa de temporada: {{teamCount}} equipos luchan por la gloria",
+        "headline1": "La temporada de la Divisi?n Premier est? por comenzar",
+        "headline2": "?Podr? {{favourite}} quedarse con el t?tulo? Previa de temporada",
+        "body": "La Divisi?n Premier est? lista para arrancar con {{teamCount}} equipos peleando por el t?tulo.\n\nLos pron?sticos de pretemporada se?alan a {{favourite}} como favorito inicial, pero {{darkHorse}} podr?a ser el tapado de la campa?a.\n\nCon nuevos entrenadores al mando de algunos clubes, esta temporada promete ser una de las m?s competitivas de los ?ltimos tiempos. Cada punto contar? mientras se calienta la carrera por el t?tulo.\n\nEquipos: {{teamList}}"
       },
       "managerialChange": {
         "headline": "{{team}} destituye a {{manager}}",

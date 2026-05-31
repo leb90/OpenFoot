@@ -2,23 +2,19 @@ import { afterAll, describe, expect, it } from "vitest";
 import i18n, { changeAppLanguage, i18nReady, resolveSupportedLanguage } from "./index";
 
 describe("resolveSupportedLanguage", () => {
-  it("maps Simplified Chinese locale variants to zh-CN", () => {
-    expect(resolveSupportedLanguage("zh")).toBe("zh-CN");
-    expect(resolveSupportedLanguage("zh-CN")).toBe("zh-CN");
-    expect(resolveSupportedLanguage("zh-Hans")).toBe("zh-CN");
-    expect(resolveSupportedLanguage("zh-Hans-CN")).toBe("zh-CN");
-    expect(resolveSupportedLanguage("ZH_hans_cn")).toBe("zh-CN");
-  });
-
-  it("keeps existing exact and base language matching behavior", () => {
-    expect(resolveSupportedLanguage("PT-BR")).toBe("pt-BR");
-    expect(resolveSupportedLanguage("ru-RU")).toBe("ru");
+  it("keeps exact and base language matching for selectable locales", () => {
     expect(resolveSupportedLanguage("es-419")).toBe("es");
     expect(resolveSupportedLanguage("en-US")).toBe("en");
+    expect(resolveSupportedLanguage("fr-CA")).toBe("fr");
+    expect(resolveSupportedLanguage("de-AT")).toBe("de");
+    expect(resolveSupportedLanguage("it-CH")).toBe("it");
   });
 
   it("falls back to English for unsupported locales", () => {
     expect(resolveSupportedLanguage("nl-NL")).toBe("en");
+    expect(resolveSupportedLanguage("pt-BR")).toBe("en");
+    expect(resolveSupportedLanguage("ru-RU")).toBe("en");
+    expect(resolveSupportedLanguage("zh-CN")).toBe("en");
     expect(resolveSupportedLanguage("zh-Hant-TW")).toBe("en");
   });
 });
@@ -32,16 +28,16 @@ describe("i18n lazy loading", () => {
     await i18nReady;
 
     expect(i18n.hasResourceBundle("en", "translation")).toBe(true);
-    expect(i18n.hasResourceBundle("pt-BR", "translation")).toBe(false);
-    expect(i18n.hasResourceBundle("zh-CN", "translation")).toBe(false);
+    expect(i18n.hasResourceBundle("es", "translation")).toBe(false);
+    expect(i18n.hasResourceBundle("fr", "translation")).toBe(false);
   });
 
   it("loads a locale bundle on demand when the app language changes", async () => {
     await i18nReady;
 
-    await changeAppLanguage("ru-RU");
+    await changeAppLanguage("fr-CA");
 
-    expect(i18n.language).toBe("ru");
-    expect(i18n.hasResourceBundle("ru", "translation")).toBe(true);
+    expect(i18n.language).toBe("fr");
+    expect(i18n.hasResourceBundle("fr", "translation")).toBe(true);
   });
 });
