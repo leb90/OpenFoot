@@ -6,7 +6,7 @@ import TrainingTab from "./TrainingTab";
 
 const invokeMock = vi.fn();
 
-vi.mock("@tauri-apps/api/core", () => ({
+vi.mock("@/lib/apiClient", () => ({
   invoke: (...args: unknown[]) => invokeMock(...args),
 }));
 

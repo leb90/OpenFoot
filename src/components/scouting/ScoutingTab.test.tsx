@@ -13,7 +13,7 @@ import ScoutingTab from "./ScoutingTab";
 
 const invokeMock = vi.fn();
 
-vi.mock("@tauri-apps/api/core", () => ({
+vi.mock("@/lib/apiClient", () => ({
   invoke: (...args: unknown[]) => invokeMock(...args),
 }));
 

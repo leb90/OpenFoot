@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/apiClient";
 import { describe, expect, it, vi } from "vitest";
 
 import type { GameStateData, SeasonAwardsData } from "../store/gameStore";
@@ -7,7 +7,7 @@ import EndOfSeasonScreen from "./EndOfSeasonScreen";
 
 const setShowFiredModal = vi.fn();
 
-vi.mock("@tauri-apps/api/core", () => ({
+vi.mock("@/lib/apiClient", () => ({
   invoke: vi.fn(),
 }));
 

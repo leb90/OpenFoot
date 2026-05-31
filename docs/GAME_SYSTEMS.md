@@ -1,6 +1,6 @@
 # Game Systems
 
-This document describes the major gameplay systems in OpenFoot Manager beyond match simulation (which is covered in [MATCH_SIMULATION.md](MATCH_SIMULATION.md)).
+This document describes the major gameplay systems in OpenFoot Manager beyond the match-day flow covered in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 
@@ -236,7 +236,7 @@ Traits are automatically computed from a player's attributes and position by `co
 
 ### Trait Effects in Simulation
 
-Traits provide multiplicative bonuses during match simulation. See [MATCH_SIMULATION.md — Player Traits](MATCH_SIMULATION.md#player-traits) for the full bonus table.
+Traits provide multiplicative bonuses during match simulation. The web command layer will keep expanding this behavior as deeper match parity is rebuilt.
 
 ### Trait Display
 

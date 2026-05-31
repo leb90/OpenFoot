@@ -1,11 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/apiClient";
 
 import type { GameStateData, PlayerData, StaffData, TeamData } from "../../store/gameStore";
 import YouthAcademyTab from "./YouthAcademyTab";
 
-vi.mock("@tauri-apps/api/core", () => ({
+vi.mock("@/lib/apiClient", () => ({
   invoke: vi.fn(),
 }));
 

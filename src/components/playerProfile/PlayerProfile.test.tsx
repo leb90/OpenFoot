@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import { beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/apiClient";
 import type { GameStateData, PlayerData, TeamData } from "../../store/gameStore";
 import PlayerProfile from "./PlayerProfile";
 
@@ -11,7 +11,7 @@ function hasWeeklyWage(text: string, amount: number): boolean {
   return text.replace(/\s+/g, "").includes(`€${numberPortion}/wk`);
 }
 
-vi.mock("@tauri-apps/api/core", () => ({
+vi.mock("@/lib/apiClient", () => ({
   invoke: vi.fn(),
 }));
 

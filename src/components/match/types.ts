@@ -1,4 +1,4 @@
-// Shared types for match simulation components — mirrors Rust engine types
+// Shared types for match simulation components.
 
 import type { TFunction } from "i18next";
 

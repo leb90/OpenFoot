@@ -2,10 +2,10 @@ import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 
 const teamsDefinition = JSON.parse(
-  readFileSync(new URL("../src-tauri/data/default_teams.json", import.meta.url), "utf8"),
+  readFileSync(new URL("./data/default_teams.json", import.meta.url), "utf8"),
 );
 const namesDefinition = JSON.parse(
-  readFileSync(new URL("../src-tauri/data/default_names.json", import.meta.url), "utf8"),
+  readFileSync(new URL("./data/default_names.json", import.meta.url), "utf8"),
 );
 
 const DEFAULT_SETTINGS = {

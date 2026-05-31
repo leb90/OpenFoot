@@ -11,6 +11,10 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.*
+!.env.example
+.vercel
 
 # Editor directories and files
 .vscode/*
@@ -24,10 +28,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Rust
-/target
-/src-tauri/target
-Cargo.lock
 coverage/
 
 # Claude local settings

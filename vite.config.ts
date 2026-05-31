@@ -3,8 +3,6 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { fileURLToPath } from "node:url";
 
-const host = process.env.TAURI_DEV_HOST;
-
 function normalizeModuleId(id: string): string {
   return id.replaceAll("\\", "/");
 }
@@ -62,10 +60,6 @@ function manualChunks(id: string): string | undefined {
     return "icons";
   }
 
-  if (matchesAnyPackage(id, ["@tauri-apps/api", "@tauri-apps/plugin-opener"])) {
-    return "tauri";
-  }
-
   if (matchesAnyPackage(id, ["react", "react-dom", "scheduler"])) {
     return "react-vendor";
   }
@@ -73,17 +67,11 @@ function manualChunks(id: string): string | undefined {
   return undefined;
 }
 
-// https://vite.dev/config/
 export default defineConfig(async () => ({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@tauri-apps/api/core": fileURLToPath(
-        new URL("./src/lib/tauriCore.ts", import.meta.url),
-      ),
-      "@tauri-apps/api/window": fileURLToPath(
-        new URL("./src/lib/tauriWindow.ts", import.meta.url),
-      ),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
   test: {
@@ -95,11 +83,6 @@ export default defineConfig(async () => ({
       exclude: ["src/i18n/locales/**", "src/**/*.test.{ts,tsx}", "src/test-setup.ts"],
     },
   },
-
-  // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
-  //
-  // 1. prevent Vite from obscuring rust errors
-  clearScreen: false,
   build: {
     rollupOptions: {
       output: {
@@ -107,21 +90,7 @@ export default defineConfig(async () => ({
       },
     },
   },
-  // 2. tauri expects a fixed port, fail if that port is not available
   server: {
-    port: 1420,
-    strictPort: true,
-    host: host || false,
-    hmr: host
-      ? {
-        protocol: "ws",
-        host,
-        port: 1421,
-      }
-      : undefined,
-    watch: {
-      // 3. tell Vite to ignore watching `src-tauri`
-      ignored: ["**/src-tauri/**"],
-    },
+    port: 5173,
   },
 }));

@@ -5,7 +5,7 @@ import PostMatchScreen from "./PostMatchScreen";
 import type { FixtureData, GameStateData } from "../../store/gameStore";
 import { ThemeProvider } from "../../context/ThemeContext";
 
-vi.mock("@tauri-apps/api/core", () => ({
+vi.mock("@/lib/apiClient", () => ({
   invoke: vi.fn(),
 }));
 

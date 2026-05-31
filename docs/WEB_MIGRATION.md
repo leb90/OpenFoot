@@ -1,24 +1,39 @@
 # Web Migration
 
-This project now has a web-first runtime path:
+The project is now web-only. The old native runtime has been removed from the repository, and new backend work should target the Node/Prisma command layer.
 
-- Frontend: existing React/Vite app.
-- API: Vercel serverless function at `/api/commands`.
+## Active Runtime
+
+- Frontend: React, TypeScript, Vite, Tailwind CSS.
+- API: Vercel-compatible serverless function at `/api/commands`.
+- Server logic: Node modules in `server/`.
 - Persistence: PostgreSQL through Prisma 7.
-- Compatibility layer: imports from `@tauri-apps/api/*` are aliased to web adapters in `src/lib`.
+- Deployment target: Vercel.
 
 ## Local Setup
 
-1. Copy `.env.example` to `.env`.
+1. Create or update `.env`.
 2. Set `DATABASE_URL` to a PostgreSQL database.
 3. Run `npm install`.
 4. Run `npm run prisma:push` to create tables.
-5. Use Vercel's local runtime for API routes, for example `npx vercel dev`.
+5. Run `npx vercel dev` for local API routes.
 
-`npm run dev` still starts the plain Vite dev server. That is useful for UI-only work, but API calls require a Vercel-compatible runtime.
+Plain Vite is still useful for UI-only work:
+
+```bash
+npm run dev
+```
 
 ## Current Porting Status
 
-The first web pass ports the app shell, session state, saves, settings, manager profiles, generated careers, basic team management, inbox actions, finances, simple transfers/contracts, and day advancement.
+The web command layer currently supports the app shell, sessions, saves, settings, manager profiles, generated careers, team selection, basic squad management, inbox actions, finances, simple transfers and contracts, training updates, and day advancement.
 
-The original Rust/Tauri backend remains in `src-tauri` as a reference while the deeper simulation systems are ported. Complex match-day live simulation, detailed contract negotiations, scouting reports, historical stats, and season rollover still need parity work in the Node/Prisma command layer.
+Deeper parity work remains for advanced match simulation, detailed scouting reports, long-term historical stats, season rollover, richer transfer AI, and fully normalized persistence beyond snapshots.
+
+## Development Rule
+
+Do not add native-only code back into the app. New features should run through:
+
+```text
+src/lib/apiClient.ts -> api/commands.js -> server/gameCommands.js -> Prisma/PostgreSQL
+```

@@ -162,11 +162,11 @@ vi.mock("react-router-dom", () => ({
   useNavigate: () => navigateMock,
 }));
 
-vi.mock("@tauri-apps/api/core", () => ({
+vi.mock("@/lib/apiClient", () => ({
   invoke: (...args: unknown[]) => invokeMock(...args),
 }));
 
-vi.mock("@tauri-apps/api/window", () => ({
+vi.mock("@/lib/webWindow", () => ({
   getCurrentWindow: () => ({
     onCloseRequested: vi.fn(() => Promise.resolve(() => {})),
     destroy: vi.fn(),

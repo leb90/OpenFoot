@@ -4,19 +4,11 @@ import ts from "typescript";
 
 const ROOT = process.cwd();
 const SRC_DIR = path.join(ROOT, "src");
-const RUST_DIRS = [
-  path.join(ROOT, "src-tauri", "src"),
-  path.join(ROOT, "src-tauri", "crates"),
-];
 const LOCALES_DIR = path.join(SRC_DIR, "i18n", "locales");
 
 const FRONTEND_EXTENSIONS = new Set([".ts", ".tsx"]);
 const FRONTEND_IGNORE_RE =
-  /(?:\.test\.|\.spec\.|[\\/]i18n[\\/]locales[\\/]|node_modules|dist|src-tauri[\\/]target)/;
-const RUST_IGNORE_RE =
-  /(?:[\\/]tests[\\/]|tests\.rs$|node_modules|dist|src-tauri[\\/]target)/;
-const RUST_DATA_FILE_RE =
-  /(?:src-tauri[\\/]crates[\\/]ofm_core[\\/]src[\\/]generator[\\/](?:data|definitions|generation|mod)\.rs$|src-tauri[\\/]crates[\\/]domain[\\/]src[\\/]identity\.rs$|src-tauri[\\/]crates[\\/]ofm_core[\\/]src[\\/]football_identity\.rs$)/;
+  /(?:\.test\.|\.spec\.|[\\/]i18n[\\/]locales[\\/]|node_modules|dist)/;
 
 const FRONTEND_ATTRIBUTE_ALLOWLIST = new Set([
   "placeholder",
@@ -65,17 +57,13 @@ const FRONTEND_ATTRIBUTE_SKIP = new Set([
   "icon",
 ]);
 
-function isIgnoredDir(fullPath) {
-  return FRONTEND_IGNORE_RE.test(fullPath) || RUST_IGNORE_RE.test(fullPath);
-}
-
 function walkFiles(dir, predicate, collected = []) {
   if (!fs.existsSync(dir)) return collected;
 
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      if (isIgnoredDir(fullPath) || predicate(fullPath)) {
+      if (FRONTEND_IGNORE_RE.test(fullPath) || predicate(fullPath)) {
         continue;
       }
 
@@ -147,24 +135,6 @@ function looksLikeUserFacingText(text) {
   if (/[!?]/.test(trimmed)) return true;
   if (/^[A-Z][a-z]/.test(trimmed)) return true;
   if (/[^\u0000-\u007F]/.test(trimmed)) return true;
-
-  return false;
-}
-
-function isCommentLine(line) {
-  return /^\s*(?:\/\/|\/\*|\*|\*\/)/.test(line);
-}
-
-function isSqlLiteral(text) {
-  return /^(?:SELECT|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|PRAGMA|WITH)\b/i.test(
-    text.trim(),
-  );
-}
-
-function isIgnoredRustLiteral(filePath, line, text) {
-  if (RUST_DATA_FILE_RE.test(filePath)) return true;
-  if (isCommentLine(line)) return true;
-  if (isSqlLiteral(text)) return true;
 
   return false;
 }
@@ -301,94 +271,6 @@ function scanFrontend() {
   return files.flatMap((filePath) => scanFrontendFile(filePath));
 }
 
-function scanRust() {
-  const files = RUST_DIRS.flatMap((dir) =>
-    walkFiles(
-      dir,
-      (filePath) =>
-        path.extname(filePath) === ".rs" && !RUST_IGNORE_RE.test(filePath),
-    ),
-  );
-  const findings = [];
-  const stringLiteralRe = /"([^"\\]*(?:\\.[^"\\]*)*)"/g;
-
-  for (const filePath of files) {
-    const lines = fs.readFileSync(filePath, "utf8").split(/\r?\n/);
-    let braceDepth = 0;
-    let pendingTestModule = false;
-    let skipTestDepth = null;
-
-    lines.forEach((line, index) => {
-      const opens = (line.match(/\{/g) ?? []).length;
-      const closes = (line.match(/\}/g) ?? []).length;
-      const nextBraceDepth = braceDepth + opens - closes;
-
-      if (skipTestDepth !== null) {
-        braceDepth = nextBraceDepth;
-        if (braceDepth < skipTestDepth) {
-          skipTestDepth = null;
-        }
-        return;
-      }
-
-      if (line.includes("#[cfg(test)]")) {
-        pendingTestModule = true;
-        braceDepth = nextBraceDepth;
-        return;
-      }
-
-      if (pendingTestModule) {
-        if (line.includes("{")) {
-          skipTestDepth = nextBraceDepth;
-          pendingTestModule = false;
-        }
-        braceDepth = nextBraceDepth;
-        return;
-      }
-
-      if (
-        line.includes("serde(rename") ||
-        line.includes("json!") ||
-        line.includes("#[cfg(test)]") ||
-        line.includes("assert_")
-      ) {
-        braceDepth = nextBraceDepth;
-        return;
-      }
-
-      if (isCommentLine(line)) {
-        braceDepth = nextBraceDepth;
-        return;
-      }
-
-      if (/\b(?:trace|debug|info|warn|error)!\s*\(/.test(line)) {
-        braceDepth = nextBraceDepth;
-        return;
-      }
-
-      for (const match of line.matchAll(stringLiteralRe)) {
-        const text = match[1].trim();
-        if (!looksLikeUserFacingText(text)) continue;
-        if (isTranslationKey(text)) continue;
-        if (isIgnoredRustLiteral(filePath, line, text)) continue;
-        if (/^[A-Z][a-zA-Z]+$/.test(text) && !/\s/.test(text)) continue;
-        if (/^\[(?:cmd|setup)\]/.test(text)) continue;
-
-        findings.push({
-          file: path.relative(ROOT, filePath),
-          line: index + 1,
-          kind: "rust-string",
-          text,
-        });
-      }
-
-      braceDepth = nextBraceDepth;
-    });
-  }
-
-  return findings;
-}
-
 function groupByFile(findings) {
   return findings.reduce((accumulator, finding) => {
     const bucket = accumulator.get(finding.file) ?? [];
@@ -457,7 +339,6 @@ function printFindingSection(title, findings) {
 function main() {
   printLocaleCoverage();
   printFindingSection("Frontend hardcoded string candidates", scanFrontend());
-  printFindingSection("Rust/backend hardcoded string candidates", scanRust());
 }
 
 main();

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "@/lib/apiClient";
 
 import {
     clearContractExitIntent,
@@ -8,7 +8,7 @@ import {
     terminateContractNow,
 } from "./contractService";
 
-vi.mock("@tauri-apps/api/core", () => ({
+vi.mock("@/lib/apiClient", () => ({
     invoke: vi.fn(),
 }));
 
