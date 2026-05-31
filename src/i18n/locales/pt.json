@@ -58,7 +58,7 @@
   },
   "worldSelect": {
     "title": "Escolher Mundo",
-    "scanning": "A procurar bases de dados...",
+    "scanning": "A carregar paises jogaveis...",
     "importFile": "Importar ficheiro",
     "startCareer": "Iniciar Carreira",
     "creatingWorld": "A criar mundo...",
@@ -82,7 +82,9 @@
         "generated": "Assume a equipa a meio de {{year}} com classificação, calendário, notícias, histórico de jogos e {{count}} épocas de histórico gerado.",
         "reference": "Assume a equipa a meio de {{year}} com o snapshot histórico selecionado e o contexto da época já presente.",
         "hybrid": "Assume a equipa a meio de {{year}} com o plantel desta base de dados mais {{count}} épocas de contexto histórico gerado e progresso de época herdado."
-      }
+      },
+      "countryTeam": "{{team}} em {{league}}, {{country}}.",
+      "pickTeam": "Escolhe um clube para continuar."
     },
     "historyDepth": {
       "label": "Histórico gerado",
@@ -92,7 +94,13 @@
       "none": "Sem passado gerado",
       "option": "{{count}} épocas",
       "recommended": "Recomendado"
-    }
+    },
+    "countryLabel": "Pais",
+    "teamLabel": "Clube",
+    "availableCountries": "{{count}} paises",
+    "availableTeams": "{{count}} clubes",
+    "ovr": "GER",
+    "selectTeamRequired": "Escolhe um pais e um clube para iniciar a carreira."
   },
   "dashboard": {
     "home": "Início",

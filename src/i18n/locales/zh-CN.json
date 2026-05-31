@@ -58,7 +58,7 @@
   },
   "worldSelect": {
     "title": "选择世界",
-    "scanning": "正在扫描数据库...",
+    "scanning": "Loading playable countries...",
     "importFile": "从文件导入",
     "startCareer": "开始生涯",
     "creatingWorld": "正在创建世界...",
@@ -82,7 +82,9 @@
         "generated": "在 {{year}} 年赛季中途接手，继承积分榜、赛程、新闻、比赛历史以及 {{count}} 个赛季的生成背景历史。",
         "reference": "在 {{year}} 年赛季中途接手，并直接继承所选历史快照与当前赛季上下文。",
         "hybrid": "在 {{year}} 年赛季中途接手，使用该数据库阵容，并继承 {{count}} 个赛季的生成历史背景与赛季进度。"
-      }
+      },
+      "countryTeam": "{{team}} in {{league}}, {{country}}.",
+      "pickTeam": "Choose a club to continue."
     },
     "historyDepth": {
       "label": "生成历史",
@@ -92,7 +94,13 @@
       "none": "无背景历史",
       "option": "{{count}} 个赛季",
       "recommended": "推荐"
-    }
+    },
+    "countryLabel": "Country",
+    "teamLabel": "Club",
+    "availableCountries": "{{count}} countries",
+    "availableTeams": "{{count}} clubs",
+    "ovr": "OVR",
+    "selectTeamRequired": "Choose a country and club to start the career."
   },
   "dashboard": {
     "home": "首页",

@@ -114,23 +114,32 @@ vi.mock("../components/menu/SavesList", () => ({
 vi.mock("../components/menu/WorldSelect", () => ({
   default: ({
     onStart,
-    onSelectWorld,
+    onSelectCountry,
+    onSelectTeam,
     onChangeHistoryDepthYears,
     historyDepthYears,
-    worldDatabases,
+    playableCountries,
   }: {
     onStart: () => void;
-    onSelectWorld: (id: string) => void;
+    onSelectCountry: (code: string) => void;
+    onSelectTeam: (id: string) => void;
     onChangeHistoryDepthYears: (value: number) => void;
     historyDepthYears: number;
-    worldDatabases: Array<{ id: string }>;
+    playableCountries: Array<{ code: string; teams: Array<{ id: string }> }>;
   }) => (
     <div data-testid="world-select">
-      {worldDatabases.map((db) => (
-        <button key={db.id} type="button" onClick={() => onSelectWorld(db.id)}>
-          {`select-${db.id}`}
+      {playableCountries.map((country) => (
+        <button key={country.code} type="button" onClick={() => onSelectCountry(country.code)}>
+          {`select-country-${country.code}`}
         </button>
       ))}
+      {playableCountries.flatMap((country) =>
+        country.teams.map((team) => (
+          <button key={team.id} type="button" onClick={() => onSelectTeam(team.id)}>
+            {`select-team-${team.id}`}
+          </button>
+        )),
+      )}
       <button type="button" onClick={() => onChangeHistoryDepthYears(24)}>
         {`set-history-depth-24:${historyDepthYears}`}
       </button>
@@ -142,6 +151,39 @@ vi.mock("../components/menu/WorldSelect", () => ({
 }));
 
 const mockedInvoke = vi.mocked(invoke);
+
+const playableCountriesFixture = [
+  {
+    code: "ENG",
+    name: "England",
+    league: {
+      id: "eng_premier",
+      name: "English Premier Division",
+      tier: 1,
+      format: "Double round-robin",
+      target_teams: 20,
+      season: "August-May",
+      cup_name: "English National Cup",
+    },
+    team_count: 1,
+    teams: [{ id: "eng_manchester_sky" }],
+  },
+  {
+    code: "FR",
+    name: "France",
+    league: {
+      id: "fr_ligue",
+      name: "French Ligue Elite",
+      tier: 1,
+      format: "Double round-robin",
+      target_teams: 18,
+      season: "August-May",
+      cup_name: "French National Cup",
+    },
+    team_count: 1,
+    teams: [{ id: "fr_paris_capitol" }],
+  },
+];
 
 async function openCreateManagerForm(): Promise<void> {
   fireEvent.click(screen.getByText("menu.newGame"));
@@ -242,12 +284,24 @@ describe("MainMenu", () => {
     translationState.language = "en";
     mockedInvoke.mockReset();
     mockedInvoke.mockImplementation(async (command: string) => {
-      if (command === "list_world_databases") {
-        return [];
+      if (command === "list_playable_countries") {
+        return playableCountriesFixture;
       }
 
       if (command === "start_new_game") {
-        return { id: "game-1" };
+        return {
+          id: "game-1",
+          teams: [{ id: "eng_manchester_sky" }, { id: "fr_paris_capitol" }],
+          manager: { first_name: "Ada", last_name: "Lovelace" },
+        };
+      }
+
+      if (command === "select_team") {
+        return {
+          id: "game-1",
+          teams: [{ id: "eng_manchester_sky" }, { id: "fr_paris_capitol" }],
+          manager: { first_name: "Ada", last_name: "Lovelace" },
+        };
       }
 
       if (command === "get_manager_profiles") {
@@ -300,7 +354,7 @@ describe("MainMenu", () => {
       fireEvent.click(screen.getByText("createManager.chooseWorld"));
 
       await waitFor(() => {
-        expect(mockedInvoke).toHaveBeenCalledWith("list_world_databases");
+        expect(mockedInvoke).toHaveBeenCalledWith("list_playable_countries");
       });
       expect(screen.getByTestId("world-select")).toBeInTheDocument();
 
@@ -318,12 +372,19 @@ describe("MainMenu", () => {
               startYear: 2028,
               startPhase: "midSeason",
               historyDepthYears: 12,
+              countryCode: "ENG",
             }),
           }),
         );
       });
-      expect(setGameStateMock).toHaveBeenCalledWith({ id: "game-1" });
-      expect(navigateMock).toHaveBeenCalledWith("/select-team");
+      expect(mockedInvoke).toHaveBeenCalledWith("select_team", {
+        teamId: "eng_manchester_sky",
+      });
+      expect(setGameStateMock).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "game-1" }),
+      );
+      expect(setGameActiveMock).toHaveBeenCalledWith(true, "Ada Lovelace");
+      expect(navigateMock).toHaveBeenCalledWith("/dashboard");
     },
   );
 
@@ -408,7 +469,7 @@ describe("MainMenu", () => {
     fireEvent.click(screen.getByText("createManager.chooseWorld"));
 
     await waitFor(() => {
-      expect(mockedInvoke).toHaveBeenCalledWith("list_world_databases");
+      expect(mockedInvoke).toHaveBeenCalledWith("list_playable_countries");
     });
 
     fireEvent.click(screen.getByText("start-world"));
@@ -437,7 +498,7 @@ describe("MainMenu", () => {
         screen.getByPlaceholderText("createManager.placeholderFirst"),
       ).toHaveFocus();
     });
-    expect(mockedInvoke).not.toHaveBeenCalledWith("list_world_databases");
+    expect(mockedInvoke).not.toHaveBeenCalledWith("list_playable_countries");
   });
 
   it("focuses the next invalid field in order when earlier fields are valid", async () => {
@@ -481,7 +542,7 @@ describe("MainMenu", () => {
     await waitFor(() => {
       expect(screen.getByLabelText("manager-date-of-birth")).toHaveFocus();
     });
-    expect(mockedInvoke).not.toHaveBeenCalledWith("list_world_databases");
+    expect(mockedInvoke).not.toHaveBeenCalledWith("list_playable_countries");
     expect(screen.queryByTestId("world-select")).not.toBeInTheDocument();
   });
 
@@ -508,7 +569,7 @@ describe("MainMenu", () => {
     fireEvent.click(screen.getByText("createManager.chooseWorld"));
 
     await waitFor(() => {
-      expect(mockedInvoke).toHaveBeenCalledWith("list_world_databases");
+      expect(mockedInvoke).toHaveBeenCalledWith("list_playable_countries");
     });
     expect(screen.getByTestId("world-select")).toBeInTheDocument();
   });
@@ -555,29 +616,29 @@ describe("MainMenu", () => {
       expect(screen.getByLabelText("createManager.startYear")).toHaveFocus();
     });
     expect(screen.getByText("validation.minStartYear")).toBeInTheDocument();
-    expect(mockedInvoke).not.toHaveBeenCalledWith("list_world_databases");
+    expect(mockedInvoke).not.toHaveBeenCalledWith("list_playable_countries");
   });
 
-  it("passes the imported world path directly when starting a new career", async () => {
-    mockedInvoke.mockImplementation(async (command: string, args?) => {
-      if (command === "list_world_databases") {
-        return [
-          {
-            id: "file:imported-world.json",
-            name: "Imported World",
-            description: "Imported",
-            team_count: 8,
-            player_count: 160,
-            source: "imported",
-            path: "/tmp/imported-world.json",
-            history_mode: "reference",
-          },
-        ];
+  it("passes the selected country and club when starting a new career", async () => {
+    mockedInvoke.mockImplementation(async (command: string) => {
+      if (command === "list_playable_countries") {
+        return playableCountriesFixture;
       }
 
       if (command === "start_new_game") {
-        expect((args as Record<string, unknown>)?.worldSource).toBe("file:/tmp/imported-world.json");
-        return { id: "game-1" };
+        return {
+          id: "game-1",
+          teams: [{ id: "eng_manchester_sky" }, { id: "fr_paris_capitol" }],
+          manager: { first_name: "Ada", last_name: "Lovelace" },
+        };
+      }
+
+      if (command === "select_team") {
+        return {
+          id: "game-1",
+          teams: [{ id: "eng_manchester_sky" }, { id: "fr_paris_capitol" }],
+          manager: { first_name: "Ada", last_name: "Lovelace" },
+        };
       }
 
       return null;
@@ -592,23 +653,28 @@ describe("MainMenu", () => {
     fireEvent.click(screen.getByText("createManager.chooseWorld"));
 
     await waitFor(() => {
-      expect(mockedInvoke).toHaveBeenCalledWith("list_world_databases");
+      expect(mockedInvoke).toHaveBeenCalledWith("list_playable_countries");
     });
 
-    fireEvent.click(screen.getByText("select-file:imported-world.json"));
+    fireEvent.click(screen.getByText("select-country-FR"));
+    fireEvent.click(screen.getByText("select-team-fr_paris_capitol"));
     fireEvent.click(screen.getByText("start-world"));
 
     await waitFor(() => {
       expect(mockedInvoke).toHaveBeenCalledWith(
         "start_new_game",
         expect.objectContaining({
-          worldSource: "file:/tmp/imported-world.json",
+          startupOptions: expect.objectContaining({
+            countryCode: "FR",
+          }),
         }),
       );
     });
 
-    expect(mockedInvoke).not.toHaveBeenCalledWith("write_temp_database", expect.anything());
-    expect(navigateMock).toHaveBeenCalledWith("/select-team");
+    expect(mockedInvoke).toHaveBeenCalledWith("select_team", {
+      teamId: "fr_paris_capitol",
+    });
+    expect(navigateMock).toHaveBeenCalledWith("/dashboard");
   });
 
   it("passes the selected generated history depth when starting a new career", async () => {
@@ -621,7 +687,7 @@ describe("MainMenu", () => {
     fireEvent.click(screen.getByText("createManager.chooseWorld"));
 
     await waitFor(() => {
-      expect(mockedInvoke).toHaveBeenCalledWith("list_world_databases");
+      expect(mockedInvoke).toHaveBeenCalledWith("list_playable_countries");
     });
 
     fireEvent.click(screen.getByText("set-history-depth-24:12"));
@@ -649,7 +715,7 @@ describe("MainMenu", () => {
     fireEvent.click(screen.getByText("createManager.chooseWorld"));
 
     await waitFor(() => {
-      expect(mockedInvoke).toHaveBeenCalledWith("list_world_databases");
+      expect(mockedInvoke).toHaveBeenCalledWith("list_playable_countries");
     });
 
     expect(localStorage.getItem("ofm-generated-history-depth-years")).toBe("12");
@@ -705,7 +771,7 @@ describe("MainMenu", () => {
 
     beforeEach(() => {
       mockedInvoke.mockImplementation(async (command: string) => {
-        if (command === "list_world_databases") return [];
+        if (command === "list_playable_countries") return playableCountriesFixture;
         if (command === "get_manager_profiles") return [mockProfile];
         if (command === "touch_manager_profile") return true;
         if (command === "save_manager_profile") {
@@ -715,7 +781,20 @@ describe("MainMenu", () => {
           return { ...mockProfile, first_name: "Modified" };
         }
         if (command === "delete_manager_profile") return true;
-        if (command === "start_new_game") return { id: "game-1" };
+        if (command === "start_new_game") {
+          return {
+            id: "game-1",
+            teams: [{ id: "eng_manchester_sky" }, { id: "fr_paris_capitol" }],
+            manager: { first_name: "Modified", last_name: "Manager" },
+          };
+        }
+        if (command === "select_team") {
+          return {
+            id: "game-1",
+            teams: [{ id: "eng_manchester_sky" }, { id: "fr_paris_capitol" }],
+            manager: { first_name: "Modified", last_name: "Manager" },
+          };
+        }
         return null;
       });
     });

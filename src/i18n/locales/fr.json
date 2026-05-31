@@ -58,7 +58,7 @@
   },
   "worldSelect": {
     "title": "Choisir le Monde",
-    "scanning": "Recherche de bases de données...",
+    "scanning": "Chargement des pays jouables...",
     "importFile": "Importer un fichier",
     "startCareer": "Démarrer la Carrière",
     "creatingWorld": "Création du Monde...",
@@ -82,7 +82,9 @@
         "generated": "Prenez l'équipe à mi-saison {{year}} avec classement, calendrier, actualités, historique des matchs et {{count}} saisons d'historique généré.",
         "reference": "Prenez l'équipe à mi-saison {{year}} avec l'instantané historique sélectionné et le contexte de saison déjà en place.",
         "hybrid": "Prenez l'équipe à mi-saison {{year}} avec l'effectif de cette base de données, {{count}} saisons de contexte historique généré et une progression de saison déjà héritée."
-      }
+      },
+      "countryTeam": "{{team}} en {{league}}, {{country}}.",
+      "pickTeam": "Choisis un club pour continuer."
     },
     "historyDepth": {
       "label": "Historique généré",
@@ -92,7 +94,13 @@
       "none": "Sans passé généré",
       "option": "{{count}} saisons",
       "recommended": "Recommandé"
-    }
+    },
+    "countryLabel": "Pays",
+    "teamLabel": "Club",
+    "availableCountries": "{{count}} pays",
+    "availableTeams": "{{count}} clubs",
+    "ovr": "GEN",
+    "selectTeamRequired": "Choisis un pays et un club pour lancer la carriere."
   },
   "dashboard": {
     "home": "Accueil",

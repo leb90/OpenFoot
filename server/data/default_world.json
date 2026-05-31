@@ -1,0 +1,213 @@
+{
+  "version": 1,
+  "description": "Fictional playable football countries, leagues, clubs and squad strength profiles. Club and player names are intentionally unlicensed.",
+  "rating_notes": [
+    "Overall bands are inspired by public football game rating ranges and current squad strength reporting, but do not copy licensed roster names.",
+    "Player profiles store football identity, position and OVR archetypes only; generated names remain fictional."
+  ],
+  "countries": [
+    {
+      "code": "ENG",
+      "name": "England",
+      "league": {
+        "id": "eng_premier_division",
+        "name": "English Premier Division",
+        "tier": 1,
+        "format": "Double round-robin",
+        "target_teams": 20,
+        "season": "August-May",
+        "cup_name": "English National Cup"
+      },
+      "teams": [
+        { "id": "eng_manchester_sky", "name": "Manchester Sky", "short_name": "MSK", "city": "Manchester", "stadium_name": "East Manchester Stadium", "stadium_capacity": 53400, "reputation": 900, "finance": 255000000, "colors": { "primary": "#60a5fa", "secondary": "#ffffff" }, "play_style": "Possession", "squad_strength": { "goalkeeper": 87, "defense": 85, "midfield": 89, "attack": 88 }, "key_players": [{ "position": "Forward", "detail_position": "ST", "nationality": "NO", "overall": 90, "potential": 91, "age": 25 }, { "position": "Midfielder", "detail_position": "CDM", "nationality": "ES", "overall": 90, "potential": 90, "age": 29 }, { "position": "Goalkeeper", "detail_position": "GK", "nationality": "IT", "overall": 89, "potential": 91, "age": 26 }, { "position": "Defender", "detail_position": "CB", "nationality": "PT", "overall": 86, "potential": 87, "age": 28 }] },
+        { "id": "eng_mersey_red", "name": "Mersey Red", "short_name": "MER", "city": "Liverpool", "stadium_name": "Stanley Park Ground", "stadium_capacity": 61000, "reputation": 875, "finance": 210000000, "colors": { "primary": "#b91c1c", "secondary": "#ffffff" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 88, "defense": 85, "midfield": 84, "attack": 86 }, "key_players": [{ "position": "Forward", "detail_position": "RW", "nationality": "EG", "overall": 89, "potential": 89, "age": 33 }, { "position": "Defender", "detail_position": "CB", "nationality": "NL", "overall": 88, "potential": 88, "age": 34 }, { "position": "Goalkeeper", "detail_position": "GK", "nationality": "BR", "overall": 88, "potential": 88, "age": 33 }] },
+        { "id": "eng_london_cannons", "name": "London Cannons", "short_name": "LCN", "city": "London", "stadium_name": "North London Arena", "stadium_capacity": 60400, "reputation": 850, "finance": 190000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "Attacking", "squad_strength": { "goalkeeper": 82, "defense": 84, "midfield": 86, "attack": 86 }, "key_players": [{ "position": "Forward", "detail_position": "RW", "nationality": "ENG", "overall": 89, "potential": 91, "age": 24 }, { "position": "Midfielder", "detail_position": "CAM", "nationality": "NO", "overall": 88, "potential": 90, "age": 27 }, { "position": "Defender", "detail_position": "CB", "nationality": "FR", "overall": 85, "potential": 88, "age": 24 }] },
+        { "id": "eng_manchester_red", "name": "Manchester Red", "short_name": "MRE", "city": "Manchester", "stadium_name": "Old Trafford Park", "stadium_capacity": 74300, "reputation": 785, "finance": 145000000, "colors": { "primary": "#ef4444", "secondary": "#111827" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 82, "defense": 80, "midfield": 82, "attack": 84 } },
+        { "id": "eng_west_london_blue", "name": "West London Blue", "short_name": "WLB", "city": "London", "stadium_name": "Fulham Road Stadium", "stadium_capacity": 41800, "reputation": 805, "finance": 170000000, "colors": { "primary": "#1d4ed8", "secondary": "#ffffff" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 80, "defense": 82, "midfield": 83, "attack": 83 } },
+        { "id": "eng_north_london_white", "name": "North London White", "short_name": "NLW", "city": "London", "stadium_name": "Tottenham District Stadium", "stadium_capacity": 62800, "reputation": 800, "finance": 160000000, "colors": { "primary": "#f8fafc", "secondary": "#1e3a8a" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 80, "defense": 81, "midfield": 82, "attack": 84 } },
+        { "id": "eng_tyneside_blackwhite", "name": "Tyneside Blackwhite", "short_name": "TYN", "city": "Newcastle", "stadium_name": "Tyneside Park", "stadium_capacity": 52200, "reputation": 760, "finance": 120000000, "colors": { "primary": "#111827", "secondary": "#ffffff" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 81, "defense": 80, "midfield": 81, "attack": 82 } },
+        { "id": "eng_birmingham_claret", "name": "Birmingham Claret", "short_name": "BCL", "city": "Birmingham", "stadium_name": "Aston Park", "stadium_capacity": 42600, "reputation": 735, "finance": 95000000, "colors": { "primary": "#7f1d1d", "secondary": "#93c5fd" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 78, "defense": 79, "midfield": 80, "attack": 81 } }
+      ]
+    },
+    {
+      "code": "ES",
+      "name": "Spain",
+      "league": {
+        "id": "es_primera_division",
+        "name": "Spanish Primera Division",
+        "tier": 1,
+        "format": "Double round-robin",
+        "target_teams": 20,
+        "season": "August-May",
+        "cup_name": "Spanish National Cup"
+      },
+      "teams": [
+        { "id": "es_madrid_crown", "name": "Madrid Crown", "short_name": "MDC", "city": "Madrid", "stadium_name": "Castellana Stadium", "stadium_capacity": 85000, "reputation": 920, "finance": 285000000, "colors": { "primary": "#f8fafc", "secondary": "#d4af37" }, "play_style": "Attacking", "squad_strength": { "goalkeeper": 89, "defense": 85, "midfield": 88, "attack": 90 }, "key_players": [{ "position": "Forward", "detail_position": "ST", "nationality": "FR", "overall": 91, "potential": 92, "age": 26 }, { "position": "Midfielder", "detail_position": "CAM", "nationality": "ENG", "overall": 90, "potential": 92, "age": 22 }, { "position": "Forward", "detail_position": "LW", "nationality": "BR", "overall": 89, "potential": 92, "age": 25 }, { "position": "Midfielder", "detail_position": "CM", "nationality": "UY", "overall": 89, "potential": 90, "age": 27 }, { "position": "Goalkeeper", "detail_position": "GK", "nationality": "BE", "overall": 90, "potential": 90, "age": 33 }] },
+        { "id": "es_barcelona_maritime", "name": "Barcelona Maritime", "short_name": "BCM", "city": "Barcelona", "stadium_name": "Les Corts Nova", "stadium_capacity": 99300, "reputation": 895, "finance": 245000000, "colors": { "primary": "#7f1d1d", "secondary": "#1d4ed8" }, "play_style": "Possession", "squad_strength": { "goalkeeper": 84, "defense": 84, "midfield": 88, "attack": 88 }, "key_players": [{ "position": "Forward", "detail_position": "RW", "nationality": "ES", "overall": 89, "potential": 94, "age": 18 }, { "position": "Midfielder", "detail_position": "CM", "nationality": "ES", "overall": 88, "potential": 90, "age": 23 }, { "position": "Forward", "detail_position": "ST", "nationality": "PL", "overall": 88, "potential": 88, "age": 37 }] },
+        { "id": "es_madrid_stripes", "name": "Madrid Stripes", "short_name": "MDS", "city": "Madrid", "stadium_name": "Metropolitano Sur", "stadium_capacity": 70400, "reputation": 835, "finance": 165000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "Defensive", "squad_strength": { "goalkeeper": 86, "defense": 84, "midfield": 83, "attack": 84 } },
+        { "id": "es_bilbao_redwhite", "name": "Bilbao Redwhite", "short_name": "BIL", "city": "Bilbao", "stadium_name": "New San Mames", "stadium_capacity": 53200, "reputation": 765, "finance": 90000000, "colors": { "primary": "#ef4444", "secondary": "#ffffff" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 80, "defense": 80, "midfield": 81, "attack": 82 } },
+        { "id": "es_seville_redwhite", "name": "Seville Redwhite", "short_name": "SEV", "city": "Seville", "stadium_name": "Nervion Stadium", "stadium_capacity": 43800, "reputation": 720, "finance": 70000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 76, "defense": 77, "midfield": 78, "attack": 78 } },
+        { "id": "es_san_sebastian_blue", "name": "San Sebastian Blue", "short_name": "SSB", "city": "San Sebastian", "stadium_name": "Anoeta Norte", "stadium_capacity": 39500, "reputation": 745, "finance": 78000000, "colors": { "primary": "#2563eb", "secondary": "#ffffff" }, "play_style": "Possession", "squad_strength": { "goalkeeper": 78, "defense": 79, "midfield": 81, "attack": 80 } },
+        { "id": "es_valencia_turia", "name": "Valencia Turia", "short_name": "VAL", "city": "Valencia", "stadium_name": "Mestalla District", "stadium_capacity": 48600, "reputation": 705, "finance": 65000000, "colors": { "primary": "#f8fafc", "secondary": "#111827" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 76, "defense": 76, "midfield": 77, "attack": 78 } },
+        { "id": "es_villarreal_yellow", "name": "Villarreal Yellow", "short_name": "VIL", "city": "Villarreal", "stadium_name": "Ceramic Coast Stadium", "stadium_capacity": 23500, "reputation": 725, "finance": 69000000, "colors": { "primary": "#facc15", "secondary": "#1e3a8a" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 77, "defense": 78, "midfield": 79, "attack": 80 } }
+      ]
+    },
+    {
+      "code": "FR",
+      "name": "France",
+      "league": {
+        "id": "fr_ligue_elite",
+        "name": "French Ligue Elite",
+        "tier": 1,
+        "format": "Double round-robin",
+        "target_teams": 18,
+        "season": "August-May",
+        "cup_name": "French National Cup"
+      },
+      "teams": [
+        { "id": "fr_paris_capitol", "name": "Paris Capitol", "short_name": "PAR", "city": "Paris", "stadium_name": "Parc de Paris", "stadium_capacity": 47900, "reputation": 910, "finance": 260000000, "colors": { "primary": "#1e3a8a", "secondary": "#dc2626" }, "play_style": "Attacking", "squad_strength": { "goalkeeper": 83, "defense": 87, "midfield": 88, "attack": 90 }, "key_players": [{ "position": "Forward", "detail_position": "RW", "nationality": "FR", "overall": 90, "potential": 91, "age": 29, "footedness": "Left" }, { "position": "Defender", "detail_position": "RB", "nationality": "MA", "overall": 89, "potential": 90, "age": 26 }, { "position": "Midfielder", "detail_position": "CM", "nationality": "PT", "overall": 89, "potential": 91, "age": 25 }, { "position": "Defender", "detail_position": "LB", "nationality": "PT", "overall": 86, "potential": 89, "age": 23 }, { "position": "Forward", "detail_position": "LW", "nationality": "GE", "overall": 86, "potential": 88, "age": 24 }] },
+        { "id": "fr_marseille_port", "name": "Marseille Port", "short_name": "MAR", "city": "Marseille", "stadium_name": "Velodrome Port", "stadium_capacity": 67300, "reputation": 780, "finance": 105000000, "colors": { "primary": "#ffffff", "secondary": "#38bdf8" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 78, "defense": 79, "midfield": 80, "attack": 82 } },
+        { "id": "fr_lyon_rivers", "name": "Lyon Rivers", "short_name": "LYO", "city": "Lyon", "stadium_name": "Rhone Stadium", "stadium_capacity": 59100, "reputation": 740, "finance": 76000000, "colors": { "primary": "#1d4ed8", "secondary": "#ffffff" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 76, "defense": 77, "midfield": 79, "attack": 79 } },
+        { "id": "fr_monaco_principality", "name": "Monaco Principality", "short_name": "MON", "city": "Monaco", "stadium_name": "Fontvieille Ground", "stadium_capacity": 18500, "reputation": 765, "finance": 88000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "Attacking", "squad_strength": { "goalkeeper": 77, "defense": 78, "midfield": 80, "attack": 82 } },
+        { "id": "fr_lille_north", "name": "Lille North", "short_name": "LIL", "city": "Lille", "stadium_name": "Grand North Arena", "stadium_capacity": 50100, "reputation": 725, "finance": 70000000, "colors": { "primary": "#b91c1c", "secondary": "#1e3a8a" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 76, "defense": 77, "midfield": 78, "attack": 79 } },
+        { "id": "fr_nice_riviera", "name": "Nice Riviera", "short_name": "NIC", "city": "Nice", "stadium_name": "Riviera Field", "stadium_capacity": 36100, "reputation": 705, "finance": 62000000, "colors": { "primary": "#111827", "secondary": "#ef4444" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 75, "defense": 76, "midfield": 77, "attack": 78 } },
+        { "id": "fr_rennes_redblack", "name": "Rennes Redblack", "short_name": "REN", "city": "Rennes", "stadium_name": "Roazhon District", "stadium_capacity": 29800, "reputation": 700, "finance": 59000000, "colors": { "primary": "#dc2626", "secondary": "#111827" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 75, "defense": 76, "midfield": 78, "attack": 77 } },
+        { "id": "fr_lens_goldred", "name": "Lens Goldred", "short_name": "LEN", "city": "Lens", "stadium_name": "Mining Basin Stadium", "stadium_capacity": 38200, "reputation": 710, "finance": 61000000, "colors": { "primary": "#f59e0b", "secondary": "#b91c1c" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 75, "defense": 77, "midfield": 78, "attack": 78 } }
+      ]
+    },
+    {
+      "code": "DE",
+      "name": "Germany",
+      "league": {
+        "id": "de_bundes_division",
+        "name": "German Bundes Division",
+        "tier": 1,
+        "format": "Double round-robin",
+        "target_teams": 18,
+        "season": "August-May",
+        "cup_name": "German National Cup"
+      },
+      "teams": [
+        { "id": "de_munich_reds", "name": "Munich Reds", "short_name": "MUN", "city": "Munich", "stadium_name": "Munich Arena", "stadium_capacity": 75000, "reputation": 900, "finance": 250000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "Possession", "squad_strength": { "goalkeeper": 84, "defense": 85, "midfield": 87, "attack": 90 }, "key_players": [{ "position": "Forward", "detail_position": "ST", "nationality": "ENG", "overall": 90, "potential": 90, "age": 32 }, { "position": "Midfielder", "detail_position": "CAM", "nationality": "DE", "overall": 88, "potential": 92, "age": 22 }, { "position": "Midfielder", "detail_position": "CM", "nationality": "DE", "overall": 87, "potential": 87, "age": 30 }] },
+        { "id": "de_dortmund_yellow", "name": "Dortmund Yellow", "short_name": "DOR", "city": "Dortmund", "stadium_name": "Westfalen District", "stadium_capacity": 81300, "reputation": 820, "finance": 135000000, "colors": { "primary": "#facc15", "secondary": "#111827" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 80, "defense": 81, "midfield": 82, "attack": 84 } },
+        { "id": "de_leverkusen_works", "name": "Leverkusen Works", "short_name": "LEV", "city": "Leverkusen", "stadium_name": "Bay Works Arena", "stadium_capacity": 30200, "reputation": 835, "finance": 140000000, "colors": { "primary": "#111827", "secondary": "#dc2626" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 81, "defense": 83, "midfield": 85, "attack": 84 } },
+        { "id": "de_leipzig_energy", "name": "Leipzig Energy", "short_name": "LEI", "city": "Leipzig", "stadium_name": "Leipzig Arena", "stadium_capacity": 47000, "reputation": 805, "finance": 130000000, "colors": { "primary": "#ffffff", "secondary": "#ef4444" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 79, "defense": 81, "midfield": 82, "attack": 83 } },
+        { "id": "de_frankfurt_eagles", "name": "Frankfurt Eagles", "short_name": "FRA", "city": "Frankfurt", "stadium_name": "Main River Stadium", "stadium_capacity": 51500, "reputation": 745, "finance": 82000000, "colors": { "primary": "#111827", "secondary": "#ffffff" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 77, "defense": 78, "midfield": 79, "attack": 80 } },
+        { "id": "de_stuttgart_reds", "name": "Stuttgart Reds", "short_name": "STU", "city": "Stuttgart", "stadium_name": "Neckar Stadium", "stadium_capacity": 60400, "reputation": 730, "finance": 74000000, "colors": { "primary": "#ef4444", "secondary": "#ffffff" }, "play_style": "Attacking", "squad_strength": { "goalkeeper": 76, "defense": 77, "midfield": 79, "attack": 81 } },
+        { "id": "de_rhine_green", "name": "Rhine Green", "short_name": "RHG", "city": "Monchengladbach", "stadium_name": "Rhine Park", "stadium_capacity": 54000, "reputation": 705, "finance": 62000000, "colors": { "primary": "#16a34a", "secondary": "#ffffff" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 75, "defense": 76, "midfield": 77, "attack": 78 } },
+        { "id": "de_bremen_greenwhite", "name": "Bremen Greenwhite", "short_name": "BRE", "city": "Bremen", "stadium_name": "Weser Ground", "stadium_capacity": 42100, "reputation": 690, "finance": 56000000, "colors": { "primary": "#16a34a", "secondary": "#ffffff" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 74, "defense": 75, "midfield": 76, "attack": 77 } }
+      ]
+    },
+    {
+      "code": "IT",
+      "name": "Italy",
+      "league": {
+        "id": "it_serie_prima",
+        "name": "Italian Serie Prima",
+        "tier": 1,
+        "format": "Double round-robin",
+        "target_teams": 20,
+        "season": "August-May",
+        "cup_name": "Italian National Cup"
+      },
+      "teams": [
+        { "id": "it_milan_blueblack", "name": "Milan Blueblack", "short_name": "MBB", "city": "Milan", "stadium_name": "San Siro District", "stadium_capacity": 75900, "reputation": 865, "finance": 185000000, "colors": { "primary": "#1d4ed8", "secondary": "#111827" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 86, "defense": 85, "midfield": 84, "attack": 85 }, "key_players": [{ "position": "Forward", "detail_position": "ST", "nationality": "AR", "overall": 88, "potential": 88, "age": 28 }, { "position": "Midfielder", "detail_position": "CM", "nationality": "IT", "overall": 86, "potential": 87, "age": 26 }] },
+        { "id": "it_turin_blackwhite", "name": "Turin Blackwhite", "short_name": "TBW", "city": "Turin", "stadium_name": "Turin Allianz District", "stadium_capacity": 41500, "reputation": 835, "finance": 165000000, "colors": { "primary": "#111827", "secondary": "#ffffff" }, "play_style": "Defensive", "squad_strength": { "goalkeeper": 83, "defense": 84, "midfield": 82, "attack": 84 } },
+        { "id": "it_milan_redblack", "name": "Milan Redblack", "short_name": "MRB", "city": "Milan", "stadium_name": "Lombardy Stadium", "stadium_capacity": 75900, "reputation": 825, "finance": 150000000, "colors": { "primary": "#dc2626", "secondary": "#111827" }, "play_style": "Attacking", "squad_strength": { "goalkeeper": 81, "defense": 82, "midfield": 83, "attack": 84 } },
+        { "id": "it_naples_azure", "name": "Naples Azure", "short_name": "NAP", "city": "Naples", "stadium_name": "Diego District Stadium", "stadium_capacity": 54700, "reputation": 840, "finance": 155000000, "colors": { "primary": "#38bdf8", "secondary": "#ffffff" }, "play_style": "Attacking", "squad_strength": { "goalkeeper": 81, "defense": 82, "midfield": 84, "attack": 86 } },
+        { "id": "it_rome_maroon", "name": "Rome Maroon", "short_name": "ROM", "city": "Rome", "stadium_name": "Olimpico District", "stadium_capacity": 70600, "reputation": 760, "finance": 92000000, "colors": { "primary": "#7f1d1d", "secondary": "#f59e0b" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 78, "defense": 79, "midfield": 80, "attack": 82 } },
+        { "id": "it_bergamo_blueblack", "name": "Bergamo Blueblack", "short_name": "BER", "city": "Bergamo", "stadium_name": "Bergamo Arena", "stadium_capacity": 21700, "reputation": 765, "finance": 88000000, "colors": { "primary": "#2563eb", "secondary": "#111827" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 78, "defense": 80, "midfield": 81, "attack": 82 } },
+        { "id": "it_florence_viola", "name": "Florence Viola", "short_name": "FLO", "city": "Florence", "stadium_name": "Artemio District", "stadium_capacity": 43100, "reputation": 720, "finance": 68000000, "colors": { "primary": "#7c3aed", "secondary": "#ffffff" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 76, "defense": 77, "midfield": 79, "attack": 79 } },
+        { "id": "it_bologna_redblue", "name": "Bologna Redblue", "short_name": "BOL", "city": "Bologna", "stadium_name": "Reno Ground", "stadium_capacity": 36500, "reputation": 715, "finance": 66000000, "colors": { "primary": "#b91c1c", "secondary": "#1e3a8a" }, "play_style": "Possession", "squad_strength": { "goalkeeper": 76, "defense": 77, "midfield": 79, "attack": 78 } }
+      ]
+    },
+    {
+      "code": "NL",
+      "name": "Netherlands",
+      "league": {
+        "id": "nl_eredivision",
+        "name": "Dutch Ere Division",
+        "tier": 1,
+        "format": "Double round-robin",
+        "target_teams": 18,
+        "season": "August-May",
+        "cup_name": "Dutch National Cup"
+      },
+      "teams": [
+        { "id": "nl_amsterdam_redwhite", "name": "Amsterdam Redwhite", "short_name": "AMS", "city": "Amsterdam", "stadium_name": "Amsterdam Arena", "stadium_capacity": 56000, "reputation": 805, "finance": 115000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "Possession", "squad_strength": { "goalkeeper": 78, "defense": 80, "midfield": 82, "attack": 83 } },
+        { "id": "nl_eindhoven_light", "name": "Eindhoven Light", "short_name": "EIN", "city": "Eindhoven", "stadium_name": "Philips District", "stadium_capacity": 35000, "reputation": 790, "finance": 105000000, "colors": { "primary": "#ef4444", "secondary": "#ffffff" }, "play_style": "Attacking", "squad_strength": { "goalkeeper": 78, "defense": 79, "midfield": 81, "attack": 84 } },
+        { "id": "nl_rotterdam_port", "name": "Rotterdam Port", "short_name": "ROT", "city": "Rotterdam", "stadium_name": "De Kuip District", "stadium_capacity": 51100, "reputation": 770, "finance": 90000000, "colors": { "primary": "#ffffff", "secondary": "#dc2626" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 77, "defense": 78, "midfield": 80, "attack": 81 } },
+        { "id": "nl_alkmaar_redwhite", "name": "Alkmaar Redwhite", "short_name": "ALK", "city": "Alkmaar", "stadium_name": "North Holland Stadium", "stadium_capacity": 19400, "reputation": 700, "finance": 52000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 74, "defense": 75, "midfield": 77, "attack": 78 } },
+        { "id": "nl_utrecht_dom", "name": "Utrecht Dom", "short_name": "UTR", "city": "Utrecht", "stadium_name": "Dom City Ground", "stadium_capacity": 23800, "reputation": 665, "finance": 43000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 72, "defense": 73, "midfield": 75, "attack": 76 } },
+        { "id": "nl_enschede_red", "name": "Enschede Red", "short_name": "ENS", "city": "Enschede", "stadium_name": "Twente District", "stadium_capacity": 30200, "reputation": 675, "finance": 45000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 73, "defense": 74, "midfield": 75, "attack": 76 } }
+      ]
+    },
+    {
+      "code": "PT",
+      "name": "Portugal",
+      "league": {
+        "id": "pt_primeira_division",
+        "name": "Portuguese Primeira Division",
+        "tier": 1,
+        "format": "Double round-robin",
+        "target_teams": 18,
+        "season": "August-May",
+        "cup_name": "Portuguese National Cup"
+      },
+      "teams": [
+        { "id": "pt_lisbon_eagles", "name": "Lisbon Eagles", "short_name": "LSE", "city": "Lisbon", "stadium_name": "Luz District", "stadium_capacity": 64600, "reputation": 805, "finance": 115000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "Attacking", "squad_strength": { "goalkeeper": 79, "defense": 80, "midfield": 82, "attack": 83 } },
+        { "id": "pt_porto_blue", "name": "Porto Blue", "short_name": "POR", "city": "Porto", "stadium_name": "Dragon District", "stadium_capacity": 50000, "reputation": 795, "finance": 110000000, "colors": { "primary": "#1d4ed8", "secondary": "#ffffff" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 78, "defense": 80, "midfield": 81, "attack": 82 } },
+        { "id": "pt_lisbon_lions", "name": "Lisbon Lions", "short_name": "LSL", "city": "Lisbon", "stadium_name": "Alvalade District", "stadium_capacity": 50000, "reputation": 790, "finance": 108000000, "colors": { "primary": "#16a34a", "secondary": "#ffffff" }, "play_style": "Possession", "squad_strength": { "goalkeeper": 78, "defense": 79, "midfield": 82, "attack": 82 } },
+        { "id": "pt_braga_red", "name": "Braga Red", "short_name": "BRA", "city": "Braga", "stadium_name": "Quarry Stadium", "stadium_capacity": 30200, "reputation": 705, "finance": 53000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 74, "defense": 75, "midfield": 77, "attack": 78 } },
+        { "id": "pt_guimaraes_castle", "name": "Guimaraes Castle", "short_name": "GUI", "city": "Guimaraes", "stadium_name": "Castle Ground", "stadium_capacity": 30000, "reputation": 670, "finance": 42000000, "colors": { "primary": "#ffffff", "secondary": "#111827" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 72, "defense": 73, "midfield": 75, "attack": 76 } },
+        { "id": "pt_madeira_green", "name": "Madeira Green", "short_name": "MAD", "city": "Funchal", "stadium_name": "Madeira Island Ground", "stadium_capacity": 10900, "reputation": 625, "finance": 32000000, "colors": { "primary": "#16a34a", "secondary": "#dc2626" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 70, "defense": 71, "midfield": 73, "attack": 74 } }
+      ]
+    },
+    {
+      "code": "AR",
+      "name": "Argentina",
+      "league": {
+        "id": "ar_primera_nacional",
+        "name": "Argentine Primera",
+        "tier": 1,
+        "format": "League phase with national cup context",
+        "target_teams": 30,
+        "season": "February-December",
+        "cup_name": "Argentine National Cup"
+      },
+      "teams": [
+        { "id": "ar_buenos_aires_millionaires", "name": "Buenos Aires Millionaires", "short_name": "BAM", "city": "Buenos Aires", "stadium_name": "Nunez Monumental", "stadium_capacity": 84000, "reputation": 820, "finance": 88000000, "colors": { "primary": "#ffffff", "secondary": "#dc2626" }, "play_style": "Possession", "squad_strength": { "goalkeeper": 78, "defense": 79, "midfield": 81, "attack": 82 } },
+        { "id": "ar_la_ribera_bluegold", "name": "La Ribera Bluegold", "short_name": "RBG", "city": "Buenos Aires", "stadium_name": "Ribera Box Stadium", "stadium_capacity": 54000, "reputation": 810, "finance": 84000000, "colors": { "primary": "#1d4ed8", "secondary": "#facc15" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 78, "defense": 79, "midfield": 80, "attack": 82 } },
+        { "id": "ar_avellaneda_red", "name": "Avellaneda Red", "short_name": "AVR", "city": "Avellaneda", "stadium_name": "Libertadores District", "stadium_capacity": 49000, "reputation": 735, "finance": 52000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 74, "defense": 75, "midfield": 77, "attack": 78 } },
+        { "id": "ar_avellaneda_academy", "name": "Avellaneda Academy", "short_name": "AVA", "city": "Avellaneda", "stadium_name": "Cilindro District", "stadium_capacity": 51000, "reputation": 745, "finance": 56000000, "colors": { "primary": "#60a5fa", "secondary": "#ffffff" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 75, "defense": 76, "midfield": 78, "attack": 78 } },
+        { "id": "ar_la_plata_scholars", "name": "La Plata Scholars", "short_name": "LPS", "city": "La Plata", "stadium_name": "One La Plata", "stadium_capacity": 32000, "reputation": 705, "finance": 42000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "Defensive", "squad_strength": { "goalkeeper": 73, "defense": 75, "midfield": 76, "attack": 76 } },
+        { "id": "ar_boedo_saints", "name": "Boedo Saints", "short_name": "BDS", "city": "Buenos Aires", "stadium_name": "Bajo Flores Ground", "stadium_capacity": 48000, "reputation": 700, "finance": 40000000, "colors": { "primary": "#1e3a8a", "secondary": "#dc2626" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 72, "defense": 74, "midfield": 75, "attack": 76 } },
+        { "id": "ar_rosario_redblack", "name": "Rosario Redblack", "short_name": "RRB", "city": "Rosario", "stadium_name": "Independencia Park", "stadium_capacity": 42000, "reputation": 685, "finance": 36000000, "colors": { "primary": "#111827", "secondary": "#dc2626" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 71, "defense": 73, "midfield": 75, "attack": 75 } },
+        { "id": "ar_rosario_blueyellow", "name": "Rosario Blueyellow", "short_name": "RBY", "city": "Rosario", "stadium_name": "Arroyito District", "stadium_capacity": 41600, "reputation": 690, "finance": 37000000, "colors": { "primary": "#1d4ed8", "secondary": "#facc15" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 72, "defense": 73, "midfield": 75, "attack": 76 } }
+      ]
+    },
+    {
+      "code": "BR",
+      "name": "Brazil",
+      "league": {
+        "id": "br_serie_ouro",
+        "name": "Brazilian Serie Ouro",
+        "tier": 1,
+        "format": "Double round-robin",
+        "target_teams": 20,
+        "season": "April-December",
+        "cup_name": "Brazilian National Cup"
+      },
+      "teams": [
+        { "id": "br_rio_redblack", "name": "Rio Redblack", "short_name": "RRJ", "city": "Rio de Janeiro", "stadium_name": "Maracana District", "stadium_capacity": 78800, "reputation": 825, "finance": 92000000, "colors": { "primary": "#dc2626", "secondary": "#111827" }, "play_style": "Attacking", "squad_strength": { "goalkeeper": 78, "defense": 79, "midfield": 81, "attack": 83 } },
+        { "id": "br_sao_paulo_green", "name": "Sao Paulo Green", "short_name": "SPG", "city": "Sao Paulo", "stadium_name": "Palestra District", "stadium_capacity": 43700, "reputation": 790, "finance": 76000000, "colors": { "primary": "#16a34a", "secondary": "#ffffff" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 77, "defense": 78, "midfield": 80, "attack": 81 } },
+        { "id": "br_sao_paulo_tricolor", "name": "Sao Paulo Tricolor", "short_name": "SPT", "city": "Sao Paulo", "stadium_name": "Morumbi District", "stadium_capacity": 66700, "reputation": 760, "finance": 62000000, "colors": { "primary": "#ffffff", "secondary": "#dc2626" }, "play_style": "Possession", "squad_strength": { "goalkeeper": 75, "defense": 77, "midfield": 78, "attack": 80 } },
+        { "id": "br_sao_paulo_blackwhite", "name": "Sao Paulo Blackwhite", "short_name": "SPB", "city": "Sao Paulo", "stadium_name": "Itaquera District", "stadium_capacity": 49200, "reputation": 770, "finance": 68000000, "colors": { "primary": "#111827", "secondary": "#ffffff" }, "play_style": "Counter", "squad_strength": { "goalkeeper": 76, "defense": 77, "midfield": 79, "attack": 80 } },
+        { "id": "br_porto_alegre_red", "name": "Porto Alegre Red", "short_name": "PAR", "city": "Porto Alegre", "stadium_name": "Beira River Ground", "stadium_capacity": 50800, "reputation": 750, "finance": 58000000, "colors": { "primary": "#dc2626", "secondary": "#ffffff" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 75, "defense": 76, "midfield": 78, "attack": 79 } },
+        { "id": "br_porto_alegre_blue", "name": "Porto Alegre Blue", "short_name": "PAB", "city": "Porto Alegre", "stadium_name": "Arena Gaucha", "stadium_capacity": 55600, "reputation": 740, "finance": 55000000, "colors": { "primary": "#2563eb", "secondary": "#ffffff" }, "play_style": "Balanced", "squad_strength": { "goalkeeper": 74, "defense": 76, "midfield": 77, "attack": 78 } },
+        { "id": "br_belo_horizonte_blue", "name": "Belo Horizonte Blue", "short_name": "BHB", "city": "Belo Horizonte", "stadium_name": "Mineirao District", "stadium_capacity": 61900, "reputation": 755, "finance": 60000000, "colors": { "primary": "#1d4ed8", "secondary": "#ffffff" }, "play_style": "Attacking", "squad_strength": { "goalkeeper": 75, "defense": 76, "midfield": 78, "attack": 80 } },
+        { "id": "br_belo_horizonte_blackwhite", "name": "Belo Horizonte Blackwhite", "short_name": "BHW", "city": "Belo Horizonte", "stadium_name": "Vento Arena", "stadium_capacity": 46000, "reputation": 760, "finance": 61000000, "colors": { "primary": "#111827", "secondary": "#ffffff" }, "play_style": "HighPress", "squad_strength": { "goalkeeper": 75, "defense": 77, "midfield": 78, "attack": 80 } }
+      ]
+    }
+  ]
+}

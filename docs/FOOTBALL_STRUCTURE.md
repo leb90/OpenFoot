@@ -23,4 +23,16 @@ OpenFoot currently has one generated league with club templates from multiple co
 
 ## First Data Step
 
-`server/data/default_names.json` now contains country-specific first-name and surname pools for 37 football nations/markets. Player generation uses the player's nationality to mix first and last names from the matching pool, and foreign players are selected through regional/global football-market weights instead of a purely random country draw.
+`server/data/default_names.json` now contains country-specific first-name and surname pools for 39 football nations/markets. Player generation uses the player's nationality to mix first and last names from the matching pool, and foreign players are selected through regional/global football-market weights instead of a purely random country draw.
+
+## Playable Country Step
+
+`server/data/default_world.json` now defines the first fictional country-based world:
+
+- Countries: England, Spain, France, Germany, Italy, Netherlands, Portugal, Argentina, and Brazil.
+- Each country has a domestic league definition, national cup name, season window, target top-division size, and fictional clubs.
+- Club names are intentionally unlicensed and PES-style: based on city/color/identity patterns, not official trademarks.
+- Player names are generated from the nationality pools. Key player profiles only store position, nationality, age, footedness, potential, and OVR archetype.
+- The new career flow creates an isolated league for the selected country instead of mixing all clubs into one global table.
+
+The next data pass should expand each country from the current playable sample into full top-division sizes, then add second divisions for promotion/relegation.

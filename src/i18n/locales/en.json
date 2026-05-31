@@ -58,7 +58,7 @@
   },
   "worldSelect": {
     "title": "Choose World",
-    "scanning": "Scanning for databases...",
+    "scanning": "Loading playable countries...",
     "importFile": "Import from file",
     "startCareer": "Start Career",
     "creatingWorld": "Creating World...",
@@ -82,7 +82,9 @@
         "generated": "Take over halfway through {{year}} with inherited standings, fixtures, news, match history, and {{count}} generated seasons of backstory.",
         "reference": "Take over halfway through {{year}} with the selected historical snapshot and current-season context already in place.",
         "hybrid": "Take over halfway through {{year}} with this database roster plus {{count}} generated seasons of historical context and inherited season progress."
-      }
+      },
+      "countryTeam": "{{team}} in {{league}}, {{country}}.",
+      "pickTeam": "Choose a club to continue."
     },
     "historyDepth": {
       "label": "Generated History",
@@ -92,7 +94,13 @@
       "none": "No backstory",
       "option": "{{count}} seasons",
       "recommended": "Recommended"
-    }
+    },
+    "countryLabel": "Country",
+    "teamLabel": "Club",
+    "availableCountries": "{{count}} countries",
+    "availableTeams": "{{count}} clubs",
+    "ovr": "OVR",
+    "selectTeamRequired": "Choose a country and club to start the career."
   },
   "dashboard": {
     "home": "Home",

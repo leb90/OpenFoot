@@ -58,7 +58,7 @@
   },
   "worldSelect": {
     "title": "Scegli Mondo",
-    "scanning": "Ricerca database in corso...",
+    "scanning": "Caricamento paesi giocabili...",
     "importFile": "Importa da file",
     "startCareer": "Inizia carriera",
     "creatingWorld": "Creazione del mondo...",
@@ -82,7 +82,9 @@
         "generated": "Subentra a metà del {{year}} con classifica, calendario, notizie, storico partite e {{count}} stagioni di storia generate.",
         "reference": "Subentra a metà del {{year}} con l'istantanea storica selezionata e il contesto stagionale già presente.",
         "hybrid": "Subentra a metà del {{year}} con la rosa di questo database più {{count}} stagioni di contesto storico generato e avanzamento stagionale ereditato."
-      }
+      },
+      "countryTeam": "{{team}} in {{league}}, {{country}}.",
+      "pickTeam": "Scegli un club per continuare."
     },
     "historyDepth": {
       "label": "Storia generata",
@@ -92,7 +94,13 @@
       "none": "Nessun passato",
       "option": "{{count}} stagioni",
       "recommended": "Consigliato"
-    }
+    },
+    "countryLabel": "Paese",
+    "teamLabel": "Club",
+    "availableCountries": "{{count}} paesi",
+    "availableTeams": "{{count}} club",
+    "ovr": "GEN",
+    "selectTeamRequired": "Scegli un paese e un club per iniziare la carriera."
   },
   "dashboard": {
     "home": "Casa",

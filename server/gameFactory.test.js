@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
-import { createGameState } from "./gameFactory.js";
+import { createGameState, listPlayableCountries } from "./gameFactory.js";
 
 const namesDefinition = JSON.parse(
   readFileSync("server/data/default_names.json", "utf8"),
@@ -22,6 +22,8 @@ const REQUIRED_FOOTBALL_MARKETS = [
   "IT",
   "NL",
   "PT",
+  "EG",
+  "GE",
 ];
 
 describe("default football name pools", () => {
@@ -67,5 +69,36 @@ describe("default football name pools", () => {
       expect(staffMember.first_name).toMatch(/\S/);
       expect(staffMember.last_name).toMatch(/\S/);
     });
+  });
+
+  it("exposes playable countries with fictional clubs for career setup", () => {
+    const countries = listPlayableCountries();
+    const france = countries.find((country) => country.code === "FR");
+
+    expect(countries.length).toBeGreaterThanOrEqual(8);
+    expect(france?.league.name).toBe("French Ligue Elite");
+    expect(france?.teams.some((team) => team.id === "fr_paris_capitol")).toBe(true);
+  });
+
+  it("creates an isolated league for the selected country", () => {
+    const game = createGameState({
+      firstName: "Test",
+      lastName: "Manager",
+      dob: "1980-01-01",
+      nationality: "AR",
+      startupOptions: {
+        startYear: 2026,
+        startPhase: "seasonStart",
+        countryCode: "FR",
+      },
+    });
+    const paris = game.teams.find((team) => team.id === "fr_paris_capitol");
+    const parisPlayers = game.players.filter((player) => player.team_id === paris?.id);
+
+    expect(game.world.country_code).toBe("FR");
+    expect(game.league.name).toBe("French Ligue Elite");
+    expect(game.teams.every((team) => team.country === "FR")).toBe(true);
+    expect(game.league.fixtures.every((fixture) => fixture.home_team_id.startsWith("fr_"))).toBe(true);
+    expect(parisPlayers.some((player) => player.position === "Forward" && player.ovr >= 88)).toBe(true);
   });
 });

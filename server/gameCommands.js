@@ -5,6 +5,7 @@ import {
   createGameState,
   defaultSaveName,
   getDefaultSettings,
+  listPlayableCountries,
   managerName,
   managerTeamName,
 } from "./gameFactory.js";
@@ -416,10 +417,10 @@ export async function runCommand(command, args, context) {
       return [
         {
           id: "random",
-          name: "Random World",
-          description: "Generated web career database",
-          team_count: 16,
-          player_count: 352,
+          name: "OpenFoot Fictional World",
+          description: "Generated country-based career database",
+          team_count: listPlayableCountries().reduce((sum, country) => sum + country.team_count, 0),
+          player_count: listPlayableCountries().reduce((sum, country) => sum + country.team_count * 22, 0),
           history_mode: "generated",
           base_year: null,
           snapshot_date: null,
@@ -427,6 +428,9 @@ export async function runCommand(command, args, context) {
           path: "",
         },
       ];
+
+    case "list_playable_countries":
+      return listPlayableCountries();
 
     case "write_temp_database": {
       const importedWorlds = Array.isArray(session.importedWorlds) ? session.importedWorlds : [];

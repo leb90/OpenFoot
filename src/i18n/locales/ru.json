@@ -58,7 +58,7 @@
   },
   "worldSelect": {
     "title": "Выберите мир",
-    "scanning": "Поиск баз данных...",
+    "scanning": "Zagruzka dostupnykh stran...",
     "importFile": "Импортировать из файла",
     "startCareer": "Начать карьеру",
     "creatingWorld": "Создание мира...",
@@ -82,7 +82,9 @@
         "generated": "Возглавьте клуб в середине {{year}} с уже сформированными таблицей, календарём, новостями, историей матчей и {{count}} сгенерированными сезонами предыстории.",
         "reference": "Возглавьте клуб в середине {{year}}, когда выбранный исторический снимок и контекст текущего сезона уже загружены.",
         "hybrid": "Возглавьте клуб в середине {{year}} с этим составом базы данных, {{count}} сгенерированными сезонами исторического контекста и уже идущим сезоном."
-      }
+      },
+      "countryTeam": "{{team}} v {{league}}, {{country}}.",
+      "pickTeam": "Vyberite klub, chtoby prodolzhit."
     },
     "historyDepth": {
       "label": "Сгенерированная история",
@@ -92,7 +94,13 @@
       "none": "Нет предыстории",
       "option": "{{count}} сезона",
       "recommended": "Рекомендуется"
-    }
+    },
+    "countryLabel": "Strana",
+    "teamLabel": "Klub",
+    "availableCountries": "{{count}} stran",
+    "availableTeams": "{{count}} klubov",
+    "ovr": "OVR",
+    "selectTeamRequired": "Vyberite stranu i klub, chtoby nachat karieru."
   },
   "dashboard": {
     "home": "Главная",

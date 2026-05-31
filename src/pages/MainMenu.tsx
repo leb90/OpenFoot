@@ -10,7 +10,7 @@ import type {
   CreateManagerFormData,
 } from "../components/menu/CreateManagerForm";
 import type { ManagerProfile } from "../components/menu/types";
-import type { WorldDatabaseInfo } from "../components/menu/WorldSelect";
+import type { PlayableCountryInfo } from "../components/menu/WorldSelect";
 import { resolveBackendError } from "../utils/backendI18n";
 import {
   FolderOpen,
@@ -53,20 +53,8 @@ type StartupOptionsPayload = {
   startYear: number;
   startPhase: CareerStartPhase;
   historyDepthYears: number;
+  countryCode?: string;
 };
-
-function historyModeFromMetadata(
-  metadata: unknown,
-): WorldDatabaseInfo["history_mode"] {
-  const kind =
-    metadata && typeof metadata === "object" && "kind" in metadata
-      ? (metadata as { kind?: unknown }).kind
-      : undefined;
-
-  if (kind === "historicalSnapshot") return "reference";
-  if (kind === "rosterBaseline") return "hybrid";
-  return undefined;
-}
 
 function defaultCareerStartYear(): string {
   return String(new Date().getFullYear());
@@ -295,9 +283,10 @@ export default function MainMenu() {
     Partial<Record<keyof CreateManagerFormData, string>>
   >({});
 
-  // World database state
-  const [worldDatabases, setWorldDatabases] = useState<WorldDatabaseInfo[]>([]);
-  const [selectedWorldId, setSelectedWorldId] = useState<string>("random");
+  // Career world setup state
+  const [playableCountries, setPlayableCountries] = useState<PlayableCountryInfo[]>([]);
+  const [selectedCountryCode, setSelectedCountryCode] = useState<string>("");
+  const [selectedTeamId, setSelectedTeamId] = useState<string>("");
   const [isLoadingWorlds, setIsLoadingWorlds] = useState(false);
   const [historyDepthYears, setHistoryDepthYears] = useState(
     initialHistoryDepthYears,
@@ -412,72 +401,28 @@ export default function MainMenu() {
     proceedToWorldSelect();
   };
 
-  const loadWorldDatabases = async () => {
+  const loadPlayableCountries = async () => {
     setIsLoadingWorlds(true);
     try {
-      const dbs = await invoke<WorldDatabaseInfo[]>("list_world_databases");
-      setWorldDatabases(dbs);
+      const countries = await invoke<PlayableCountryInfo[]>("list_playable_countries");
+      const defaultCountry = countries[0];
+      setPlayableCountries(countries);
+      setSelectedCountryCode(defaultCountry?.code ?? "");
+      setSelectedTeamId(defaultCountry?.teams[0]?.id ?? "");
     } catch (error) {
-      console.error("Failed to load world databases:", error);
-      // Always have random available even if scan fails
-      setWorldDatabases([
-        {
-          id: "random",
-          name: t("worldSelect.randomWorld"),
-          description: t("worldSelect.randomDescription"),
-          team_count: 8,
-          player_count: 160,
-          history_mode: "generated",
-          base_year: null,
-          snapshot_date: null,
-          source: "builtin",
-          path: "",
-        },
-      ]);
+      console.error("Failed to load playable countries:", error);
+      setPlayableCountries([]);
+      setSelectedCountryCode("");
+      setSelectedTeamId("");
     } finally {
       setIsLoadingWorlds(false);
     }
   };
 
-  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      try {
-        const json = reader.result as string;
-        const parsed = JSON.parse(json);
-        const path = await invoke<string>("write_temp_database", { json });
-        const info: WorldDatabaseInfo = {
-          id: `file:${file.name}`,
-          name: parsed.name || file.name.replace(".json", ""),
-          description: parsed.description || t("menu.importedDescription"),
-          team_count: parsed.teams?.length ?? 0,
-          player_count: parsed.players?.length ?? 0,
-          history_mode: historyModeFromMetadata(parsed.metadata) ?? "hybrid",
-          base_year:
-            typeof parsed.metadata?.base_year === "number"
-              ? parsed.metadata.base_year
-              : null,
-          snapshot_date:
-            typeof parsed.metadata?.snapshot_date === "string"
-              ? parsed.metadata.snapshot_date
-              : null,
-          source: "imported",
-          path,
-        };
-        setWorldDatabases((prev) => {
-          const filtered = prev.filter((d) => d.source !== "imported");
-          return [...filtered, info];
-        });
-        setSelectedWorldId(info.id);
-      } catch (err) {
-        alert(t("menu.invalidWorldDb", { error: String(err) }));
-      }
-    };
-    reader.readAsText(file);
-    // Reset input so the same file can be re-selected
-    e.target.value = "";
+  const handleSelectCountry = (code: string) => {
+    const country = playableCountries.find((candidate) => candidate.code === code);
+    setSelectedCountryCode(code);
+    setSelectedTeamId(country?.teams[0]?.id ?? "");
   };
 
   const handleStartGame = async () => {
@@ -490,30 +435,34 @@ export default function MainMenu() {
       );
       return;
     }
+    if (!selectedCountryCode || !selectedTeamId) {
+      alert(t("worldSelect.selectTeamRequired"));
+      return;
+    }
 
     setIsStarting(true);
     try {
-      // Determine world source
-      let worldSource: string | undefined = selectedWorldId;
-      if (selectedWorldId === "random") {
-        worldSource = undefined;
-      } else {
-        const selectedDb = worldDatabases.find((db) => db.id === selectedWorldId);
-        if (selectedDb?.path) {
-          worldSource = `file:${selectedDb.path}`;
-        }
-      }
-
       const game = await invoke<GameStateData>("start_new_game", {
         firstName: formData.firstName,
         lastName: formData.lastName,
         dob: formData.dob,
         nationality: formData.nationality,
-        startupOptions,
-        worldSource,
+        startupOptions: {
+          ...startupOptions,
+          countryCode: selectedCountryCode,
+        },
       });
-      setGameState(game);
-      navigate("/select-team");
+      if (!game.teams.some((team) => team.id === selectedTeamId)) {
+        throw new Error(t("worldSelect.selectTeamRequired"));
+      }
+
+      const updatedGame = await invoke<GameStateData>("select_team", {
+        teamId: selectedTeamId,
+      });
+      setGameState(updatedGame);
+      const manager = updatedGame.manager;
+      setGameActive(true, `${manager.first_name} ${manager.last_name}`);
+      navigate("/dashboard");
     } catch (error) {
       console.error("Failed to start game:", error);
       alert(
@@ -583,7 +532,7 @@ export default function MainMenu() {
   const proceedToWorldSelect = () => {
     setShowProfileConfirm(false);
     setMenuState("world");
-    loadWorldDatabases();
+    loadPlayableCountries();
   };
 
   const handleUpdateProfile = async () => {
@@ -783,16 +732,17 @@ export default function MainMenu() {
           {menuState === "world" && (
             <Suspense fallback={<MenuPanelFallback />}>
               <WorldSelect
-                worldDatabases={worldDatabases}
-                selectedWorldId={selectedWorldId}
+                playableCountries={playableCountries}
+                selectedCountryCode={selectedCountryCode}
+                selectedTeamId={selectedTeamId}
                 isLoadingWorlds={isLoadingWorlds}
                 isStarting={isStarting}
                 startYear={parseCareerStartYear(formData.startYear) ?? MIN_CAREER_START_YEAR}
                 startPhase={formData.startPhase}
                 historyDepthYears={historyDepthYears}
-                onSelectWorld={setSelectedWorldId}
+                onSelectCountry={handleSelectCountry}
+                onSelectTeam={setSelectedTeamId}
                 onChangeHistoryDepthYears={setHistoryDepthYears}
-                onImportFile={handleImportFile}
                 onStart={handleStartGame}
                 onBack={() => setMenuState("create")}
                 onClose={() => setMenuState("main")}

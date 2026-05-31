@@ -47,14 +47,68 @@ Controls the first and last names used when generating players and staff.
 - Legacy `"GB"` pools are still accepted and used as a fallback for British football nations when a dedicated pool is missing.
 - You can add as many or as few nationalities as you like.
 - The generator picks names from the pool matching the player's nationality. If a nationality has no pool entry, the English pool is used as fallback.
-- More names = more variety. The bundled pools now cover 37 football nations/markets, with common-name seed data and curated football-specific gaps.
+- More names = more variety. The bundled pools now cover 39 football nations/markets, with common-name seed data and curated football-specific gaps.
 - Bundled data is seeded from the CC0 `popular-names-by-country-dataset` where available, with manually curated pools for football identities and countries where the public data is incomplete.
+
+---
+
+### `default_world.json` — Country-Based Career World
+
+Controls playable countries, league metadata, fictional clubs, and squad strength profiles for the country-first career flow.
+
+```json
+{
+  "version": 1,
+  "countries": [
+    {
+      "code": "FR",
+      "name": "France",
+      "league": {
+        "id": "fr_ligue_elite",
+        "name": "French Ligue Elite",
+        "format": "Double round-robin",
+        "target_teams": 18,
+        "season": "August-May",
+        "cup_name": "French National Cup"
+      },
+      "teams": []
+    }
+  ]
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `countries[].code` | `string` | Football country code used by generation and selection. |
+| `countries[].league` | `object` | Domestic league metadata shown in setup and stored in saves. |
+| `countries[].teams` | `TeamDef[]` | Fictional playable clubs for that country. |
+
+#### Country TeamDef additions
+
+`default_world.json` teams support the same core fields as `default_teams.json`, plus:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `string` | Stable fictional club ID used by saves and selection. |
+| `stadium_capacity` | `number` | Fixed stadium capacity. |
+| `reputation` | `number` | Fixed club reputation, roughly 1-1000. |
+| `finance` | `number` | Fixed starting balance. |
+| `squad_strength` | `object` | Rating baseline by goalkeeper, defense, midfield, and attack. |
+| `key_players` | `array` | Optional fake-player archetypes with position, nationality, age, OVR, and potential. |
+
+**Notes:**
+- Do not add official club names, official badges, or real player names.
+- If a real-world reference has a high-rated French right winger, represent it as a fictional profile like `{ "position": "Forward", "detail_position": "RW", "nationality": "FR", "overall": 90 }`.
+- Generated player names always come from `default_names.json`; no real roster names are stored.
+- The game currently generates the selected country's league only. Other countries are selectable setup data until broader world simulation is added.
 
 ---
 
 ### `default_teams.json` — Team Templates
 
 Controls the teams created during world generation.
+
+For the country-based career setup, prefer `default_world.json`. `default_teams.json` is kept as a legacy fallback for simple generated worlds.
 
 ```json
 {

@@ -58,7 +58,7 @@
   },
   "worldSelect": {
     "title": "Welt Wählen",
-    "scanning": "Suche nach Datenbanken...",
+    "scanning": "Spielbare Laender werden geladen...",
     "importFile": "Datei importieren",
     "startCareer": "Karriere Starten",
     "creatingWorld": "Welt wird erstellt...",
@@ -82,7 +82,9 @@
         "generated": "Übernimm zur Saisonhälfte {{year}} mit geerbter Tabelle, Spielplan, Nachrichten, Spielhistorie und {{count}} generierten Saisons Vorgeschichte.",
         "reference": "Übernimm zur Saisonhälfte {{year}} mit dem ausgewählten historischen Schnappschuss und bereits vorhandenem Saisonkontext.",
         "hybrid": "Übernimm zur Saisonhälfte {{year}} mit diesem Datenbank-Kader plus {{count}} generierten Saisons historischem Kontext und vorhandenem Saisonfortschritt."
-      }
+      },
+      "countryTeam": "{{team}} in {{league}}, {{country}}.",
+      "pickTeam": "Waehle einen Verein, um fortzufahren."
     },
     "historyDepth": {
       "label": "Generierte Historie",
@@ -92,7 +94,13 @@
       "none": "Keine Vorgeschichte",
       "option": "{{count}} Saisons",
       "recommended": "Empfohlen"
-    }
+    },
+    "countryLabel": "Land",
+    "teamLabel": "Verein",
+    "availableCountries": "{{count}} Laender",
+    "availableTeams": "{{count}} Vereine",
+    "ovr": "GES",
+    "selectTeamRequired": "Waehle ein Land und einen Verein, um die Karriere zu starten."
   },
   "dashboard": {
     "home": "Startseite",

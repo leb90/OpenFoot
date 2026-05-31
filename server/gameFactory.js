@@ -7,6 +7,9 @@ const teamsDefinition = JSON.parse(
 const namesDefinition = JSON.parse(
   readFileSync(new URL("./data/default_names.json", import.meta.url), "utf8"),
 );
+const worldDefinition = JSON.parse(
+  readFileSync(new URL("./data/default_world.json", import.meta.url), "utf8"),
+);
 
 const DEFAULT_SETTINGS = {
   theme: "dark",
@@ -128,6 +131,10 @@ function randomInt(min, maxExclusive) {
   return Math.floor(Math.random() * (maxExclusive - min)) + min;
 }
 
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
 function choice(values) {
   return values[randomInt(0, values.length)];
 }
@@ -246,15 +253,39 @@ function generateAttributes(position) {
 }
 
 function playerOvr(position, attrs) {
-  const weights =
-    position === "Goalkeeper"
-      ? ["handling", "reflexes", "aerial", "positioning", "decisions"]
-      : position === "Defender"
-        ? ["defending", "tackling", "strength", "positioning", "aerial"]
-        : position === "Forward"
-          ? ["shooting", "dribbling", "pace", "composure", "positioning"]
-          : ["passing", "vision", "decisions", "stamina", "teamwork"];
+  const weights = playerOvrWeights(position);
   return Math.round(weights.reduce((sum, key) => sum + attrs[key], 0) / weights.length);
+}
+
+function playerOvrWeights(position) {
+  if (position === "Goalkeeper") {
+    return ["handling", "reflexes", "aerial", "positioning", "decisions"];
+  }
+  if (position === "Defender") {
+    return ["defending", "tackling", "strength", "positioning", "aerial"];
+  }
+  if (position === "Forward") {
+    return ["shooting", "dribbling", "pace", "composure", "positioning"];
+  }
+  return ["passing", "vision", "decisions", "stamina", "teamwork"];
+}
+
+function generateAttributesForOvr(position, targetOvr) {
+  const target = clamp(Number(targetOvr) || 60, 35, 99);
+  const attributes = generateAttributes(position);
+  const primaryKeys = playerOvrWeights(position);
+
+  Object.keys(attributes).forEach((key) => {
+    const bias = primaryKeys.includes(key) ? 0 : -randomInt(4, 13);
+    attributes[key] = clamp(target + bias + randomInt(-3, 4), 20, 99);
+  });
+
+  const correction = target - playerOvr(position, attributes);
+  primaryKeys.forEach((key) => {
+    attributes[key] = clamp(attributes[key] + correction, 20, 99);
+  });
+
+  return attributes;
 }
 
 function defaultPlayerStats() {
@@ -277,17 +308,42 @@ function defaultPlayerStats() {
   };
 }
 
-function generatePlayer(team, slot, startYear) {
-  const nationality = generatePlayerNationality(team.country);
+function ratingBaseForPosition(team, position) {
+  const strength = team.squad_strength ?? {};
+  if (position === "Goalkeeper") return strength.goalkeeper ?? team.reputation / 10;
+  if (position === "Defender") return strength.defense ?? team.reputation / 10;
+  if (position === "Forward") return strength.attack ?? team.reputation / 10;
+  return strength.midfield ?? team.reputation / 10;
+}
+
+function generatedRatingForSlot(team, position, slot) {
+  const base = ratingBaseForPosition(team, position);
+  const depthPenalty = slot % 2 === 0 ? 0 : randomInt(1, 5);
+  return clamp(Math.round(base + randomInt(-3, 4) - depthPenalty), 45, 92);
+}
+
+function playerProfileForSlot(profiles, position) {
+  const index = profiles.findIndex((profile) => profile.position === position);
+  if (index === -1) return null;
+  return profiles.splice(index, 1)[0];
+}
+
+function generatePlayer(team, slot, startYear, profile = null) {
+  const nationality = profile?.nationality ?? generatePlayerNationality(team.country);
   const { firstName, lastName } = generateName(nationality);
-  const position = POSITIONS_BY_SLOT[slot] ?? "Midfielder";
-  const age = slot === 8 || slot === 15 || slot === 21 ? randomInt(17, 22) : randomInt(18, 35);
+  const position = profile?.position ?? POSITIONS_BY_SLOT[slot] ?? "Midfielder";
+  const age =
+    profile?.age ??
+    (slot === 8 || slot === 15 || slot === 21 ? randomInt(17, 22) : randomInt(18, 35));
   const dob = `${startYear - age}-${String(randomInt(1, 13)).padStart(2, "0")}-${String(
     randomInt(1, 29),
   ).padStart(2, "0")}`;
-  const attributes = generateAttributes(position);
+  const targetOvr = profile?.overall ?? generatedRatingForSlot(team, position, slot);
+  const attributes = generateAttributesForOvr(position, targetOvr);
   const ovr = playerOvr(position, attributes);
-  const potential = Math.min(99, ovr + randomInt(age <= 23 ? 6 : 0, age <= 23 ? 18 : 8));
+  const potential =
+    profile?.potential ??
+    Math.min(99, ovr + randomInt(age <= 23 ? 6 : 0, age <= 23 ? 18 : 8));
   const marketValue = Math.round(ovr * ovr * (age <= 23 ? 900 : age <= 29 ? 700 : 420));
 
   return {
@@ -300,8 +356,8 @@ function generatePlayer(team, slot, startYear) {
     birth_country: nationality,
     position,
     natural_position: position,
-    alternate_positions: [],
-    footedness: Math.random() < 0.25 ? "Left" : "Right",
+    alternate_positions: profile?.detail_position ? [profile.detail_position] : [],
+    footedness: profile?.footedness ?? (Math.random() < 0.25 ? "Left" : "Right"),
     weak_foot: randomInt(2, 5),
     training_focus: null,
     attributes,
@@ -320,7 +376,7 @@ function generatePlayer(team, slot, startYear) {
     transfer_listed: false,
     loan_listed: false,
     transfer_offers: [],
-    traits: [],
+    traits: profile?.traits ?? [],
     morale_core: {
       manager_trust: 50,
       unresolved_issue: null,
@@ -332,6 +388,14 @@ function generatePlayer(team, slot, startYear) {
     ovr,
     potential,
   };
+}
+
+function generatePlayersForTeam(team, startYear) {
+  const profiles = [...(team.player_profiles ?? [])];
+
+  return POSITIONS_BY_SLOT.map((position, slot) =>
+    generatePlayer(team, slot, startYear, playerProfileForSlot(profiles, position)),
+  );
 }
 
 function generateStaff(team, role, startYear) {
@@ -362,22 +426,47 @@ function generateStaff(team, role, startYear) {
   };
 }
 
-function generateTeams(startYear) {
-  return teamsDefinition.teams.map((template, index) => {
+function selectedCountryFor(options = {}) {
+  const countries = worldDefinition.countries ?? [];
+  const requestedCode = options.countryCode ?? options.country_code;
+  return (
+    countries.find((country) => country.code === requestedCode) ??
+    countries.find((country) => country.code === "ENG") ??
+    null
+  );
+}
+
+function teamTemplatesFor(country) {
+  return country?.teams?.length ? country.teams : teamsDefinition.teams;
+}
+
+function generatedTeamId(country, index) {
+  return country ? `${country.code.toLowerCase()}_team_${index + 1}` : `team_${index + 1}`;
+}
+
+function generateTeams(startYear, country = null) {
+  const teamTemplates = teamTemplatesFor(country);
+  return teamTemplates.map((template, index) => {
     const [minRep, maxRep] = template.reputation_range ?? [400, 800];
     const [minFinance, maxFinance] = template.finance_range ?? [1000000, 8000000];
-    const reputation = randomInt(minRep, maxRep + 1);
+    const reputation = template.reputation ?? randomInt(minRep, maxRep + 1);
+    const finance = template.finance ?? randomInt(minFinance, maxFinance + 1);
+    const teamCountry = template.country ?? country?.code ?? "ENG";
+    const leagueId = country?.league?.id ?? "league";
+    const historyTeamCount = teamTemplates.length;
 
     return {
-      id: `team_${index + 1}`,
+      id: template.id ?? generatedTeamId(country, index),
       name: template.name,
       short_name: template.short_name,
-      country: template.country,
-      football_nation: template.country,
+      country: teamCountry,
+      football_nation: teamCountry,
+      league_id: leagueId,
+      cup_id: country?.league?.cup_name ? `${leagueId}_cup` : null,
       city: template.city,
       stadium_name: template.stadium_name,
-      stadium_capacity: randomInt(18000, 76000),
-      finance: randomInt(minFinance, maxFinance + 1),
+      stadium_capacity: template.stadium_capacity ?? randomInt(18000, 76000),
+      finance,
       manager_id: null,
       reputation,
       wage_budget: reputation * 420,
@@ -387,6 +476,8 @@ function generateTeams(startYear) {
       financial_ledger: [],
       formation: "4-4-2",
       play_style: template.play_style ?? "Balanced",
+      squad_strength: template.squad_strength ?? null,
+      player_profiles: template.key_players ?? [],
       training_focus: "Physical",
       training_intensity: "Medium",
       training_schedule: "Balanced",
@@ -400,8 +491,8 @@ function generateTeams(startYear) {
       form: [],
       history: Array.from({ length: 3 }, (_, seasonOffset) => ({
         season: startYear - (3 - seasonOffset),
-        league_position: randomInt(1, teamsDefinition.teams.length + 1),
-        played: 30,
+        league_position: randomInt(1, historyTeamCount + 1),
+        played: Math.max(1, (historyTeamCount - 1) * 2),
         won: randomInt(8, 22),
         drawn: randomInt(4, 10),
         lost: randomInt(4, 16),
@@ -441,7 +532,7 @@ function buildRoundRobinFixtures(teamIds, startDate) {
   return fixtures;
 }
 
-function buildLeague(teams, startYear, currentDate) {
+function buildLeague(teams, startYear, currentDate, country = null) {
   const seasonStart = addDays(startDateForYear(startYear), 30);
   const fixtures = buildRoundRobinFixtures(
     teams.map((team) => team.id),
@@ -459,8 +550,17 @@ function buildLeague(teams, startYear, currentDate) {
   }));
 
   return {
-    id: `league_${startYear}`,
-    name: "Premier Division",
+    id: country?.league?.id ?? `league_${startYear}`,
+    name: country?.league?.name ?? "Premier Division",
+    country_code: country?.code ?? null,
+    format: country?.league?.format ?? "Double round-robin",
+    domestic_cup: country?.league?.cup_name
+      ? {
+          id: `${country.league.id}_cup`,
+          name: country.league.cup_name,
+          format: "Single elimination",
+        }
+      : null,
     season: startYear,
     fixtures,
     standings,
@@ -501,6 +601,7 @@ export function createGameState({
 }) {
   const startYear = Number(startupOptions?.startYear) || new Date().getUTCFullYear();
   const startPhase = startupOptions?.startPhase === "midSeason" ? "midSeason" : "seasonStart";
+  const country = selectedCountryFor(startupOptions);
   const startDate = startDateForYear(startYear);
   const currentDate = currentDateForPhase(startYear, startPhase);
   const age = calculateAge(dob, currentDate);
@@ -518,10 +619,8 @@ export function createGameState({
     throw new Error("be.error.createManager.invalidDob");
   }
 
-  const teams = generateTeams(startYear);
-  const players = teams.flatMap((team) =>
-    POSITIONS_BY_SLOT.map((_, slot) => generatePlayer(team, slot, startYear)),
-  );
+  const teams = generateTeams(startYear, country);
+  const players = teams.flatMap((team) => generatePlayersForTeam(team, startYear));
   const staff = teams.flatMap((team) =>
     ["AssistantManager", "Coach", "Scout", "Physio"].map((role) =>
       generateStaff(team, role, startYear),
@@ -563,7 +662,17 @@ export function createGameState({
     staff,
     messages: [],
     news: [],
-    league: buildLeague(teams, startYear, currentDateString),
+    league: buildLeague(teams, startYear, currentDateString, country),
+    world: country
+      ? {
+          country_code: country.code,
+          country_name: country.name,
+          league_id: country.league.id,
+          league_name: country.league.name,
+          cup_name: country.league.cup_name,
+          legal_names: "fictional",
+        }
+      : null,
     scouting_assignments: [],
     youth_scouting_assignments: [],
     board_objectives: [
@@ -577,6 +686,35 @@ export function createGameState({
     ],
     season_context: seasonContext(startYear, currentDateString),
   };
+}
+
+export function listPlayableCountries() {
+  return (worldDefinition.countries ?? []).map((country) => ({
+    code: country.code,
+    name: country.name,
+    league: country.league,
+    team_count: country.teams?.length ?? 0,
+    teams: (country.teams ?? []).map((team) => ({
+      id: team.id,
+      name: team.name,
+      short_name: team.short_name,
+      city: team.city,
+      country: country.code,
+      stadium_name: team.stadium_name,
+      stadium_capacity: team.stadium_capacity,
+      reputation: team.reputation,
+      finance: team.finance,
+      colors: team.colors,
+      play_style: team.play_style,
+      avg_overall: Math.round(
+        ((team.squad_strength?.goalkeeper ?? 70) +
+          (team.squad_strength?.defense ?? 70) +
+          (team.squad_strength?.midfield ?? 70) +
+          (team.squad_strength?.attack ?? 70)) /
+          4,
+      ),
+    })),
+  }));
 }
 
 export function defaultSaveName(game) {
