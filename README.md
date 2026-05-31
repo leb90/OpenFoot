@@ -4,9 +4,8 @@
 
 [![License: GPL v3](https://img.shields.io/github/license/openfootmanager/openfootmanager
 )](https://www.gnu.org/licenses/gpl-3.0)
-[![Rust](https://shields.io/badge/-Rust-FF4500?style=flat&logo=rust)](https://www.rust-lang.org/)
-[![Tauri](https://shields.io/badge/-Tauri-2E8B57?style=flat&logo=tauri)](https://tauri.app/)
 [![React](https://shields.io/badge/-React-1434A4?style=flat&logo=react)](https://react.dev/)
+[![Prisma](https://img.shields.io/badge/-Prisma-2D3748?style=flat&logo=prisma)](https://www.prisma.io/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/openfootmanager/openfootmanager/graphs/commit-activity)
 [![Last commit](https://img.shields.io/github/last-commit/openfootmanager/openfootmanager)](https://github.com/openfootmanager/openfootmanager/commits/develop)
 
@@ -30,8 +29,8 @@ Join the community on Discord: https://discord.gg/2CXaesaukT
 - **Training and staff systems** to improve performance through coaching and planning.
 - **Dynamic inbox and news generation** that keeps you updated on club and world events.
 - **Scouting support** for discovering talent and evaluating future signings.
-- **Persistent game data** backed by SQLite for local saves and progression.
-- **Modern desktop app experience** built with Tauri + React for speed and low overhead.
+- **Persistent game data** backed by PostgreSQL and Prisma for web saves and progression.
+- **Modern web app experience** built with React and Vercel-ready serverless APIs.
 - **Multi-language support** with i18n foundations and community translation growth.
 - **Free and open source** under GPLv3, with community-driven development.
 
@@ -51,20 +50,21 @@ Click any image to open the full-size version.
 
 ## ARCHITECTURE
 
-OpenFootManager is built using modern web technologies:
+OpenFootManager is being migrated to a full web architecture:
 
-- **Rust**: Blazing-fast backend for the Match Simulation Engine and Game State.
-- **Tauri**: Lightweight desktop application shell.
 - **React + TypeScript + TailwindCSS**: A highly responsive frontend interface.
-- **SQLite**: Local persistence for game saves.
+- **Vercel serverless API routes**: Web command boundary replacing Tauri IPC.
+- **PostgreSQL + Prisma**: Web persistence for saves, sessions, and game data.
+
+The previous Rust/Tauri backend is still present in `src-tauri` as a parity reference during the migration. See [docs/WEB_MIGRATION.md](docs/WEB_MIGRATION.md).
 
 ## INSTALLATION & DEVELOPMENT
 
-The game is still in early active development. To build and run the debug version, you need to install standard tools for Rust, Node, and Tauri development:
+The game is still in early active development. For the web version you need Node.js and PostgreSQL:
 
-1. Install **Rust** (via `rustup`)
-2. Install **Node.js** (v18+)
-3. Install Tauri dependencies for your specific OS (see the [Tauri Prerequisites Guide](https://v2.tauri.app/start/prerequisites/))
+1. Install **Node.js**
+2. Create a PostgreSQL database
+3. Copy `.env.example` to `.env` and set `DATABASE_URL`
 
 Clone the repository and install dependencies:
 
@@ -72,13 +72,16 @@ Clone the repository and install dependencies:
 git clone https://github.com/openfootmanager/openfootmanager.git
 cd openfootmanager
 npm install
+npm run prisma:push
 ```
 
-Run the development desktop app:
+Run the Vite frontend:
 
 ```bash
-npm run tauri dev
+npm run dev
 ```
+
+For local API routes, run the app through Vercel's dev runtime, for example `npx vercel dev`.
 
 ## CONTRIBUTING
 
@@ -94,8 +97,7 @@ Quick contribution checklist:
 
 ```bash
 npm test
-cd src-tauri
-cargo test --workspace
+npm run prisma:validate
 ```
 
 ## LICENSE

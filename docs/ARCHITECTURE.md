@@ -1,5 +1,10 @@
 # Architecture
 
+> Migration note: the project now has a web-first Vercel/Prisma runtime path.
+> This document still describes much of the original Rust/Tauri architecture,
+> which remains in the repository as a parity reference while systems are ported.
+> See [WEB_MIGRATION.md](WEB_MIGRATION.md) for the active web migration notes.
+
 OpenFoot Manager is a desktop football management simulation built with **Tauri** (Rust backend) and **React** (TypeScript frontend). This document describes the project structure, key architectural decisions, and how the pieces fit together.
 
 ---

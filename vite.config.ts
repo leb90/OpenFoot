@@ -1,8 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { fileURLToPath } from "node:url";
 
-// @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 
 function normalizeModuleId(id: string): string {
@@ -76,6 +76,16 @@ function manualChunks(id: string): string | undefined {
 // https://vite.dev/config/
 export default defineConfig(async () => ({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      "@tauri-apps/api/core": fileURLToPath(
+        new URL("./src/lib/tauriCore.ts", import.meta.url),
+      ),
+      "@tauri-apps/api/window": fileURLToPath(
+        new URL("./src/lib/tauriWindow.ts", import.meta.url),
+      ),
+    },
+  },
   test: {
     environment: "jsdom",
     globals: true,

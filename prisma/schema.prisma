@@ -1,0 +1,397 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model WebSession {
+  id           String   @id
+  activeSaveId String?  @map("active_save_id")
+  draftGame    Json?    @map("draft_game")
+  draftStats   Json?    @map("draft_stats")
+  liveMatch    Json?    @map("live_match")
+  settings     Json?
+  importedWorlds Json   @default("[]") @map("imported_worlds")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  activeSave GameSave? @relation(fields: [activeSaveId], references: [id], onDelete: SetNull)
+
+  @@map("web_sessions")
+}
+
+model GameSave {
+  id            String   @id @default(uuid())
+  ownerSessionId String?  @map("owner_session_id")
+  name          String
+  managerName   String   @map("manager_name")
+  teamName      String   @default("") @map("team_name")
+  dbFilename    String   @default("") @map("db_filename")
+  checksum      String   @default("")
+  snapshot      Json
+  statsSnapshot Json?    @map("stats_snapshot")
+  createdAt     DateTime @default(now()) @map("created_at")
+  lastPlayedAt  DateTime @updatedAt @map("last_played_at")
+
+  sessions WebSession[]
+
+  @@map("game_saves")
+}
+
+model ManagerProfile {
+  id          String   @id @default(uuid())
+  ownerSessionId String? @map("owner_session_id")
+  firstName   String   @map("first_name")
+  lastName    String   @map("last_name")
+  dateOfBirth String   @map("date_of_birth")
+  nationality String
+  createdAt   DateTime @default(now()) @map("created_at")
+  lastUsedAt  DateTime? @map("last_used_at")
+
+  @@map("manager_profiles")
+}
+
+model GameMeta {
+  saveId              String   @id @map("save_id")
+  saveName            String   @map("save_name")
+  managerId           String   @map("manager_id")
+  startDate           String   @map("start_date")
+  gameDate            String   @map("game_date")
+  createdAt           DateTime @default(now()) @map("created_at")
+  lastPlayedAt        DateTime @default(now()) @map("last_played_at")
+  vacantTeamDaysJson  Json     @default("{}") @map("vacant_team_days_json")
+  worldHistoryJson    Json     @default("{}") @map("world_history_json")
+
+  @@map("game_meta")
+}
+
+model Manager {
+  saveId        String @map("save_id")
+  id            String
+  firstName     String @map("first_name")
+  lastName      String @map("last_name")
+  dateOfBirth   String @map("date_of_birth")
+  nationality   String
+  footballNation String @default("") @map("football_nation")
+  birthCountry  String? @map("birth_country")
+  reputation    Int    @default(500)
+  satisfaction  Int    @default(100)
+  fanApproval   Int    @default(50) @map("fan_approval")
+  teamId        String? @map("team_id")
+  warningStage  Int    @default(0) @map("warning_stage")
+  careerStats   Json   @default("{}") @map("career_stats")
+  careerHistory Json   @default("[]") @map("career_history")
+
+  @@id([saveId, id])
+  @@map("managers")
+}
+
+model Team {
+  saveId            String @map("save_id")
+  id                String
+  name              String
+  shortName         String @map("short_name")
+  country           String
+  footballNation    String @default("") @map("football_nation")
+  city              String
+  stadiumName       String @map("stadium_name")
+  stadiumCapacity   Int    @map("stadium_capacity")
+  finance           Int    @default(1000000)
+  managerId         String? @map("manager_id")
+  reputation        Int    @default(500)
+  wageBudget        Int    @map("wage_budget")
+  transferBudget    Int    @map("transfer_budget")
+  seasonIncome      Int    @default(0) @map("season_income")
+  seasonExpenses    Int    @default(0) @map("season_expenses")
+  formation         String @default("4-4-2")
+  playStyle         String @default("Balanced") @map("play_style")
+  trainingFocus     String @default("Physical") @map("training_focus")
+  trainingIntensity String @default("Medium") @map("training_intensity")
+  trainingSchedule  String @default("Balanced") @map("training_schedule")
+  foundedYear       Int    @default(1900) @map("founded_year")
+  colorsPrimary     String @default("#10b981") @map("colors_primary")
+  colorsSecondary   String @default("#ffffff") @map("colors_secondary")
+  startingXiIds     Json   @default("[]") @map("starting_xi_ids")
+  matchRoles        Json   @default("{\"captain\":null,\"vice_captain\":null,\"penalty_taker\":null,\"free_kick_taker\":null,\"corner_taker\":null}") @map("match_roles")
+  form              Json   @default("[]")
+  history           Json   @default("[]")
+  trainingGroups    Json   @default("[]") @map("training_groups")
+  financialLedger   Json   @default("[]") @map("financial_ledger")
+  sponsorship       Json   @default("null")
+  facilities        Json   @default("{\"training\":1,\"medical\":1,\"scouting\":1}")
+
+  @@id([saveId, id])
+  @@map("teams")
+}
+
+model Player {
+  saveId             String @map("save_id")
+  id                 String
+  matchName          String @map("match_name")
+  fullName           String @map("full_name")
+  dateOfBirth        String @map("date_of_birth")
+  nationality        String
+  footballNation     String @default("") @map("football_nation")
+  birthCountry       String? @map("birth_country")
+  position           String
+  naturalPosition    String @default("") @map("natural_position")
+  alternatePositions Json   @default("[]") @map("alternate_positions")
+  footedness         String @default("Right")
+  weakFoot           Int    @default(2) @map("weak_foot")
+  attributes         Json
+  condition          Int    @default(100)
+  morale             Int    @default(100)
+  fitness            Int    @default(75)
+  injury             Json?
+  teamId             String? @map("team_id")
+  retired            Boolean @default(false)
+  squadRole          String  @default("Senior") @map("squad_role")
+  traits             Json    @default("[]")
+  contractEnd        String? @map("contract_end")
+  wage               Int     @default(0)
+  marketValue        BigInt  @default(0) @map("market_value")
+  stats              Json    @default("{}")
+  career             Json    @default("[]")
+  trainingFocus      String? @map("training_focus")
+  transferListed     Boolean @default(false) @map("transfer_listed")
+  loanListed         Boolean @default(false) @map("loan_listed")
+  transferOffers     Json    @default("[]") @map("transfer_offers")
+  moraleCore         Json    @default("{\"manager_trust\":50,\"unresolved_issue\":null,\"recent_treatment\":null}") @map("morale_core")
+  ovr                Int     @default(0)
+  potential          Int     @default(0)
+
+  @@id([saveId, id])
+  @@index([saveId, teamId])
+  @@map("players")
+}
+
+model Staff {
+  saveId          String @map("save_id")
+  id              String
+  firstName       String @map("first_name")
+  lastName        String @map("last_name")
+  dateOfBirth     String @map("date_of_birth")
+  nationality     String
+  footballNation  String @default("") @map("football_nation")
+  birthCountry    String? @map("birth_country")
+  role            String
+  attributes      Json
+  teamId          String? @map("team_id")
+  specialization  String?
+  wage            Int    @default(0)
+  contractEnd     String? @map("contract_end")
+
+  @@id([saveId, id])
+  @@index([saveId, teamId])
+  @@map("staff")
+}
+
+model League {
+  saveId String @map("save_id")
+  id     String
+  name   String
+  season Int
+
+  @@id([saveId, id])
+  @@map("league")
+}
+
+model Fixture {
+  saveId     String @map("save_id")
+  id         String
+  leagueId   String @map("league_id")
+  matchday   Int
+  date       String
+  homeTeamId String @map("home_team_id")
+  awayTeamId String @map("away_team_id")
+  competition String @default("League")
+  status     String @default("Scheduled")
+  result     Json?
+
+  @@id([saveId, id])
+  @@index([saveId, leagueId])
+  @@map("fixtures")
+}
+
+model Standing {
+  saveId       String @map("save_id")
+  leagueId     String @map("league_id")
+  teamId       String @map("team_id")
+  played       Int    @default(0)
+  won          Int    @default(0)
+  drawn        Int    @default(0)
+  lost         Int    @default(0)
+  goalsFor     Int    @default(0) @map("goals_for")
+  goalsAgainst Int    @default(0) @map("goals_against")
+  points       Int    @default(0)
+
+  @@id([saveId, leagueId, teamId])
+  @@map("standings")
+}
+
+model Message {
+  saveId     String @map("save_id")
+  id         String
+  subject    String
+  body       String
+  sender     String
+  senderRole String @default("") @map("sender_role")
+  date       String
+  read       Boolean @default(false)
+  category   String @default("System")
+  priority   String @default("Normal")
+  actions    Json   @default("[]")
+  context    Json   @default("{}")
+  i18n       Json   @default("{}")
+
+  @@id([saveId, id])
+  @@map("messages")
+}
+
+model News {
+  saveId     String @map("save_id")
+  id         String
+  headline   String
+  body       String
+  source     String
+  date       String
+  category   String
+  teamIds    Json    @default("[]") @map("team_ids")
+  playerIds  Json    @default("[]") @map("player_ids")
+  matchScore Json?   @map("match_score")
+  read       Boolean @default(false)
+  i18n       Json    @default("{}")
+
+  @@id([saveId, id])
+  @@map("news")
+}
+
+model BoardObjective {
+  saveId        String @map("save_id")
+  id            String
+  description   String
+  target        Int
+  objectiveType String @map("objective_type")
+  met           Boolean @default(false)
+
+  @@id([saveId, id])
+  @@map("board_objectives")
+}
+
+model ScoutingAssignment {
+  saveId        String @map("save_id")
+  id            String
+  scoutId       String @map("scout_id")
+  playerId      String @map("player_id")
+  daysRemaining Int    @map("days_remaining")
+
+  @@id([saveId, id])
+  @@map("scouting_assignments")
+}
+
+model YouthScoutingAssignment {
+  saveId         String @map("save_id")
+  id             String
+  scoutId        String @map("scout_id")
+  region         String @default("Domestic")
+  objective      String @default("Balanced")
+  targetPosition String? @map("target_position")
+  daysRemaining  Int    @map("days_remaining")
+
+  @@id([saveId, id])
+  @@map("youth_scouting_assignments")
+}
+
+model TransferLog {
+  id          Int    @id @default(autoincrement())
+  saveId      String @map("save_id")
+  leagueId    String @map("league_id")
+  date        String
+  fromTeamId  String @map("from_team_id")
+  toTeamId    String @map("to_team_id")
+  playerId    String @map("player_id")
+  fee         Int
+
+  @@index([saveId, leagueId])
+  @@map("transfer_log")
+}
+
+model TransferRumour {
+  id         Int    @id @default(autoincrement())
+  saveId     String @map("save_id")
+  leagueId   String @map("league_id")
+  rumourId   String @map("rumour_id")
+  date       String
+  playerId   String @map("player_id")
+  playerName String @map("player_name")
+  teamId     String @map("team_id")
+  teamName   String @map("team_name")
+
+  @@unique([saveId, leagueId, rumourId])
+  @@index([saveId, leagueId, date])
+  @@map("transfer_rumours")
+}
+
+model PlayerMatchStat {
+  saveId           String @map("save_id")
+  fixtureId        String @map("fixture_id")
+  season           Int
+  matchday         Int
+  date             String
+  competition      String @default("League")
+  playerId         String @map("player_id")
+  teamId           String @map("team_id")
+  opponentTeamId   String @map("opponent_team_id")
+  homeTeamId       String @map("home_team_id")
+  awayTeamId       String @map("away_team_id")
+  homeGoals        Int    @default(0) @map("home_goals")
+  awayGoals        Int    @default(0) @map("away_goals")
+  minutesPlayed    Int    @default(0) @map("minutes_played")
+  goals            Int    @default(0)
+  assists          Int    @default(0)
+  shots            Int    @default(0)
+  shotsOnTarget    Int    @default(0) @map("shots_on_target")
+  passesCompleted  Int    @default(0) @map("passes_completed")
+  passesAttempted  Int    @default(0) @map("passes_attempted")
+  tacklesWon       Int    @default(0) @map("tackles_won")
+  interceptions    Int    @default(0)
+  foulsCommitted   Int    @default(0) @map("fouls_committed")
+  yellowCards      Int    @default(0) @map("yellow_cards")
+  redCards         Int    @default(0) @map("red_cards")
+  rating           Float  @default(0)
+
+  @@id([saveId, fixtureId, playerId])
+  @@index([saveId, playerId, date])
+  @@map("player_match_stats")
+}
+
+model TeamMatchStat {
+  saveId           String @map("save_id")
+  fixtureId        String @map("fixture_id")
+  season           Int
+  matchday         Int
+  date             String
+  competition      String @default("League")
+  teamId           String @map("team_id")
+  opponentTeamId   String @map("opponent_team_id")
+  homeTeamId       String @map("home_team_id")
+  awayTeamId       String @map("away_team_id")
+  goalsFor         Int    @default(0) @map("goals_for")
+  goalsAgainst     Int    @default(0) @map("goals_against")
+  possessionPct    Int    @default(0) @map("possession_pct")
+  shots            Int    @default(0)
+  shotsOnTarget    Int    @default(0) @map("shots_on_target")
+  passesCompleted  Int    @default(0) @map("passes_completed")
+  passesAttempted  Int    @default(0) @map("passes_attempted")
+  tacklesWon       Int    @default(0) @map("tackles_won")
+  interceptions    Int    @default(0)
+  foulsCommitted   Int    @default(0) @map("fouls_committed")
+  yellowCards      Int    @default(0) @map("yellow_cards")
+  redCards         Int    @default(0) @map("red_cards")
+
+  @@id([saveId, fixtureId, teamId])
+  @@index([saveId, teamId, date])
+  @@map("team_match_stats")
+}
