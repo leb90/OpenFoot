@@ -77,10 +77,15 @@ export default defineConfig(async () => ({
   test: {
     environment: "jsdom",
     globals: true,
-    include: ["src/**/*.test.{ts,tsx}"],
+    include: ["src/**/*.test.{ts,tsx}", "server/**/*.test.js"],
     setupFiles: ["src/test-setup.ts"],
     coverage: {
-      exclude: ["src/i18n/locales/**", "src/**/*.test.{ts,tsx}", "src/test-setup.ts"],
+      exclude: [
+        "src/i18n/locales/**",
+        "src/**/*.test.{ts,tsx}",
+        "server/**/*.test.js",
+        "src/test-setup.ts",
+      ],
     },
   },
   build: {

@@ -52,6 +52,55 @@ const POSITIONS_BY_SLOT = [
   "Forward",
 ];
 
+const GLOBAL_FOOTBALL_MARKET = [
+  "BR",
+  "AR",
+  "UY",
+  "CO",
+  "CL",
+  "PY",
+  "US",
+  "MX",
+  "MA",
+  "NG",
+  "JP",
+  "KR",
+  "SA",
+];
+
+const REGIONAL_FOOTBALL_MARKETS = {
+  ENG: ["SCO", "WAL", "NIR", "IE", "FR", "NL", "BE", "PT", "ES", "BR", "AR"],
+  SCO: ["ENG", "WAL", "NIR", "IE", "GB"],
+  WAL: ["ENG", "SCO", "NIR", "IE", "GB"],
+  NIR: ["ENG", "SCO", "WAL", "IE", "GB"],
+  IE: ["ENG", "SCO", "WAL", "NIR", "GB"],
+  ES: ["AR", "BR", "UY", "CO", "CL", "PY", "PT", "FR"],
+  PT: ["BR", "ES", "AR", "UY", "FR", "MA"],
+  FR: ["BE", "MA", "BR", "AR", "ES", "IT", "CH"],
+  DE: ["AT", "CH", "NL", "PL", "CZ", "TR", "HR", "RS"],
+  IT: ["AR", "BR", "HR", "RS", "FR", "CH", "ES"],
+  NL: ["BE", "DE", "DK", "NO", "SE", "BR", "AR"],
+  BE: ["FR", "NL", "DE", "MA", "BR"],
+  BR: ["AR", "UY", "CO", "CL", "PY", "PT"],
+  AR: ["UY", "BR", "CO", "CL", "PY", "ES"],
+  US: ["MX", "BR", "AR", "CO", "CL", "PY"],
+  MX: ["US", "AR", "BR", "CO", "CL", "PY"],
+  JP: ["KR", "BR", "AR"],
+  KR: ["JP", "BR", "AR"],
+  SA: ["MA", "NG", "BR", "AR", "TR"],
+  TR: ["DE", "AT", "GR", "RS", "HR", "MA"],
+  GR: ["TR", "RS", "HR", "IT"],
+  AT: ["DE", "CH", "CZ", "HR", "RS"],
+  CH: ["DE", "FR", "IT", "AT"],
+  DK: ["NO", "SE", "NL", "DE"],
+  NO: ["DK", "SE", "NL", "ENG"],
+  SE: ["DK", "NO", "NL", "ENG"],
+  HR: ["RS", "IT", "AT", "DE"],
+  RS: ["HR", "GR", "TR", "AT", "DE"],
+  CZ: ["DE", "AT", "PL", "SK"],
+  PL: ["DE", "CZ", "AT", "TR"],
+};
+
 const MATCH_ROLE_DEFAULTS = {
   captain: null,
   vice_captain: null,
@@ -123,6 +172,33 @@ function calculateAge(dob, referenceDate) {
 function namePoolFor(nationality) {
   const pools = namesDefinition.pools ?? {};
   return pools[nationality] ?? pools.ENG ?? Object.values(pools)[0];
+}
+
+function availableNamePoolCodes() {
+  return Object.keys(namesDefinition.pools ?? {});
+}
+
+function availableCodes(codes) {
+  const pools = namesDefinition.pools ?? {};
+  return codes.filter((code) => Boolean(pools[code]));
+}
+
+function generatePlayerNationality(teamCountry) {
+  const pools = namesDefinition.pools ?? {};
+  const domestic = pools[teamCountry] ? teamCountry : "ENG";
+  const roll = Math.random();
+
+  if (roll < 0.68) {
+    return domestic;
+  }
+
+  const regionalCodes = availableCodes(REGIONAL_FOOTBALL_MARKETS[domestic] ?? []);
+  if (roll < 0.92 && regionalCodes.length > 0) {
+    return choice(regionalCodes);
+  }
+
+  const globalCodes = availableCodes(GLOBAL_FOOTBALL_MARKET);
+  return choice(globalCodes.length > 0 ? globalCodes : availableNamePoolCodes());
 }
 
 function generateName(nationality) {
@@ -202,7 +278,7 @@ function defaultPlayerStats() {
 }
 
 function generatePlayer(team, slot, startYear) {
-  const nationality = Math.random() < 0.65 ? team.country : choice(Object.keys(namesDefinition.pools));
+  const nationality = generatePlayerNationality(team.country);
   const { firstName, lastName } = generateName(nationality);
   const position = POSITIONS_BY_SLOT[slot] ?? "Midfielder";
   const age = slot === 8 || slot === 15 || slot === 21 ? randomInt(17, 22) : randomInt(18, 35);

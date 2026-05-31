@@ -20,6 +20,10 @@ Migration notes for the web runtime and the remaining backend parity work.
 
 Gameplay systems overview: turn processing, training, staff, traits, league generation, inbox, news, world generation, finances, and transfer market behavior.
 
+### [FOOTBALL_STRUCTURE.md](FOOTBALL_STRUCTURE.md)
+
+Target model and roadmap for moving from the current mixed generated league to independent countries, leagues, clubs, cups, continental competitions, and registration rules.
+
 ### [DEFINITIONS.md](DEFINITIONS.md)
 
 Schema documentation for external definition files such as `default_names.json` and `default_teams.json`.

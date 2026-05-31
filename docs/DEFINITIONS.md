@@ -46,8 +46,9 @@ Controls the first and last names used when generating players and staff.
 - Codes should be uppercase short nationality codes. Most use ISO 3166-1 alpha-2 (for example `"ES"`, `"BR"`), but football nations may use project-owned codes such as `"ENG"`, `"SCO"`, `"WAL"`, and `"NIR"`.
 - Legacy `"GB"` pools are still accepted and used as a fallback for British football nations when a dedicated pool is missing.
 - You can add as many or as few nationalities as you like.
-- The generator picks names from the pool matching the player's nationality. If a nationality has no pool entry, a random pool is used as fallback.
-- More names = more variety. The default pools have 20 first names and 20 last names each.
+- The generator picks names from the pool matching the player's nationality. If a nationality has no pool entry, the English pool is used as fallback.
+- More names = more variety. The bundled pools now cover 37 football nations/markets, with common-name seed data and curated football-specific gaps.
+- Bundled data is seeded from the CC0 `popular-names-by-country-dataset` where available, with manually curated pools for football identities and countries where the public data is incomplete.
 
 ---
 
@@ -102,7 +103,7 @@ Controls the teams created during world generation.
 **Notes:**
 - The number of teams determines the league size. Must be an **even** number ≥ 2 for schedule generation.
 - Each team gets 22 players (2 GK, 7 DEF, 7 MID, 6 FWD) and 4 staff (AssistantManager, Coach, Scout, Physio).
-- Player nationalities are weighted 60% toward the team's country, 40% random from available pools.
+- Player nationalities are weighted toward the team's country, then realistic regional transfer markets, with only a small chance of wider global football markets.
 - 12 free-agent staff are also generated regardless of team count.
 
 ---
@@ -128,6 +129,26 @@ Nationality and team-country fields use short uppercase codes. Most are **ISO 31
 | `BR` | Brazil |
 | `AR` | Argentina |
 | `BE` | Belgium |
+| `AT` | Austria |
+| `CH` | Switzerland |
+| `DK` | Denmark |
+| `NO` | Norway |
+| `PL` | Poland |
+| `TR` | Turkey |
+| `GR` | Greece |
+| `CZ` | Czechia |
+| `RS` | Serbia |
+| `US` | United States |
+| `MX` | Mexico |
+| `UY` | Uruguay |
+| `CO` | Colombia |
+| `CL` | Chile |
+| `PY` | Paraguay |
+| `JP` | Japan |
+| `KR` | South Korea |
+| `MA` | Morocco |
+| `NG` | Nigeria |
+| `SA` | Saudi Arabia |
 | `HR` | Croatia |
 | `SE` | Sweden |
 

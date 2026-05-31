@@ -53,7 +53,7 @@ OpenFoot Manager is now a full web app:
 - Node.js command layer in `server/`.
 - PostgreSQL database managed with Prisma.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/WEB_MIGRATION.md](docs/WEB_MIGRATION.md).
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/WEB_MIGRATION.md](docs/WEB_MIGRATION.md), and [docs/FOOTBALL_STRUCTURE.md](docs/FOOTBALL_STRUCTURE.md).
 
 ## Development
 
