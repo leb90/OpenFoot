@@ -503,40 +503,145 @@ function generateTeams(startYear, country = null) {
   });
 }
 
-function buildRoundRobinFixtures(teamIds, startDate) {
+function buildRoundRobinRoundData(teamIds) {
   const teams = teamIds.length % 2 === 0 ? [...teamIds] : [...teamIds, null];
   const rounds = teams.length - 1;
-  const fixtures = [];
+  const schedule = [];
   let rotation = [...teams];
 
   for (let round = 0; round < rounds; round += 1) {
-    const matchDate = isoDate(addDays(startDate, round * 7));
+    const roundMatches = [];
+    const byes = [];
     for (let index = 0; index < rotation.length / 2; index += 1) {
       const home = rotation[index];
       const away = rotation[rotation.length - 1 - index];
-      if (!home || !away) continue;
-      fixtures.push({
-        id: `fix_${round + 1}_${index + 1}`,
-        matchday: round + 1,
-        date: matchDate,
+      if (!home || !away) {
+        if (home) byes.push(home);
+        if (away) byes.push(away);
+        continue;
+      }
+      roundMatches.push({
         home_team_id: round % 2 === 0 ? home : away,
         away_team_id: round % 2 === 0 ? away : home,
-        competition: "League",
-        status: "Scheduled",
-        result: null,
       });
     }
+    schedule.push({ matches: roundMatches, byes });
     rotation = [rotation[0], rotation[rotation.length - 1], ...rotation.slice(1, -1)];
+  }
+
+  return schedule;
+}
+
+function buildRoundRobinRounds(teamIds) {
+  return buildRoundRobinRoundData(teamIds).map((round) => round.matches);
+}
+
+function buildRoundRobinFixtures(teamIds, startDate, { legs = 2, fixturePrefix = "fix" } = {}) {
+  const rounds = buildRoundRobinRounds(teamIds);
+  const fixtures = [];
+
+  for (let leg = 0; leg < legs; leg += 1) {
+    rounds.forEach((roundMatches, roundIndex) => {
+      const matchday = leg * rounds.length + roundIndex + 1;
+      const matchDate = isoDate(addDays(startDate, (matchday - 1) * 7));
+      roundMatches.forEach((match, index) => {
+        fixtures.push({
+          id: `${fixturePrefix}_${matchday}_${index + 1}`,
+          matchday,
+          date: matchDate,
+          home_team_id: leg % 2 === 0 ? match.home_team_id : match.away_team_id,
+          away_team_id: leg % 2 === 0 ? match.away_team_id : match.home_team_id,
+          competition: "League",
+          status: "Scheduled",
+          result: null,
+        });
+      });
+    });
   }
 
   return fixtures;
 }
 
+function buildSplitGroupFixtures(teamIds, startDate) {
+  const zoneA = teamIds.filter((_, index) => index % 2 === 0);
+  const zoneB = teamIds.filter((_, index) => index % 2 === 1);
+  const zoneRounds = [buildRoundRobinRoundData(zoneA), buildRoundRobinRoundData(zoneB)];
+  const maxRounds = Math.max(...zoneRounds.map((rounds) => rounds.length));
+  const fixtures = [];
+
+  zoneRounds.forEach((rounds, zoneIndex) => {
+    rounds.forEach((roundData, roundIndex) => {
+      const matchday = roundIndex + 1;
+      const matchDate = isoDate(addDays(startDate, (matchday - 1) * 7));
+      roundData.matches.forEach((match, index) => {
+        fixtures.push({
+          id: `fix_zone_${zoneIndex + 1}_${matchday}_${index + 1}`,
+          matchday,
+          date: matchDate,
+          home_team_id: match.home_team_id,
+          away_team_id: match.away_team_id,
+          competition: "League",
+          group_id: `zone_${zoneIndex + 1}`,
+          status: "Scheduled",
+          result: null,
+        });
+      });
+    });
+  });
+
+  for (let roundIndex = 0; roundIndex < maxRounds; roundIndex += 1) {
+    const homeTeamId = zoneRounds[0][roundIndex]?.byes[0];
+    const awayTeamId = zoneRounds[1][roundIndex]?.byes[0];
+    if (!homeTeamId || !awayTeamId) continue;
+    const matchday = roundIndex + 1;
+    const matchDate = isoDate(addDays(startDate, (matchday - 1) * 7));
+    fixtures.push({
+      id: `fix_interzonal_bye_${matchday}`,
+      matchday,
+      date: matchDate,
+      home_team_id: roundIndex % 2 === 0 ? homeTeamId : awayTeamId,
+      away_team_id: roundIndex % 2 === 0 ? awayTeamId : homeTeamId,
+      competition: "League",
+      group_id: "interzonal",
+      status: "Scheduled",
+      result: null,
+    });
+  }
+
+  const matchday = maxRounds + 1;
+  const matchDate = isoDate(addDays(startDate, (matchday - 1) * 7));
+  zoneA.forEach((homeTeamId, index) => {
+    const awayTeamId = zoneB[(index + 1) % zoneB.length];
+    fixtures.push({
+      id: `fix_interzonal_extra_${index + 1}`,
+      matchday,
+      date: matchDate,
+      home_team_id: homeTeamId,
+      away_team_id: awayTeamId,
+      competition: "League",
+      group_id: "interzonal",
+      status: "Scheduled",
+      result: null,
+    });
+  });
+
+  return fixtures;
+}
+
+function buildFixturesForLeague(teamIds, startDate, leagueDefinition = {}) {
+  if (leagueDefinition.format_code === "split_groups_playoffs") {
+    return buildSplitGroupFixtures(teamIds, startDate);
+  }
+
+  return buildRoundRobinFixtures(teamIds, startDate, { legs: 2 });
+}
+
 function buildLeague(teams, startYear, currentDate, country = null) {
   const seasonStart = addDays(startDateForYear(startYear), 30);
-  const fixtures = buildRoundRobinFixtures(
+  const fixtures = buildFixturesForLeague(
     teams.map((team) => team.id),
     seasonStart,
+    country?.league,
   );
   const standings = teams.map((team) => ({
     team_id: team.id,
@@ -554,13 +659,16 @@ function buildLeague(teams, startYear, currentDate, country = null) {
     name: country?.league?.name ?? "Premier Division",
     country_code: country?.code ?? null,
     format: country?.league?.format ?? "Double round-robin",
-    domestic_cup: country?.league?.cup_name
-      ? {
-          id: `${country.league.id}_cup`,
-          name: country.league.cup_name,
-          format: "Single elimination",
-        }
-      : null,
+    format_code: country?.league?.format_code ?? "double_round_robin",
+    matchdays: country?.league?.matchdays ?? Math.max(1, teams.length - 1) * 2,
+    expected_fixture_count: fixtures.length,
+    relegation: country?.league?.relegation ?? null,
+    competitions_enabled: country?.league?.competitions_enabled ?? {
+      league: true,
+      domestic_cups: false,
+      international_cups: false,
+    },
+    domestic_cup: null,
     season: startYear,
     fixtures,
     standings,
@@ -669,7 +777,8 @@ export function createGameState({
           country_name: country.name,
           league_id: country.league.id,
           league_name: country.league.name,
-          cup_name: country.league.cup_name,
+          cup_name: null,
+          competitions_enabled: country.league.competitions_enabled,
           legal_names: "fictional",
         }
       : null,

@@ -100,7 +100,16 @@
     "availableCountries": "{{count}} countries",
     "availableTeams": "{{count}} clubs",
     "ovr": "OVR",
-    "selectTeamRequired": "Choose a country and club to start the career."
+    "selectTeamRequired": "Choose a country and club to start the career.",
+    "leagueRules": {
+      "format": "??",
+      "relegation": "??",
+      "doubleRoundRobin": "{{teams}} ??? / {{matchdays}} ? / ??????",
+      "splitGroups": "{{teams}} ??? / {{zones}} ??? / {{matchdays}} ??????",
+      "relegationAutomatic": "{{automatic}} ???????",
+      "relegationWithPlayoff": "{{automatic}} ??????? + {{playoffSpots}} ??????",
+      "relegationMetadata": "?????????"
+    }
   },
   "dashboard": {
     "home": "首页",

@@ -245,7 +245,7 @@ Visit the **Tournaments** tab to see the league table. Teams are ranked by:
 
 ### Schedule
 
-The **Schedule** tab shows all your fixtures — past results and upcoming matches. The league uses a double round-robin format: you play every team twice (home and away).
+The **Schedule** tab shows all your fixtures — past results and upcoming matches. Most leagues use a double round-robin format, while Argentina uses the split-zone league format defined in `default_world.json`.
 
 ### News
 

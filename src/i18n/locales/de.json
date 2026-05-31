@@ -100,7 +100,16 @@
     "availableCountries": "{{count}} Laender",
     "availableTeams": "{{count}} Vereine",
     "ovr": "GES",
-    "selectTeamRequired": "Waehle ein Land und einen Verein, um die Karriere zu starten."
+    "selectTeamRequired": "Waehle ein Land und einen Verein, um die Karriere zu starten.",
+    "leagueRules": {
+      "format": "Format",
+      "relegation": "Abstieg",
+      "doubleRoundRobin": "{{teams}} Vereine / {{matchdays}} Spieltage / Hin- und Rueckrunde",
+      "splitGroups": "{{teams}} Vereine / {{zones}} Gruppen / {{matchdays}} Ligaspieltage",
+      "relegationAutomatic": "{{automatic}} direkte Abstiegsplaetze",
+      "relegationWithPlayoff": "{{automatic}} direkte Abstiegsplaetze + {{playoffSpots}} Relegationsplatz",
+      "relegationMetadata": "Als Ligaregel gespeichert"
+    }
   },
   "dashboard": {
     "home": "Startseite",

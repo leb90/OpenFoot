@@ -100,7 +100,16 @@
     "availableCountries": "{{count}} pays",
     "availableTeams": "{{count}} clubs",
     "ovr": "GEN",
-    "selectTeamRequired": "Choisis un pays et un club pour lancer la carriere."
+    "selectTeamRequired": "Choisis un pays et un club pour lancer la carriere.",
+    "leagueRules": {
+      "format": "Format",
+      "relegation": "Rel?gation",
+      "doubleRoundRobin": "{{teams}} clubs / {{matchdays}} journ?es / aller-retour",
+      "splitGroups": "{{teams}} clubs / {{zones}} groupes / {{matchdays}} journ?es de ligue",
+      "relegationAutomatic": "{{automatic}} rel?gations directes",
+      "relegationWithPlayoff": "{{automatic}} rel?gations directes + {{playoffSpots}} place de barrage",
+      "relegationMetadata": "Enregistr? comme r?gle de ligue"
+    }
   },
   "dashboard": {
     "home": "Accueil",

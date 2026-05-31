@@ -233,6 +233,28 @@ describe("season helpers", () => {
     expect(isSeasonComplete(truncatedLeague)).toBe(false);
   });
 
+  it("uses backend expected fixture counts for custom league formats", () => {
+    const fixtures = [
+      makeFixture({ id: "f1", status: "Completed" }),
+      makeFixture({ id: "f2", status: "Completed", home_team_id: "team_3", away_team_id: "team_4" }),
+    ];
+    const customLeague = {
+      id: "league-1",
+      name: "League",
+      season: 1,
+      expected_fixture_count: fixtures.length,
+      fixtures,
+      standings: [
+        { team_id: "team_1", played: 1, won: 1, drawn: 0, lost: 0, goals_for: 2, goals_against: 0, points: 3 },
+        { team_id: "team_2", played: 1, won: 0, drawn: 0, lost: 1, goals_for: 0, goals_against: 2, points: 0 },
+        { team_id: "team_3", played: 1, won: 0, drawn: 0, lost: 1, goals_for: 0, goals_against: 1, points: 0 },
+        { team_id: "team_4", played: 1, won: 1, drawn: 0, lost: 0, goals_for: 1, goals_against: 0, points: 3 },
+      ],
+    };
+
+    expect(hasFullLeagueSchedule(customLeague)).toBe(true);
+  });
+
   it("ignores friendlies when validating league schedule completeness", () => {
     const competitiveFixtures: FixtureData[] = [];
     let fixtureCounter = 1;

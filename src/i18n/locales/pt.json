@@ -100,7 +100,16 @@
     "availableCountries": "{{count}} paises",
     "availableTeams": "{{count}} clubes",
     "ovr": "GER",
-    "selectTeamRequired": "Escolhe um pais e um clube para iniciar a carreira."
+    "selectTeamRequired": "Escolhe um pais e um clube para iniciar a carreira.",
+    "leagueRules": {
+      "format": "Formato",
+      "relegation": "Despromocao",
+      "doubleRoundRobin": "{{teams}} clubes / {{matchdays}} jornadas / ida e volta",
+      "splitGroups": "{{teams}} clubes / {{zones}} zonas / {{matchdays}} jornadas de liga",
+      "relegationAutomatic": "{{automatic}} descidas diretas",
+      "relegationWithPlayoff": "{{automatic}} descidas diretas + {{playoffSpots}} vaga de playoff",
+      "relegationMetadata": "Guardado como regra da liga"
+    }
   },
   "dashboard": {
     "home": "Início",

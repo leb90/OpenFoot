@@ -67,9 +67,19 @@ Controls playable countries, league metadata, fictional clubs, and squad strengt
         "id": "fr_ligue_elite",
         "name": "French Ligue Elite",
         "format": "Double round-robin",
+        "format_code": "double_round_robin",
         "target_teams": 18,
+        "matchdays": 34,
         "season": "August-May",
-        "cup_name": "French National Cup"
+        "competitions_enabled": {
+          "league": true,
+          "domestic_cups": false,
+          "international_cups": false
+        },
+        "relegation": {
+          "automatic": 2,
+          "playoff_spots": 1
+        }
       },
       "teams": []
     }
@@ -82,6 +92,16 @@ Controls playable countries, league metadata, fictional clubs, and squad strengt
 | `countries[].code` | `string` | Football country code used by generation and selection. |
 | `countries[].league` | `object` | Domestic league metadata shown in setup and stored in saves. |
 | `countries[].teams` | `TeamDef[]` | Fictional playable clubs for that country. |
+
+#### League metadata additions
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `format_code` | `string` | Fixture generator mode. Current values are `double_round_robin` and `split_groups_playoffs`. |
+| `target_teams` | `number` | Expected first-division size for validation and setup display. |
+| `matchdays` | `number` | League dates generated for the current format. |
+| `competitions_enabled` | `object` | Feature flags for league, domestic cups, and international cups. Cups are currently disabled. |
+| `relegation` | `object` | Metadata for automatic relegation and promotion/relegation playoff places. Lower divisions are not simulated yet. |
 
 #### Country TeamDef additions
 
@@ -101,6 +121,7 @@ Controls playable countries, league metadata, fictional clubs, and squad strengt
 - If a real-world reference has a high-rated French right winger, represent it as a fictional profile like `{ "position": "Forward", "detail_position": "RW", "nationality": "FR", "overall": 90 }`.
 - Generated player names always come from `default_names.json`; no real roster names are stored.
 - The game currently generates the selected country's league only. Other countries are selectable setup data until broader world simulation is added.
+- Domestic cups and international cups should stay disabled until they are modeled as separate competition definitions.
 
 ---
 

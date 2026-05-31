@@ -41,9 +41,24 @@ export interface PlayableLeagueInfo {
   name: string;
   tier: number;
   format: string;
+  format_code?: string;
   target_teams: number;
+  matchdays?: number;
   season: string;
-  cup_name: string;
+  zones?: number;
+  zone_size?: number;
+  playoff_qualifiers_per_zone?: number;
+  relegation?: {
+    automatic?: number;
+    playoff_spots?: number;
+    note?: string;
+  };
+  competitions_enabled?: {
+    league: boolean;
+    domestic_cups: boolean;
+    international_cups: boolean;
+  };
+  cup_name?: string;
 }
 
 export interface PlayableCountryInfo {
@@ -99,6 +114,45 @@ function formatCompactMoney(value: number): string {
 
 function phaseLabelKey(startPhase: CareerStartPhase): string {
   return `createManager.phase${startPhase === "midSeason" ? "MidSeason" : "SeasonStart"}`;
+}
+
+function leagueFormatSummary(
+  t: (key: string, options?: Record<string, unknown>) => string,
+  league: PlayableLeagueInfo,
+): string {
+  if (league.format_code === "split_groups_playoffs") {
+    return t("worldSelect.leagueRules.splitGroups", {
+      teams: league.target_teams,
+      zones: league.zones ?? 2,
+      matchdays: league.matchdays ?? 16,
+    });
+  }
+
+  return t("worldSelect.leagueRules.doubleRoundRobin", {
+    teams: league.target_teams,
+    matchdays: league.matchdays ?? Math.max(0, (league.target_teams - 1) * 2),
+  });
+}
+
+function relegationSummary(
+  t: (key: string, options?: Record<string, unknown>) => string,
+  league: PlayableLeagueInfo,
+): string {
+  const automatic = league.relegation?.automatic ?? 0;
+  const playoffSpots = league.relegation?.playoff_spots ?? 0;
+
+  if (automatic > 0 && playoffSpots > 0) {
+    return t("worldSelect.leagueRules.relegationWithPlayoff", {
+      automatic,
+      playoffSpots,
+    });
+  }
+
+  if (automatic > 0) {
+    return t("worldSelect.leagueRules.relegationAutomatic", { automatic });
+  }
+
+  return t("worldSelect.leagueRules.relegationMetadata");
 }
 
 export default function WorldSelect({
@@ -246,13 +300,13 @@ export default function WorldSelect({
                 />
                 <InfoRow
                   icon={<Shield className="h-4 w-4" />}
-                  label={selectedCountry.league.format}
-                  value={selectedCountry.league.season}
+                  label={t("worldSelect.leagueRules.format")}
+                  value={leagueFormatSummary(t, selectedCountry.league)}
                 />
                 <InfoRow
                   icon={<Trophy className="h-4 w-4" />}
-                  label={selectedCountry.league.cup_name}
-                  value={selectedCountry.league.target_teams.toString()}
+                  label={t("worldSelect.leagueRules.relegation")}
+                  value={relegationSummary(t, selectedCountry.league)}
                 />
               </div>
             </section>
@@ -430,7 +484,7 @@ export default function WorldSelect({
                   <InfoRow
                     icon={<Trophy className="h-4 w-4" />}
                     label={selectedCountry?.league.name ?? t("worldSelect.teamLabel")}
-                    value={selectedCountry?.league.cup_name ?? ""}
+                    value={selectedCountry ? leagueFormatSummary(t, selectedCountry.league) : ""}
                   />
                   <InfoRow
                     icon={<Landmark className="h-4 w-4" />}

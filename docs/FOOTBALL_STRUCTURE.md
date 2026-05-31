@@ -1,6 +1,6 @@
 # Football World Structure
 
-OpenFoot currently has one generated league with club templates from multiple countries. That is useful for early testing, but it is not a realistic football world. The target model should separate geography, competitions, clubs, squads, and calendars.
+OpenFoot now starts careers from a country-based fictional world instead of one mixed global league. The target model still separates geography, competitions, clubs, squads, and calendars so the simulation can grow without mixing domestic structures.
 
 ## Target Model
 
@@ -13,13 +13,12 @@ OpenFoot currently has one generated league with club templates from multiple co
 
 ## Initial Roadmap
 
-1. Replace the mixed `default_teams.json` with a `countries -> leagues -> clubs` definition file.
-2. Generate one selected playable league first, then add surrounding leagues as simulated world context.
-3. Split standings, fixtures, history, and news by competition ID.
-4. Add domestic cup generation.
-5. Add continental qualification from domestic league standings.
-6. Add promotion/relegation once at least two divisions exist for a country.
-7. Move generated data into normalized PostgreSQL tables when the save model is ready for migrations beyond snapshot JSON.
+1. Generate one selected playable league first, then add surrounding leagues as simulated world context.
+2. Split standings, fixtures, history, and news by competition ID.
+3. Add domestic cup generation.
+4. Add continental qualification from domestic league standings.
+5. Add promotion/relegation once at least two divisions exist for a country.
+6. Move generated data into normalized PostgreSQL tables when the save model is ready for migrations beyond snapshot JSON.
 
 ## First Data Step
 
@@ -30,9 +29,12 @@ OpenFoot currently has one generated league with club templates from multiple co
 `server/data/default_world.json` now defines the first fictional country-based world:
 
 - Countries: England, Spain, France, Germany, Italy, Netherlands, Portugal, Argentina, and Brazil.
-- Each country has a domestic league definition, national cup name, season window, target top-division size, and fictional clubs.
+- Full first-division team counts are included for this first pass: 20 clubs for England, Spain, Italy, and Brazil; 18 clubs for France, Germany, Netherlands, and Portugal; 30 clubs for Argentina.
+- Domestic cups and international cups are intentionally disabled for now.
+- Each country has a domestic league definition, season window, target top-division size, relegation metadata, and fictional clubs.
 - Club names are intentionally unlicensed and PES-style: based on city/color/identity patterns, not official trademarks.
 - Player names are generated from the nationality pools. Key player profiles only store position, nationality, age, footedness, potential, and OVR archetype.
 - The new career flow creates an isolated league for the selected country instead of mixing all clubs into one global table.
+- Standard European and Brazilian leagues generate home-and-away schedules. Argentina generates a split-zone league phase with two interzonal match layers, while playoffs are stored as metadata for a later simulation pass.
 
-The next data pass should expand each country from the current playable sample into full top-division sizes, then add second divisions for promotion/relegation.
+The next data pass should add second divisions for promotion/relegation, then domestic and continental cups as separate competitions.

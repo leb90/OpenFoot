@@ -100,7 +100,16 @@
     "availableCountries": "{{count}} paesi",
     "availableTeams": "{{count}} club",
     "ovr": "GEN",
-    "selectTeamRequired": "Scegli un paese e un club per iniziare la carriera."
+    "selectTeamRequired": "Scegli un paese e un club per iniziare la carriera.",
+    "leagueRules": {
+      "format": "Formato",
+      "relegation": "Retrocessione",
+      "doubleRoundRobin": "{{teams}} club / {{matchdays}} giornate / andata e ritorno",
+      "splitGroups": "{{teams}} club / {{zones}} gironi / {{matchdays}} giornate di lega",
+      "relegationAutomatic": "{{automatic}} retrocessioni dirette",
+      "relegationWithPlayoff": "{{automatic}} retrocessioni dirette + {{playoffSpots}} posto playoff",
+      "relegationMetadata": "Salvato come regola di lega"
+    }
   },
   "dashboard": {
     "home": "Casa",

@@ -60,7 +60,7 @@ export function expectedFixtureCount(teamCount: number): number | null {
 }
 
 export function hasFullLeagueSchedule(league: LeagueData): boolean {
-    const expectedCount = expectedFixtureCount(league.standings.length);
+    const expectedCount = league.expected_fixture_count ?? expectedFixtureCount(league.standings.length);
 
     if (expectedCount === null) {
         return false;

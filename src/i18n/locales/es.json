@@ -100,7 +100,16 @@
     "availableCountries": "{{count}} paises",
     "availableTeams": "{{count}} clubes",
     "ovr": "OVR",
-    "selectTeamRequired": "Elige un pais y un club para iniciar la carrera."
+    "selectTeamRequired": "Elige un pais y un club para iniciar la carrera.",
+    "leagueRules": {
+      "format": "Formato",
+      "relegation": "Descenso",
+      "doubleRoundRobin": "{{teams}} clubes / {{matchdays}} fechas / ida y vuelta",
+      "splitGroups": "{{teams}} clubes / {{zones}} zonas / {{matchdays}} fechas de liga",
+      "relegationAutomatic": "{{automatic}} descensos directos",
+      "relegationWithPlayoff": "{{automatic}} descensos directos + {{playoffSpots}} plaza de promocion",
+      "relegationMetadata": "Guardado como regla de liga"
+    }
   },
   "dashboard": {
     "home": "Inicio",

@@ -362,6 +362,7 @@ export interface FixtureData {
   home_team_id: string;
   away_team_id: string;
   competition: "League" | "Friendly" | "PreseasonTournament";
+  group_id?: string;
   status: "Scheduled" | "InProgress" | "Completed";
   result: null | {
     home_goals: number;
@@ -429,6 +430,22 @@ export interface LeagueData {
   id: string;
   name: string;
   season: number;
+  country_code?: string | null;
+  format?: string;
+  format_code?: string;
+  matchdays?: number;
+  expected_fixture_count?: number;
+  relegation?: {
+    automatic?: number;
+    playoff_spots?: number;
+    note?: string;
+  } | null;
+  competitions_enabled?: {
+    league: boolean;
+    domestic_cups: boolean;
+    international_cups: boolean;
+  };
+  domestic_cup?: null;
   fixtures: FixtureData[];
   standings: StandingData[];
   transfer_log?: CompletedTransferData[];
