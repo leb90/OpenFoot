@@ -51,6 +51,9 @@ const mockTranslationState = vi.hoisted(function () {
         "youthAcademy.potential": "Potential",
         "youthAcademy.potPromising": "Promising",
       },
+      es: {
+        "inbox.categories.Board": "Directiva",
+      },
       "pt-BR": {
         "inbox.effectOutcomeLabel": "Desfecho",
       },
@@ -168,10 +171,25 @@ beforeAll(function defineMatchMedia(): void {
     true,
     true,
   );
+
+  i18n.addResourceBundle(
+    "es",
+    "translation",
+    {
+      "be.msg.welcome.subject0": "Bienvenido a {{team}}",
+      "be.msg.welcome.body0": "Bienvenido a {{team}}.",
+      "be.sender.boardOfDirectors": "Junta Directiva",
+      "be.role.chairman": "Presidente",
+    },
+    true,
+    true,
+  );
 });
 
-beforeEach(function resetMocks(): void {
+beforeEach(async function resetMocks(): Promise<void> {
   mockedInvoke.mockReset();
+  mockTranslationState.language = "en";
+  await i18n.changeLanguage("en");
   useSettingsStore.setState({
     settings: {
       ...useSettingsStore.getState().settings,
@@ -312,8 +330,8 @@ function renderInboxTab(options: {
   initialMessageId?: string | null;
   onGameUpdate?: (state: GameStateData) => void;
   onNavigate?: (tab: string, context?: { messageId?: string }) => void;
-}): void {
-  render(
+}): ReturnType<typeof render> {
+  return render(
     <InboxTab
       gameState={options.gameState}
       initialMessageId={options.initialMessageId}
@@ -334,6 +352,45 @@ describe("InboxTab", function (): void {
     renderInboxTab({ gameState });
 
     expect(screen.getAllByText(/Test Message \d/)).toHaveLength(3);
+  });
+
+  it("re-resolves backend message keys when the active language changes", async function (): Promise<void> {
+    const gameState = createGameState([
+      createMessage({
+        id: "welcome",
+        subject: "Welcome to London FC",
+        subject_key: "be.msg.welcome.subject0",
+        body: "Raw welcome body",
+        body_key: "be.msg.welcome.body0",
+        sender: "Board",
+        sender_key: "be.sender.boardOfDirectors",
+        sender_role: "Chairperson",
+        sender_role_key: "be.role.chairman",
+        category: "Board",
+        i18n_params: { team: "London FC" },
+      }),
+    ]);
+
+    const view = renderInboxTab({
+      gameState,
+      initialMessageId: "welcome",
+    });
+
+    expect(screen.getAllByText("Welcome to London FC").length).toBeGreaterThan(0);
+
+    mockTranslationState.language = "es";
+    await i18n.changeLanguage("es");
+
+    view.rerender(
+      <InboxTab
+        gameState={gameState}
+        initialMessageId="welcome"
+        onGameUpdate={vi.fn()}
+      />,
+    );
+
+    expect(screen.getAllByText("Bienvenido a London FC").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Junta Directiva/).length).toBeGreaterThan(0);
   });
 
   it("marks an unread message as read when selected", async function (): Promise<void> {

@@ -39,8 +39,9 @@ export default function InboxTab({
   onNavigate,
 }: InboxTabProps): JSX.Element {
   const { i18n } = useTranslation();
+  const language = i18n.resolvedLanguage ?? i18n.language;
   const messages = gameState.messages ?? [];
-  const allMessages = useMemo(() => messages.map(resolveMessage), [messages]);
+  const allMessages = useMemo(() => messages.map(resolveMessage), [messages, language]);
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
     initialMessageId ?? null,
   );
@@ -335,7 +336,7 @@ export default function InboxTab({
           bulkSelectionEnabled={bulkSelectionEnabled}
           filteredMessages={filteredMessages}
           hasSelectedMessage={selectedMessage !== null}
-          language={i18n.language}
+          language={language}
           selectedMessageId={selectedMessageId}
           selectedMessageIds={selectedMessageIds}
           onRequestDeleteMessage={(message) => {
@@ -354,7 +355,7 @@ export default function InboxTab({
           <InboxMessageDetailPane
             effectFeedback={effectFeedback}
             gameState={gameState}
-            language={i18n.language}
+            language={language}
             selectedMessage={selectedMessage}
             onAction={(messageId, actionId, optionId) => {
               void handleAction(messageId, actionId, optionId);

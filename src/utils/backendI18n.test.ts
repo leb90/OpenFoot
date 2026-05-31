@@ -391,6 +391,29 @@ describe("resolveMessage", () => {
     expect(result.sender_role).toBe("Staff");
   });
 
+  it("localizes legacy welcome messages without persisted i18n keys", async () => {
+    const previousLanguage = i18n.language;
+    await i18n.changeLanguage("es");
+
+    try {
+      const msg = makeMessage({
+        subject: "Welcome to London FC",
+        body: "The board has confirmed your appointment at London FC. Your first task is to review the squad, staff, training plan and preseason schedule.",
+        sender: "Board",
+        sender_role: "Chairperson",
+        category: "Board",
+      });
+
+      const result = resolveMessage(msg);
+
+      expect(result.subject).toBe("Bienvenido a London FC");
+      expect(result.sender).toBe("Junta Directiva");
+      expect(result.sender_role).toBe("Presidente");
+    } finally {
+      await i18n.changeLanguage(previousLanguage);
+    }
+  });
+
   it("localizes legacy delegated renewal messages without persisted i18n keys", async () => {
     const previousLanguage = i18n.language;
     await i18n.changeLanguage("pt-BR");

@@ -3,6 +3,9 @@ import type { MessageAction, MessageData, NewsArticle } from "../store/gameStore
 const LEGACY_DELEGATED_RENEWALS_PREFIX = "delegated_renewals_";
 const LEGACY_TAKEOVER_CONTRACT_REVIEW_PREFIX = "contract_review_takeover_";
 const LEGACY_TAKEOVER_CONTRACT_REVIEW_SUBJECT = "Assistant Manager - Contract Review";
+const LEGACY_WELCOME_SUBJECT_RE = /^Welcome to (?<team>.+)$/;
+const LEGACY_WELCOME_BODY_RE =
+    /^The board has confirmed your appointment at (?<team>.+)\. Your first task is to review the squad, staff, training plan and preseason schedule\.$/;
 const LEGACY_DELEGATED_RENEWALS_SUMMARY_RE =
     /^Boss, I went through our renewal list at (?<team>.+)\. (?<successes>\d+) completed, (?<stalled>\d+) still pending, (?<failures>\d+) failed\.$/;
 const LEGACY_DELEGATED_RENEWALS_SUCCESS_RE =
@@ -33,6 +36,36 @@ export type BackendTextResolver = (
     fallback: string,
     params?: Record<string, string>,
 ) => string;
+
+export function resolveLegacyWelcomeMessage(
+    message: MessageData,
+    resolve: BackendTextResolver,
+): MessageData {
+    if (
+        message.subject_key ||
+        message.body_key ||
+        message.sender_key ||
+        message.sender_role_key
+    ) {
+        return message;
+    }
+
+    const subjectMatch = message.subject.match(LEGACY_WELCOME_SUBJECT_RE);
+    const bodyMatch = message.body.match(LEGACY_WELCOME_BODY_RE);
+    const team = bodyMatch?.groups?.team ?? subjectMatch?.groups?.team;
+
+    if (!team) {
+        return message;
+    }
+
+    return {
+        ...message,
+        subject: resolve("be.msg.welcome.subject0", message.subject, { team }),
+        body: resolve("be.msg.welcome.body0", message.body, { team }),
+        sender: resolve("be.sender.boardOfDirectors", message.sender, { team }),
+        sender_role: resolve("be.role.chairman", message.sender_role, { team }),
+    };
+}
 
 export function inferLegacyDelegatedRenewalsParams(
     message: MessageData,

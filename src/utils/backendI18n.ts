@@ -14,6 +14,7 @@ import {
   normalizeNewsParams,
   resolveLegacyTakeoverContractReviewMessage,
   resolveLegacyDelegatedRenewalsMessage,
+  resolveLegacyWelcomeMessage,
 } from './backendI18n.legacy';
 import {
   inferPlayerEventActionLabelKey,
@@ -572,7 +573,11 @@ export function resolveMessage(msg: MessageData): MessageData {
   };
 
   return resolveLegacyTakeoverContractReviewMessage(
-    resolveLegacyDelegatedRenewalsMessage(resolved, resolveBackendText, p),
+    resolveLegacyDelegatedRenewalsMessage(
+      resolveLegacyWelcomeMessage(resolved, resolveBackendText),
+      resolveBackendText,
+      p,
+    ),
     resolveBackendText,
   );
 }
