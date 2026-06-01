@@ -1093,6 +1093,8 @@ export function regenerateTeamSquad(game, teamId) {
     return { replaced: 0, squad_size: DEFAULT_SQUAD_SIZE };
   }
 
+  refreshTeamDefinitionFromCurrentWorld(team);
+
   const startYear = startYearFromGame(game);
   const previousCount = game.players.filter(
     (player) => player.team_id === team.id && !player.retired,
@@ -1146,6 +1148,50 @@ function selectedCountryFor(options = {}) {
 
 function teamTemplatesFor(country) {
   return country?.teams?.length ? country.teams : teamsDefinition.teams;
+}
+
+function cloneJson(value) {
+  return value == null ? value : JSON.parse(JSON.stringify(value));
+}
+
+function currentTeamTemplateFor(teamId) {
+  for (const country of worldDefinition.countries ?? []) {
+    const template = country.teams?.find((candidate) => candidate.id === teamId);
+    if (template) return template;
+  }
+
+  return teamsDefinition.teams?.find((candidate) => candidate.id === teamId) ?? null;
+}
+
+function currentKeyPlayerProfilesFor(team) {
+  const template = currentTeamTemplateFor(team.id);
+  return template?.key_players ?? [];
+}
+
+export function teamNeedsProfileRefresh(team) {
+  const currentProfiles = currentKeyPlayerProfilesFor(team);
+  if (currentProfiles.length === 0) return false;
+
+  return JSON.stringify(team.player_profiles ?? []) !== JSON.stringify(currentProfiles);
+}
+
+export function refreshTeamDefinitionFromCurrentWorld(team) {
+  const template = currentTeamTemplateFor(team.id);
+  if (!template) return false;
+
+  let changed = false;
+
+  if (teamNeedsProfileRefresh(team)) {
+    team.player_profiles = cloneJson(template.key_players ?? []);
+    changed = true;
+  }
+
+  if (!team.squad_strength && template.squad_strength) {
+    team.squad_strength = cloneJson(template.squad_strength);
+    changed = true;
+  }
+
+  return changed;
 }
 
 function generatedTeamId(country, index) {

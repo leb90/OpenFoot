@@ -12,6 +12,7 @@ import {
   managerTeamName,
   regenerateTeamSquad,
   registrationStatusForPlayer,
+  teamNeedsProfileRefresh,
 } from "./gameFactory.js";
 
 function clone(value) {
@@ -75,11 +76,23 @@ function selectedSquadHasLegacyNationalities(game, team) {
   return roster.some((player) => !allowedNationalities.has(player.nationality));
 }
 
+function selectedSquadIsIncomplete(game, team) {
+  return (
+    (game.players ?? []).filter((player) => player.team_id === team.id && !player.retired).length <
+    DEFAULT_SQUAD_SIZE
+  );
+}
+
 function repairOpeningDaySelectedSquad(game) {
   const team = activeTeam(game);
   if (!team || !isOpeningDayGame(game)) return game;
-  if (selectedSquadHasLegacyNationalities(game, team)) {
+  if (
+    teamNeedsProfileRefresh(team) ||
+    selectedSquadIsIncomplete(game, team) ||
+    selectedSquadHasLegacyNationalities(game, team)
+  ) {
     regenerateTeamSquad(game, team.id);
+    team.starting_xi_ids = defaultStartingXi(game, team.id);
   }
   return game;
 }

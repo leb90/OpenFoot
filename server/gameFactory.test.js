@@ -424,6 +424,8 @@ describe("default football name pools", () => {
       },
     });
     const teamId = "ar_buenos_aires_millionaires";
+    const team = game.teams.find((candidate) => candidate.id === teamId);
+    team.player_profiles = [];
     const staleRoster = Array.from({ length: DEFAULT_SQUAD_SIZE }, (_, index) => ({
       ...game.players.find((player) => player.team_id === teamId),
       id: `stale-${index}`,
@@ -438,6 +440,7 @@ describe("default football name pools", () => {
     const regeneratedRoster = game.players.filter((player) => player.team_id === teamId);
 
     expect(result.replaced).toBe(DEFAULT_SQUAD_SIZE);
+    expect(team.player_profiles.length).toBeGreaterThan(0);
     expect(regeneratedRoster).toHaveLength(DEFAULT_SQUAD_SIZE);
     expect(regeneratedRoster.some((player) => player.nationality === "ES")).toBe(false);
     expect(regeneratedRoster.some((player) => player.nationality === "BR")).toBe(false);
