@@ -198,8 +198,8 @@ export default function TacticsPitch({
         </div>
       </div>
       <div className="p-4 sm:p-5">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_128px]">
-          <div className="relative min-h-115 overflow-visible rounded-xl border border-primary-500/20 bg-linear-to-b from-primary-500 to-primary-600 p-4 dark:from-primary-700 dark:to-primary-800 sm:min-h-130 sm:p-5">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_120px]">
+          <div className="relative h-96 overflow-visible rounded-xl border border-primary-500/20 bg-linear-to-b from-primary-500 to-primary-600 p-4 dark:from-primary-700 dark:to-primary-800 sm:h-[26rem] sm:p-5 xl:h-[27rem]">
           <div className="absolute inset-x-6 top-1/2 border-t border-white/50" />
           <div className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/50" />
           <div className="absolute inset-x-[18%] bottom-4 h-[18%] rounded-t-4xl border border-white/50 border-b-0" />
@@ -288,7 +288,7 @@ export default function TacticsPitch({
             </div>
           ))}
           </div>
-        <div className="min-w-0 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-navy-600 dark:bg-navy-900/40">
+        <div className="max-h-96 min-w-0 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-navy-600 dark:bg-navy-900/40 sm:max-h-[26rem] xl:max-h-[27rem]">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <h4 className="text-xs font-heading font-bold uppercase tracking-wider text-gray-500 dark:text-white/80">
