@@ -330,10 +330,13 @@ export default function ScheduleTab({
         (fixture.home_team_id === userTeamId || fixture.away_team_id === userTeamId),
     );
 
-  const selectedFocusFixture =
-    selectedFixtures.find((fixture) => isManagerFixture(fixture)) ??
-    selectedFixtures[0] ??
-    null;
+  const selectedManagerFixtures = selectedFixtures.filter((fixture) =>
+    isManagerFixture(fixture),
+  );
+  const selectedOtherFixtures = selectedFixtures.filter(
+    (fixture) => !isManagerFixture(fixture),
+  );
+  const selectedFocusFixture = selectedManagerFixtures[0] ?? null;
   const selectedFocusTeams = selectedFocusFixture
     ? fixtureDisplayTeams(selectedFocusFixture)
     : [];
@@ -502,9 +505,9 @@ export default function ScheduleTab({
               </div>
             ) : null}
 
-            {selectedFixtures.length > 1 ? (
+            {selectedOtherFixtures.length > 0 ? (
               <div className="mt-5 space-y-2">
-                {selectedFixtures.map((fixture) => {
+                {selectedOtherFixtures.slice(0, 5).map((fixture) => {
                   const displayTeams = fixtureDisplayTeams(fixture);
                   return (
                     <ContextMenu items={fixtureContextItems(fixture)} key={fixture.id}>
@@ -519,7 +522,7 @@ export default function ScheduleTab({
                             {opponentName(fixture)}
                           </p>
                           <p className="text-[11px] font-heading font-bold uppercase text-gray-500 dark:text-gray-400">
-                            {fixtureTagLabel(fixture)} ·{" "}
+                            {fixtureTagLabel(fixture)}{" - "}
                             {resultLabel(fixture) ?? homeAwayLabel(fixture)}
                           </p>
                         </div>
@@ -527,6 +530,11 @@ export default function ScheduleTab({
                     </ContextMenu>
                   );
                 })}
+                {selectedOtherFixtures.length > 5 ? (
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-center text-[11px] font-heading font-bold uppercase text-gray-500 dark:border-navy-600 dark:bg-navy-900/50 dark:text-gray-400">
+                    +{selectedOtherFixtures.length - 5}
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </aside>
@@ -547,19 +555,13 @@ export default function ScheduleTab({
                 {monthCells.map((date) => {
                   const dateKey = toDateKey(date);
                   const fixtures = fixturesByDate.get(dateKey) ?? [];
-                  const shownFixtures = [...fixtures]
-                    .sort((left, right) => {
-                      const leftIsManagerFixture = isManagerFixture(left) ? 0 : 1;
-                      const rightIsManagerFixture = isManagerFixture(right) ? 0 : 1;
-                      return (
-                        leftIsManagerFixture - rightIsManagerFixture ||
-                        left.id.localeCompare(right.id)
-                      );
-                    })
-                    .slice(0, 2);
+                  const managerFixtures = fixtures.filter((fixture) =>
+                    isManagerFixture(fixture),
+                  );
+                  const shownFixtures = managerFixtures.slice(0, 2);
                   const hiddenFixtureCount = Math.max(
                     0,
-                    fixtures.length - shownFixtures.length,
+                    managerFixtures.length - shownFixtures.length,
                   );
                   const isCurrentMonth = isSameMonth(date, visibleMonth);
                   const isToday = isSameDateKey(date, currentDateKey);
@@ -586,9 +588,9 @@ export default function ScheduleTab({
                         >
                           {date.getDate()}
                         </span>
-                        {fixtures.length > 0 ? (
+                        {managerFixtures.length > 0 ? (
                           <span className="text-[11px] font-heading font-bold uppercase text-gray-400 dark:text-gray-500">
-                            {fixtures.length}
+                            {managerFixtures.length}
                           </span>
                         ) : null}
                       </div>

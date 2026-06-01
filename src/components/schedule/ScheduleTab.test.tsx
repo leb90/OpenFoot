@@ -115,6 +115,18 @@ function createGameState(withLeague: boolean): GameStateData {
     teams: [
       createTeam(),
       createTeam({ id: "team-2", name: "Beta FC", short_name: "BET" }),
+      createTeam({
+        id: "team-3",
+        name: "Gamma FC",
+        short_name: "GAM",
+        manager_id: null,
+      }),
+      createTeam({
+        id: "team-4",
+        name: "Delta FC",
+        short_name: "DEL",
+        manager_id: null,
+      }),
     ],
     players: [],
     staff: [],
@@ -125,7 +137,14 @@ function createGameState(withLeague: boolean): GameStateData {
         id: "league-1",
         name: "Premier League",
         season: 1,
-        fixtures: [createFixture()],
+        fixtures: [
+          createFixture(),
+          createFixture({
+            id: "fixture-2",
+            home_team_id: "team-3",
+            away_team_id: "team-4",
+          }),
+        ],
         standings: [
           {
             team_id: "team-1",
@@ -145,6 +164,26 @@ function createGameState(withLeague: boolean): GameStateData {
             lost: 1,
             goals_for: 1,
             goals_against: 2,
+            points: 0,
+          },
+          {
+            team_id: "team-3",
+            played: 1,
+            won: 1,
+            drawn: 0,
+            lost: 0,
+            goals_for: 1,
+            goals_against: 0,
+            points: 3,
+          },
+          {
+            team_id: "team-4",
+            played: 1,
+            won: 0,
+            drawn: 0,
+            lost: 1,
+            goals_for: 0,
+            goals_against: 1,
             points: 0,
           },
         ],
@@ -179,6 +218,7 @@ describe("ScheduleTab", () => {
     render(<ScheduleTab gameState={createGameState(true)} onSelectTeam={onSelectTeam} />);
 
     expect(screen.getAllByTitle("Beta FC").length).toBeGreaterThan(0);
+    expect(screen.queryByTestId("schedule-fixture-fixture-2")).not.toBeInTheDocument();
 
     fireEvent.contextMenu(screen.getByTestId("schedule-fixture-fixture-1"));
     fireEvent.click(screen.getByRole("button", { name: "View team: Beta FC" }));
