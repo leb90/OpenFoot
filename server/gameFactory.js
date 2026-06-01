@@ -75,6 +75,24 @@ const SQUAD_SLOT_PLAN = [
 const POSITIONS_BY_SLOT = SQUAD_SLOT_PLAN.map((slot) => slot.position);
 const DEFAULT_SQUAD_SIZE = SQUAD_SLOT_PLAN.length;
 
+const DETAIL_POSITION_ALIASES = {
+  GK: "Goalkeeper",
+  LB: "LeftBack",
+  LWB: "WingBack",
+  CB: "CenterBack",
+  RB: "RightBack",
+  RWB: "WingBack",
+  CDM: "DefensiveMidfielder",
+  CM: "CentralMidfielder",
+  CAM: "AttackingMidfielder",
+  LM: "WideMidfielder",
+  RM: "WideMidfielder",
+  LW: "LeftWinger",
+  RW: "RightWinger",
+  ST: "Striker",
+  CF: "SecondStriker",
+};
+
 const EU_EEA_FOOTBALL_CODES = new Set([
   "AT",
   "BE",
@@ -344,7 +362,7 @@ function nationalityFitsRegistrationRules(nationality, team, currentPlayers, rul
   return true;
 }
 
-function nationalityForRosterSlot(team, currentPlayers, remainingSlotsAfter, profile, rules) {
+function nationalityForRosterSlot(team, currentPlayers, remainingSlotsAfter, profile, rules, options = {}) {
   const minDomestic = minimumDomesticPlayers(rules);
   const domesticNeeded = Math.max(0, minDomestic - countDomesticPlayers(currentPlayers, team.country));
   if (domesticNeeded > remainingSlotsAfter) {
@@ -358,6 +376,10 @@ function nationalityForRosterSlot(team, currentPlayers, remainingSlotsAfter, pro
     return profile.nationality;
   }
 
+  if (options.domesticFallbackOnly) {
+    return team.country;
+  }
+
   for (let attempt = 0; attempt < 20; attempt += 1) {
     const nationality = generatePlayerNationality(team.country);
     if (nationalityFitsRegistrationRules(nationality, team, currentPlayers, rules)) {
@@ -366,6 +388,31 @@ function nationalityForRosterSlot(team, currentPlayers, remainingSlotsAfter, pro
   }
 
   return team.country;
+}
+
+function canonicalDetailPosition(value) {
+  if (!value) return null;
+  return DETAIL_POSITION_ALIASES[value] ?? value;
+}
+
+function detailPositionFitsSlot(profileDetailPosition, slotDetailPosition) {
+  const profileDetail = canonicalDetailPosition(profileDetailPosition);
+  const slotDetail = canonicalDetailPosition(slotDetailPosition);
+  if (!profileDetail || !slotDetail) return false;
+  if (profileDetail === slotDetail) return true;
+  if (slotDetail === "Winger") {
+    return ["LeftWinger", "RightWinger", "Winger"].includes(profileDetail);
+  }
+  if (slotDetail === "WideMidfielder") {
+    return ["LeftMidfielder", "RightMidfielder", "WideMidfielder"].includes(profileDetail);
+  }
+  if (slotDetail === "FullBack") {
+    return ["LeftBack", "RightBack", "FullBack"].includes(profileDetail);
+  }
+  if (slotDetail === "WingBack") {
+    return ["LeftBack", "RightBack", "WingBack"].includes(profileDetail);
+  }
+  return false;
 }
 
 export function registrationStatusForPlayer(game, team, player) {
@@ -600,7 +647,9 @@ function generatedRatingForSlot(team, position, slot, slotPlan = null) {
 function playerProfileForSlot(profiles, position, detailPosition = null) {
   if (detailPosition) {
     const detailIndex = profiles.findIndex(
-      (profile) => profile.position === position && profile.detail_position === detailPosition,
+      (profile) =>
+        profile.position === position &&
+        detailPositionFitsSlot(profile.detail_position, detailPosition),
     );
     if (detailIndex !== -1) return profiles.splice(detailIndex, 1)[0];
   }
@@ -631,7 +680,15 @@ function generatePlayer(team, slot, startYear, profile = null, slotPlan = null, 
     options.nationality ?? profile?.nationality ?? generatePlayerNationality(team.country);
   const { firstName, lastName } = generateName(nationality);
   const position = profile?.position ?? slotPlan?.position ?? POSITIONS_BY_SLOT[slot] ?? "Midfielder";
-  const detailPosition = profile?.detail_position ?? slotPlan?.detail_position ?? null;
+  const detailPosition = canonicalDetailPosition(
+    profile?.detail_position ?? slotPlan?.detail_position ?? null,
+  );
+  const alternatePositions = [
+    ...(detailPosition && detailPosition !== position ? [detailPosition] : []),
+    ...((profile?.detail_positions ?? [])
+      .map((detail) => canonicalDetailPosition(detail))
+      .filter((detail) => detail && detail !== position && detail !== detailPosition)),
+  ];
   const age = profile?.age ?? ageForBand(slotPlan?.age_band);
   const dob = `${startYear - age}-${String(randomInt(1, 13)).padStart(2, "0")}-${String(
     randomInt(1, 29),
@@ -654,7 +711,7 @@ function generatePlayer(team, slot, startYear, profile = null, slotPlan = null, 
     birth_country: nationality,
     position,
     natural_position: position,
-    alternate_positions: detailPosition && detailPosition !== position ? [detailPosition] : [],
+    alternate_positions: [...new Set(alternatePositions)],
     footedness: profile?.footedness ?? (Math.random() < 0.25 ? "Left" : "Right"),
     weak_foot: randomInt(2, 5),
     training_focus: null,
@@ -690,6 +747,7 @@ function generatePlayer(team, slot, startYear, profile = null, slotPlan = null, 
 
 function generatePlayersForTeam(team, startYear) {
   const profiles = [...(team.player_profiles ?? [])];
+  const hasCuratedProfiles = profiles.length > 0;
   const registrationRules = team.registration_rules ?? registrationRulesForCountry(team.country);
   const roster = [];
 
@@ -701,6 +759,7 @@ function generatePlayersForTeam(team, startYear) {
       SQUAD_SLOT_PLAN.length - slot - 1,
       profile,
       registrationRules,
+      { domesticFallbackOnly: hasCuratedProfiles },
     );
     const player = generatePlayer(
       team,
@@ -715,7 +774,14 @@ function generatePlayersForTeam(team, startYear) {
   });
 
   const extraPlayers = profiles.map((profile, index) => {
-    const nationality = nationalityForRosterSlot(team, roster, profiles.length - index - 1, profile, registrationRules);
+    const nationality = nationalityForRosterSlot(
+      team,
+      roster,
+      profiles.length - index - 1,
+      profile,
+      registrationRules,
+      { domesticFallbackOnly: hasCuratedProfiles },
+    );
     const player = generatePlayer(team, SQUAD_SLOT_PLAN.length + index, startYear, profile, null, {
       nationality,
     });
@@ -769,6 +835,7 @@ export function ensureSquadDepth(game) {
     if (currentPlayers.length >= DEFAULT_SQUAD_SIZE) return;
 
     const registrationRules = team.registration_rules ?? registrationRulesForCountry(team.country);
+    const hasCuratedProfiles = Array.isArray(team.player_profiles) && team.player_profiles.length > 0;
     const teamRoster = [...currentPlayers];
     const missingPlans = missingSquadSlotPlans(currentPlayers);
     let teamAdded = 0;
@@ -781,6 +848,7 @@ export function ensureSquadDepth(game) {
         DEFAULT_SQUAD_SIZE - teamRoster.length - 1,
         null,
         registrationRules,
+        { domesticFallbackOnly: hasCuratedProfiles },
       );
       const player = generatePlayer(
         team,

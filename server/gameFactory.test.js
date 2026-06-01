@@ -256,6 +256,25 @@ describe("default football name pools", () => {
     );
     expect(millionairesPlayers).toHaveLength(DEFAULT_SQUAD_SIZE);
     expect(countForeign(millionairesPlayers, "AR")).toBeLessThanOrEqual(6);
+    expect(millionairesPlayers.some((player) => player.nationality === "BR")).toBe(false);
+    expect(millionairesPlayers.some((player) => player.nationality === "PE")).toBe(false);
+    expect(
+      millionairesPlayers.some(
+        (player) =>
+          player.position === "Forward" &&
+          player.nationality === "CO" &&
+          player.ovr >= 76,
+      ),
+    ).toBe(true);
+    expect(
+      millionairesPlayers.some(
+        (player) =>
+          player.position === "Forward" &&
+          player.nationality === "AR" &&
+          player.ovr >= 77 &&
+          player.alternate_positions.includes("AttackingMidfielder"),
+      ),
+    ).toBe(true);
     expect(countRosterByPosition(millionairesPlayers)).toEqual({
       Goalkeeper: 3,
       Defender: 13,
