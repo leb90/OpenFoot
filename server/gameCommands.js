@@ -10,6 +10,7 @@ import {
   listPlayableCountries,
   managerName,
   managerTeamName,
+  regenerateTeamSquad,
   registrationStatusForPlayer,
 } from "./gameFactory.js";
 
@@ -50,8 +51,42 @@ function activeTeam(game) {
   return game.teams.find((team) => team.id === game.manager.team_id) ?? null;
 }
 
+function isOpeningDayGame(game) {
+  const clock = game?.clock ?? {};
+  if (!clock.start_date || !clock.current_date || clock.start_date !== clock.current_date) {
+    return false;
+  }
+
+  return (game.league?.fixtures ?? []).every((fixture) => !fixture.played);
+}
+
+function selectedSquadHasLegacyNationalities(game, team) {
+  const profiles = team.player_profiles ?? [];
+  if (profiles.length === 0) return false;
+
+  const allowedNationalities = new Set([
+    team.country,
+    ...profiles.map((profile) => profile.nationality).filter(Boolean),
+  ]);
+  const roster = (game.players ?? []).filter(
+    (player) => player.team_id === team.id && !player.retired,
+  );
+
+  return roster.some((player) => !allowedNationalities.has(player.nationality));
+}
+
+function repairOpeningDaySelectedSquad(game) {
+  const team = activeTeam(game);
+  if (!team || !isOpeningDayGame(game)) return game;
+  if (selectedSquadHasLegacyNationalities(game, team)) {
+    regenerateTeamSquad(game, team.id);
+  }
+  return game;
+}
+
 function prepareGameSnapshot(snapshot) {
   const game = clone(snapshot);
+  repairOpeningDaySelectedSquad(game);
   ensureSquadDepth(game);
   return game;
 }
@@ -554,6 +589,7 @@ export async function runCommand(command, args, context) {
       const game = await requireGame(session);
       const team = game.teams.find((candidate) => candidate.id === args.teamId);
       if (!team) throw new Error("be.error.teamNotFound");
+      regenerateTeamSquad(game, team.id);
       game.manager.team_id = team.id;
       team.manager_id = game.manager.id;
       team.starting_xi_ids = defaultStartingXi(game, team.id);

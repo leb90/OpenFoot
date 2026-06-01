@@ -9,6 +9,7 @@ import {
   DEFAULT_SQUAD_SIZE,
   ensureSquadDepth,
   listPlayableCountries,
+  regenerateTeamSquad,
   registrationRulesForCountry,
 } from "./gameFactory.js";
 
@@ -408,6 +409,39 @@ describe("default football name pools", () => {
     foreigners.forEach((player) => {
       expect(regionalMarket.has(player.nationality), player.full_name).toBe(true);
     });
+  });
+
+  it("regenerates a selected club squad from current manual profiles", () => {
+    const game = createGameState({
+      firstName: "Test",
+      lastName: "Manager",
+      dob: "1980-01-01",
+      nationality: "AR",
+      startupOptions: {
+        startYear: 2026,
+        startPhase: "seasonStart",
+        countryCode: "AR",
+      },
+    });
+    const teamId = "ar_buenos_aires_millionaires";
+    const staleRoster = Array.from({ length: DEFAULT_SQUAD_SIZE }, (_, index) => ({
+      ...game.players.find((player) => player.team_id === teamId),
+      id: `stale-${index}`,
+      team_id: teamId,
+      retired: false,
+      nationality: "ES",
+    }));
+
+    game.players = game.players.filter((player) => player.team_id !== teamId).concat(staleRoster);
+
+    const result = regenerateTeamSquad(game, teamId);
+    const regeneratedRoster = game.players.filter((player) => player.team_id === teamId);
+
+    expect(result.replaced).toBe(DEFAULT_SQUAD_SIZE);
+    expect(regeneratedRoster).toHaveLength(DEFAULT_SQUAD_SIZE);
+    expect(regeneratedRoster.some((player) => player.nationality === "ES")).toBe(false);
+    expect(regeneratedRoster.some((player) => player.nationality === "BR")).toBe(false);
+    expect(regeneratedRoster.some((player) => player.nationality === "PE")).toBe(false);
   });
 
   it("supports non-standard round-robin leg counts used by continental feeder leagues", () => {

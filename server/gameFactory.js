@@ -1079,6 +1079,33 @@ export function ensureSquadDepth(game) {
   return { added, squad_size: DEFAULT_SQUAD_SIZE };
 }
 
+export function regenerateTeamSquad(game, teamId) {
+  if (!game || !Array.isArray(game.teams)) {
+    return { replaced: 0, squad_size: DEFAULT_SQUAD_SIZE };
+  }
+
+  if (!Array.isArray(game.players)) {
+    game.players = [];
+  }
+
+  const team = game.teams.find((candidate) => candidate.id === teamId);
+  if (!team) {
+    return { replaced: 0, squad_size: DEFAULT_SQUAD_SIZE };
+  }
+
+  const startYear = startYearFromGame(game);
+  const previousCount = game.players.filter(
+    (player) => player.team_id === team.id && !player.retired,
+  ).length;
+  const generatedRoster = generatePlayersForTeam(team, startYear);
+
+  game.players = game.players.filter((player) => player.team_id !== team.id);
+  game.players.push(...generatedRoster);
+  team.starting_xi_ids = [];
+
+  return { replaced: previousCount, squad_size: generatedRoster.length };
+}
+
 function generateStaff(team, role, startYear) {
   const { firstName, lastName } = generateName(team.country);
   const age = randomInt(30, 61);
