@@ -178,6 +178,8 @@ describe("ScheduleTab", () => {
 
     render(<ScheduleTab gameState={createGameState(true)} onSelectTeam={onSelectTeam} />);
 
+    expect(screen.getAllByTitle("Beta FC").length).toBeGreaterThan(0);
+
     fireEvent.contextMenu(screen.getByTestId("schedule-fixture-fixture-1"));
     fireEvent.click(screen.getByRole("button", { name: "View team: Beta FC" }));
 

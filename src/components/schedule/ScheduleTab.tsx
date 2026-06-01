@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { GameStateData, FixtureData } from "../../store/gameStore";
+import { GameStateData, FixtureData, TeamData } from "../../store/gameStore";
 import ContextMenu, { type ContextMenuItem } from "../ContextMenu";
 import { Card, CardBody, Badge } from "../ui";
 import {
@@ -101,6 +101,56 @@ function weekdayLabels(locale: string): string[] {
   );
 }
 
+function textColorForBackground(hex: string): string {
+  const cleanHex = hex.replace("#", "");
+  const value = cleanHex.length === 3
+    ? cleanHex.split("").map((char) => `${char}${char}`).join("")
+    : cleanHex;
+  const red = Number.parseInt(value.slice(0, 2), 16);
+  const green = Number.parseInt(value.slice(2, 4), 16);
+  const blue = Number.parseInt(value.slice(4, 6), 16);
+  const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
+
+  return luminance > 0.62 ? "#111827" : "#ffffff";
+}
+
+function TeamCrest({
+  team,
+  size = "md",
+}: {
+  team: TeamData;
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
+}) {
+  const sizeClassName = {
+    xs: "h-8 w-8 text-[0.55rem]",
+    sm: "h-10 w-10 text-[0.65rem]",
+    md: "h-12 w-12 text-xs",
+    lg: "h-16 w-16 text-sm",
+    xl: "h-24 w-24 text-xl",
+  }[size];
+  const label = team.short_name || team.name.slice(0, 3).toUpperCase();
+
+  return (
+    <span className="group relative inline-flex shrink-0 items-center justify-center">
+      <span
+        aria-label={team.name}
+        title={team.name}
+        className={`${sizeClassName} inline-flex items-center justify-center border border-white/35 bg-gray-200 text-center font-heading font-bold uppercase leading-none shadow-lg shadow-black/20 ring-1 ring-black/10`}
+        style={{
+          background: `linear-gradient(145deg, ${team.colors.primary}, ${team.colors.secondary})`,
+          color: textColorForBackground(team.colors.primary),
+          clipPath: "polygon(50% 0%, 90% 15%, 84% 74%, 50% 100%, 16% 74%, 10% 15%)",
+        }}
+      >
+        {label}
+      </span>
+      <span className="pointer-events-none absolute bottom-full left-1/2 z-30 mb-2 max-w-44 -translate-x-1/2 rounded bg-navy-950 px-2 py-1 text-center text-[11px] font-semibold normal-case text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+        {team.name}
+      </span>
+    </span>
+  );
+}
+
 export default function ScheduleTab({
   gameState,
   onSelectTeam,
@@ -140,6 +190,10 @@ export default function ScheduleTab({
   const weekdays = useMemo(() => weekdayLabels(locale), [locale]);
   const selectedFixtures = fixturesByDate.get(selectedDateKey) ?? [];
   const selectedDate = parseDateOnly(selectedDateKey);
+  const teamsById = useMemo(
+    () => new Map(gameState.teams.map((team) => [team.id, team])),
+    [gameState.teams],
+  );
 
   useEffect(() => {
     setVisibleMonth(monthStart(parseDateOnly(currentDateKey)));
@@ -174,13 +228,6 @@ export default function ScheduleTab({
     if (fixture.competition === "Continental") return "CONT";
     if (fixture.competition === "PreseasonTournament") return "PRE";
     return t("season.friendly").slice(0, 3).toUpperCase();
-  };
-
-  const fixtureAccentClassName = (fixture: FixtureData): string => {
-    if (fixture.competition === "League") return "bg-primary-500 text-white";
-    if (fixture.competition === "Continental") return "bg-blue-500 text-white";
-    if (fixture.competition === "PreseasonTournament") return "bg-accent-500 text-navy-950";
-    return "bg-gray-500 text-white";
   };
 
   const resultCode = (kind: "win" | "loss" | "draw"): string => {
@@ -259,11 +306,37 @@ export default function ScheduleTab({
     );
   };
 
+  const teamForId = (teamId: string): TeamData | null =>
+    teamsById.get(teamId) ?? null;
+
+  const fixtureDisplayTeams = (fixture: FixtureData): TeamData[] => {
+    if (userTeamId && fixture.home_team_id === userTeamId) {
+      const opponent = teamForId(fixture.away_team_id);
+      return opponent ? [opponent] : [];
+    }
+    if (userTeamId && fixture.away_team_id === userTeamId) {
+      const opponent = teamForId(fixture.home_team_id);
+      return opponent ? [opponent] : [];
+    }
+
+    return [teamForId(fixture.home_team_id), teamForId(fixture.away_team_id)].filter(
+      Boolean,
+    ) as TeamData[];
+  };
+
   const isManagerFixture = (fixture: FixtureData): boolean =>
     Boolean(
       userTeamId &&
         (fixture.home_team_id === userTeamId || fixture.away_team_id === userTeamId),
     );
+
+  const selectedFocusFixture =
+    selectedFixtures.find((fixture) => isManagerFixture(fixture)) ??
+    selectedFixtures[0] ??
+    null;
+  const selectedFocusTeams = selectedFocusFixture
+    ? fixtureDisplayTeams(selectedFocusFixture)
+    : [];
 
   const transferWindowLabel = (() => {
     const window = seasonContext.transfer_window;
@@ -381,71 +454,90 @@ export default function ScheduleTab({
       </div>
 
       {view === "calendar" && (
-        <div className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <aside className="rounded-lg border border-gray-200 bg-white p-5 dark:border-navy-600 dark:bg-navy-800">
-            <p className="font-heading text-sm font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+        <div className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
+          <aside className="overflow-hidden rounded-lg border border-gray-200 bg-white p-5 shadow-sm dark:border-navy-600 dark:bg-navy-800">
+            <p className="font-heading text-sm font-bold uppercase text-gray-500 dark:text-gray-400">
               {formatSelectedDayLabel(selectedDateKey, locale)}
             </p>
-            <div className="mt-5 flex items-center gap-3">
-              <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-primary-500/10 font-heading text-2xl font-bold text-primary-500">
-                {selectedDate.getDate()}
-              </div>
-              <div className="min-w-0">
-                <p className="truncate font-heading text-lg font-bold uppercase text-gray-900 dark:text-white">
-                  {gameState.world?.league_name ?? league.name}
-                </p>
-                {transferWindowLabel ? (
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    {transferWindowLabel}
-                  </p>
-                ) : null}
-              </div>
-            </div>
 
-            <div className="mt-6 max-h-[58vh] space-y-3 overflow-y-auto pr-1">
-              {selectedFixtures.length === 0 ? (
-                <p className="rounded-lg border border-dashed border-gray-200 px-4 py-6 text-center text-sm text-gray-500 dark:border-navy-600 dark:text-gray-400">
+            {selectedFocusFixture ? (
+              <ContextMenu items={fixtureContextItems(selectedFocusFixture)}>
+                <div
+                  className="mt-5 rounded-lg border border-primary-500/20 bg-linear-to-br from-primary-500/15 via-navy-900/5 to-accent-500/10 p-5 text-center dark:from-primary-500/20 dark:via-navy-900 dark:to-accent-500/10"
+                  data-testid={`schedule-selected-fixture-${selectedFocusFixture.id}`}
+                >
+                  <div className="mx-auto flex min-h-28 items-center justify-center gap-3">
+                    {selectedFocusTeams.map((team) => (
+                      <TeamCrest key={team.id} team={team} size="xl" />
+                    ))}
+                  </div>
+                  <p className="mt-4 font-heading text-xs font-bold uppercase text-primary-600 dark:text-primary-300">
+                    {fixtureCompetitionLabel(selectedFocusFixture)}
+                  </p>
+                  <h3 className="mt-1 font-heading text-2xl font-bold uppercase leading-tight text-gray-950 dark:text-white">
+                    {opponentName(selectedFocusFixture)}
+                  </h3>
+                  <p className="mt-2 text-sm font-semibold text-gray-600 dark:text-gray-300">
+                    {resultLabel(selectedFocusFixture) ??
+                      homeAwayLabel(selectedFocusFixture)}
+                  </p>
+                </div>
+              </ContextMenu>
+            ) : (
+              <div className="mt-5 rounded-lg border border-dashed border-gray-200 px-4 py-10 text-center dark:border-navy-600">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-lg bg-primary-500/10 font-heading text-2xl font-bold text-primary-500">
+                  {selectedDate.getDate()}
+                </div>
+                <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
                   {t("schedule.noSchedule")}
                 </p>
-              ) : (
-                selectedFixtures.map((fixture) => {
-                  const completed = fixture.status === "Completed";
-                  const score = resultLabel(fixture);
+              </div>
+            )}
+
+            {transferWindowLabel ? (
+              <div className="mt-5 border-t border-gray-100 pt-4 text-center dark:border-navy-700">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {transferWindowLabel}
+                </p>
+              </div>
+            ) : null}
+
+            {selectedFixtures.length > 1 ? (
+              <div className="mt-5 space-y-2">
+                {selectedFixtures.map((fixture) => {
+                  const displayTeams = fixtureDisplayTeams(fixture);
                   return (
                     <ContextMenu items={fixtureContextItems(fixture)} key={fixture.id}>
-                      <div
-                        className="rounded-lg border border-gray-200 bg-gray-50 p-3 transition-colors hover:border-primary-300 dark:border-navy-600 dark:bg-navy-900/50 dark:hover:border-primary-500"
-                        data-testid={`schedule-selected-fixture-${fixture.id}`}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <Badge variant={fixture.competition === "Continental" ? "accent" : "primary"} size="sm">
-                            {fixtureTagLabel(fixture)}
-                          </Badge>
-                          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                            {completed && score ? score : homeAwayLabel(fixture)}
-                          </span>
+                      <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-2.5 transition-colors hover:border-primary-300 dark:border-navy-600 dark:bg-navy-900/50 dark:hover:border-primary-500">
+                        <div className="flex -space-x-1">
+                          {displayTeams.map((team) => (
+                            <TeamCrest key={team.id} team={team} size="xs" />
+                          ))}
                         </div>
-                        <p className="mt-2 text-sm font-semibold text-gray-900 dark:text-gray-100">
-                          {opponentName(fixture)}
-                        </p>
-                        <p className="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">
-                          {fixtureCompetitionLabel(fixture)}
-                        </p>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            {opponentName(fixture)}
+                          </p>
+                          <p className="text-[11px] font-heading font-bold uppercase text-gray-500 dark:text-gray-400">
+                            {fixtureTagLabel(fixture)} ·{" "}
+                            {resultLabel(fixture) ?? homeAwayLabel(fixture)}
+                          </p>
+                        </div>
                       </div>
                     </ContextMenu>
                   );
-                })
-              )}
-            </div>
+                })}
+              </div>
+            ) : null}
           </aside>
 
-          <section className="overflow-x-auto rounded-lg border border-gray-200 bg-white dark:border-navy-600 dark:bg-navy-800">
-            <div className="min-w-[760px]">
+          <section className="overflow-x-auto rounded-lg border border-gray-200 bg-white shadow-sm dark:border-navy-600 dark:bg-navy-800">
+            <div className="min-w-[840px]">
               <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50 dark:border-navy-600 dark:bg-navy-900/60">
                 {weekdays.map((weekday) => (
                   <div
                     key={weekday}
-                    className="px-2 py-3 text-center font-heading text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400"
+                    className="px-2 py-3 text-center font-heading text-xs font-bold uppercase text-gray-500 dark:text-gray-400"
                   >
                     {weekday}
                   </div>
@@ -478,7 +570,7 @@ export default function ScheduleTab({
                       type="button"
                       key={dateKey}
                       onClick={() => setSelectedDateKey(dateKey)}
-                      className={`min-h-28 border-b border-r border-gray-100 p-2 text-left transition-colors last:border-r-0 dark:border-navy-700 sm:min-h-32 ${
+                      className={`min-h-32 border-b border-r border-gray-100 p-2 text-left transition-colors last:border-r-0 dark:border-navy-700 ${
                         isSelected
                           ? "bg-primary-50 ring-2 ring-inset ring-primary-400 dark:bg-primary-500/10"
                           : "bg-white hover:bg-gray-50 dark:bg-navy-800 dark:hover:bg-navy-700/60"
@@ -486,33 +578,57 @@ export default function ScheduleTab({
                     >
                       <div className="mb-2 flex items-center justify-between">
                         <span
-                          className={`font-heading text-lg font-bold ${
+                          className={`font-heading text-2xl font-bold ${
                             isToday
-                              ? "flex h-8 w-8 items-center justify-center rounded-full bg-accent-400 text-navy-950"
+                              ? "flex h-9 w-9 items-center justify-center rounded-lg bg-accent-400 text-navy-950"
                               : "text-gray-900 dark:text-gray-100"
                           }`}
                         >
                           {date.getDate()}
                         </span>
                         {fixtures.length > 0 ? (
-                          <span className="h-2 w-2 rounded-full bg-primary-400" />
+                          <span className="text-[11px] font-heading font-bold uppercase text-gray-400 dark:text-gray-500">
+                            {fixtures.length}
+                          </span>
                         ) : null}
                       </div>
 
-                      <div className="space-y-1">
-                        {shownFixtures.map((fixture) => (
-                          <ContextMenu items={fixtureContextItems(fixture)} key={fixture.id}>
-                            <div
-                              className={`truncate rounded px-2 py-1 text-[11px] font-heading font-bold uppercase leading-tight ${fixtureAccentClassName(fixture)}`}
-                              data-testid={`schedule-fixture-${fixture.id}`}
-                            >
-                              {isManagerFixture(fixture) ? (
-                                <span className="mr-1">{homeAwayLabel(fixture)}</span>
-                              ) : null}
-                              <span>{fixtureTagLabel(fixture)}</span>
-                            </div>
-                          </ContextMenu>
-                        ))}
+                      <div className="space-y-1.5">
+                        {shownFixtures.map((fixture) => {
+                          const displayTeams = fixtureDisplayTeams(fixture);
+                          const score = resultLabel(fixture);
+
+                          return (
+                            <ContextMenu items={fixtureContextItems(fixture)} key={fixture.id}>
+                              <div
+                                className={`rounded-lg border px-2 py-1.5 transition ${
+                                  isManagerFixture(fixture)
+                                    ? "border-primary-400 bg-primary-500 text-white shadow-sm shadow-primary-500/20"
+                                    : "border-gray-200 bg-gray-50 text-gray-700 dark:border-navy-600 dark:bg-navy-900/70 dark:text-gray-200"
+                                }`}
+                                data-testid={`schedule-fixture-${fixture.id}`}
+                              >
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0">
+                                    <p className="font-heading text-[11px] font-bold uppercase leading-none">
+                                      {isManagerFixture(fixture)
+                                        ? homeAwayLabel(fixture)
+                                        : fixtureTagLabel(fixture)}
+                                    </p>
+                                    <p className="mt-1 text-[10px] font-semibold opacity-80">
+                                      {score ?? fixtureTagLabel(fixture)}
+                                    </p>
+                                  </div>
+                                  <div className="flex shrink-0 -space-x-1">
+                                    {displayTeams.map((team) => (
+                                      <TeamCrest key={team.id} team={team} size="xs" />
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </ContextMenu>
+                          );
+                        })}
                         {hiddenFixtureCount > 0 ? (
                           <div className="rounded bg-gray-100 px-2 py-1 text-[11px] font-semibold text-gray-500 dark:bg-navy-700 dark:text-gray-300">
                             +{hiddenFixtureCount}
