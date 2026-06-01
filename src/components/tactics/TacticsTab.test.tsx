@@ -263,6 +263,38 @@ describe("TacticsTab", () => {
     expect(screen.queryByTestId("pitch-bench-player-d5")).not.toBeInTheDocument();
   });
 
+  it("uses color-coded squad states for starters, substitutes, and reserves", () => {
+    const gameState = makeGameState();
+    gameState.players.push(
+      makePlayer("r1", "Defender"),
+      makePlayer("r2", "Defender"),
+      makePlayer("r3", "Defender"),
+      makePlayer("r4", "Defender"),
+      makePlayer("r5", "Defender"),
+      makePlayer("r6", "Defender"),
+      makePlayer("r7", "Defender"),
+    );
+
+    render(
+      <TacticsTab
+        gameState={gameState}
+        onSelectPlayer={vi.fn()}
+        onGameUpdate={vi.fn()}
+      />,
+    );
+
+    const starterRow = screen.getByTestId("xi-player-d1");
+    const substituteRow = screen.getByTestId("bench-player-d5");
+    const reserveRow = screen.getByTestId("bench-player-r7");
+
+    expect(within(starterRow).getByText("XI")).toBeInTheDocument();
+    expect(starterRow.className).toContain("border-l-emerald-500");
+    expect(within(substituteRow).getByText("SUB")).toBeInTheDocument();
+    expect(substituteRow.className).toContain("border-l-sky-500");
+    expect(within(reserveRow).getByText("RES")).toBeInTheDocument();
+    expect(reserveRow.className).toContain("border-l-rose-500");
+  });
+
   it("keeps youth academy players out of first-team tactics selection", () => {
     const gameState = makeGameState();
     gameState.players.push(

@@ -16,6 +16,8 @@ import {
   type SquadSection,
 } from "../squad/SquadTab.helpers";
 
+export type TacticsSquadStatus = "starter" | "substitute" | "reserve";
+
 interface TacticsPlayerTableProps {
   className?: string;
   dragState: DragState | null;
@@ -35,6 +37,7 @@ interface TacticsPlayerTableProps {
   ) => void;
   onSelectPlayer: (playerId: string) => void;
   players: PlayerData[];
+  resolvePlayerStatus?: (player: PlayerData) => TacticsSquadStatus;
   resolvePlayerSection?: (player: PlayerData) => SquadSection;
   section: SquadSection | "mixed";
   sortDir: "asc" | "desc";
@@ -104,6 +107,40 @@ function SortHeader({
   );
 }
 
+function getSquadStatusMeta(status: TacticsSquadStatus): {
+  badgeClassName: string;
+  label: string;
+  rowClassName: string;
+} {
+  if (status === "starter") {
+    return {
+      badgeClassName:
+        "bg-emerald-500/20 text-emerald-700 ring-1 ring-emerald-500/30 dark:bg-emerald-400/15 dark:text-emerald-200",
+      label: "XI",
+      rowClassName:
+        "border-l-4 border-l-emerald-500 bg-emerald-500/10 hover:bg-emerald-500/15 dark:bg-emerald-950/25 dark:hover:bg-emerald-900/35",
+    };
+  }
+
+  if (status === "substitute") {
+    return {
+      badgeClassName:
+        "bg-sky-500/20 text-sky-700 ring-1 ring-sky-500/30 dark:bg-sky-400/15 dark:text-sky-200",
+      label: "SUB",
+      rowClassName:
+        "border-l-4 border-l-sky-500 bg-sky-500/10 hover:bg-sky-500/15 dark:bg-sky-950/25 dark:hover:bg-sky-900/35",
+    };
+  }
+
+  return {
+    badgeClassName:
+      "bg-rose-500/15 text-rose-700 ring-1 ring-rose-500/25 dark:bg-rose-400/10 dark:text-rose-200",
+    label: "RES",
+    rowClassName:
+      "border-l-4 border-l-rose-500 bg-gray-100/70 hover:bg-gray-200/70 dark:bg-black/25 dark:hover:bg-navy-900/70",
+  };
+}
+
 function renderTableRow(props: {
   dragState: DragState | null;
   highlightedPlayerId: string | null;
@@ -122,6 +159,7 @@ function renderTableRow(props: {
   onSelectPlayer: (playerId: string) => void;
   player: PlayerData;
   section: SquadSection;
+  status: TacticsSquadStatus;
   xiSlotIndexByPlayerId: Map<string, number>;
   xiActivePosition: Map<string, string>;
 }): JSX.Element {
@@ -134,6 +172,7 @@ function renderTableRow(props: {
     onSelectPlayer,
     player,
     section,
+    status,
     xiSlotIndexByPlayerId,
     xiActivePosition,
   } = props;
@@ -151,6 +190,7 @@ function renderTableRow(props: {
   const isDragging = dragState?.playerId === player.id;
   const slotIndex =
     section === "xi" ? xiSlotIndexByPlayerId.get(player.id) ?? null : null;
+  const statusMeta = getSquadStatusMeta(status);
 
   return (
     <tr
@@ -174,7 +214,7 @@ function renderTableRow(props: {
           ? "bg-primary-500/15 opacity-70 dark:bg-primary-500/15"
           : isHighlighted
             ? "bg-primary-500/10 dark:bg-primary-500/10"
-            : "hover:bg-gray-50 dark:hover:bg-navy-700/50"
+            : statusMeta.rowClassName
       }`}
     >
       <td className="px-4 py-2.5">
@@ -185,9 +225,11 @@ function renderTableRow(props: {
           >
             {translatePositionAbbreviation(t, activePosition)}
           </Badge>
-          <Badge variant={section === "xi" ? "success" : "neutral"} size="sm">
-            {section === "xi" ? "XI" : "SUB"}
-          </Badge>
+          <span
+            className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-heading font-bold uppercase tracking-wider ${statusMeta.badgeClassName}`}
+          >
+            {statusMeta.label}
+          </span>
           {isWrongPosition ? (
             <span
               title={t("squad.outOfPositionTooltip")}
@@ -259,6 +301,7 @@ export default function TacticsPlayerTable({
   onPlayerDrop,
   onSelectPlayer,
   players,
+  resolvePlayerStatus,
   resolvePlayerSection,
   section,
   sortDir,
@@ -355,6 +398,10 @@ export default function TacticsPlayerTable({
               const rowSection =
                 resolvePlayerSection ??
                 (() => (section === "mixed" ? "bench" : section));
+              const nextSection = rowSection(player);
+              const rowStatus =
+                resolvePlayerStatus?.(player) ??
+                (nextSection === "xi" ? "starter" : "substitute");
 
               return renderTableRow({
                 dragState,
@@ -364,7 +411,8 @@ export default function TacticsPlayerTable({
                 onPlayerDrop,
                 onSelectPlayer,
                 player,
-                section: rowSection(player),
+                section: nextSection,
+                status: rowStatus,
                 xiSlotIndexByPlayerId,
                 xiActivePosition,
               });

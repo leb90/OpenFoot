@@ -129,6 +129,10 @@ export default function TacticsTab({
     [startingXiIds],
   );
   const bench = roster.filter((player) => !xiIds.has(player.id));
+  const matchdaySubstituteIds = useMemo(
+    () => new Set(bench.slice(0, 7).map((player) => player.id)),
+    [bench],
+  );
   const xiActivePosition = useMemo(
     () => buildActivePositionMap(pitchSlotRows),
     [pitchSlotRows],
@@ -563,6 +567,11 @@ export default function TacticsTab({
                 resolvePlayerSection={(player) =>
                   xiIds.has(player.id) ? "xi" : "bench"
                 }
+                resolvePlayerStatus={(player) => {
+                  if (xiIds.has(player.id)) return "starter";
+                  if (matchdaySubstituteIds.has(player.id)) return "substitute";
+                  return "reserve";
+                }}
                 section="mixed"
                 sortDir={sortDir}
                 sortKey={sortKey}

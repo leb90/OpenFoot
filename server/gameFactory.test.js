@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import {
   createGameState,
   DEFAULT_SQUAD_SIZE,
+  MIN_SENIOR_GOALKEEPERS,
   ensureSquadDepth,
   listPlayableCountries,
   regenerateTeamSquad,
@@ -347,6 +348,44 @@ describe("default football name pools", () => {
     });
   });
 
+  it("backfills legacy squads that reached full size with too few goalkeepers", () => {
+    const game = createGameState({
+      firstName: "Test",
+      lastName: "Manager",
+      dob: "1980-01-01",
+      nationality: "AR",
+      startupOptions: {
+        startYear: 2026,
+        startPhase: "seasonStart",
+        countryCode: "AR",
+      },
+    });
+    const teamId = "ar_buenos_aires_millionaires";
+    const roster = game.players.filter((player) => player.team_id === teamId);
+    const extraGoalkeepers = roster
+      .filter((player) => player.position === "Goalkeeper")
+      .slice(1);
+
+    extraGoalkeepers.forEach((player) => {
+      player.position = "Defender";
+      player.natural_position = "Defender";
+      player.detail_position = "CB";
+      player.alternate_positions = ["CenterBack"];
+    });
+
+    const result = ensureSquadDepth(game);
+    const backfilledRoster = game.players.filter((player) => player.team_id === teamId);
+
+    expect(result.added).toBe(2);
+    expect(backfilledRoster.length).toBe(DEFAULT_SQUAD_SIZE + 2);
+    expect(
+      backfilledRoster.filter(
+        (player) =>
+          player.position === "Goalkeeper" && player.squad_role !== "Youth",
+      ),
+    ).toHaveLength(MIN_SENIOR_GOALKEEPERS);
+  });
+
   it("applies country registration rules to generated squads", () => {
     const argentinaRules = registrationRulesForCountry("AR");
     const argentina = createGameState({
@@ -411,6 +450,12 @@ describe("default football name pools", () => {
       Midfielder: 11,
       Forward: 9,
     });
+    expect(
+      roster.filter(
+        (player) =>
+          player.position === "Goalkeeper" && player.squad_role !== "Youth",
+      ),
+    ).toHaveLength(MIN_SENIOR_GOALKEEPERS);
     expect(countForeign(roster, "ENG")).toBeGreaterThan(0);
     expect(roster.some((player) => player.alternate_positions.length > 0)).toBe(true);
     expect(Math.max(...roster.map((player) => player.ovr))).toBeGreaterThanOrEqual(80);

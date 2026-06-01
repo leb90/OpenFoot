@@ -33,7 +33,7 @@ const SUPPORTED_CURRENCIES = [
 const SQUAD_SLOT_PLAN = [
   { position: "Goalkeeper", detail_position: "Goalkeeper", age_band: "prime", squad_role: "Senior", rating_offset: 1 },
   { position: "Goalkeeper", detail_position: "Goalkeeper", age_band: "rotation", squad_role: "Senior", rating_offset: -4 },
-  { position: "Goalkeeper", detail_position: "Goalkeeper", age_band: "prospect", squad_role: "Youth", rating_offset: -9 },
+  { position: "Goalkeeper", detail_position: "Goalkeeper", age_band: "prospect", squad_role: "Senior", rating_offset: -9 },
 
   { position: "Defender", detail_position: "RightBack", age_band: "prime", squad_role: "Senior", rating_offset: 0 },
   { position: "Defender", detail_position: "CenterBack", age_band: "prime", squad_role: "Senior", rating_offset: 1 },
@@ -74,6 +74,9 @@ const SQUAD_SLOT_PLAN = [
 
 const POSITIONS_BY_SLOT = SQUAD_SLOT_PLAN.map((slot) => slot.position);
 const DEFAULT_SQUAD_SIZE = SQUAD_SLOT_PLAN.length;
+const MIN_SENIOR_GOALKEEPERS = SQUAD_SLOT_PLAN.filter(
+  (slot) => slot.position === "Goalkeeper" && slot.squad_role === "Senior",
+).length;
 
 const DETAIL_POSITION_ALIASES = {
   GK: "Goalkeeper",
@@ -297,7 +300,12 @@ const MATCH_ROLE_DEFAULTS = {
   corner_taker: null,
 };
 
-export { DEFAULT_SETTINGS, DEFAULT_SQUAD_SIZE, SUPPORTED_CURRENCIES };
+export {
+  DEFAULT_SETTINGS,
+  DEFAULT_SQUAD_SIZE,
+  MIN_SENIOR_GOALKEEPERS,
+  SUPPORTED_CURRENCIES,
+};
 
 export function getDefaultSettings(settings = {}) {
   const merged = { ...DEFAULT_SETTINGS, ...settings };
@@ -1059,16 +1067,16 @@ export function ensureSquadDepth(game) {
     const currentPlayers = game.players.filter(
       (player) => player.team_id === team.id && !player.retired,
     );
-    if (currentPlayers.length >= DEFAULT_SQUAD_SIZE) return;
+    const missingPlans = missingSquadSlotPlans(currentPlayers);
+    if (currentPlayers.length >= DEFAULT_SQUAD_SIZE && missingPlans.length === 0) return;
 
     const registrationRules = team.registration_rules ?? registrationRulesForCountry(team.country);
     const hasCuratedProfiles = Array.isArray(team.player_profiles) && team.player_profiles.length > 0;
     const teamRoster = [...currentPlayers];
-    const missingPlans = missingSquadSlotPlans(currentPlayers);
     let teamAdded = 0;
 
     missingPlans.forEach((slotPlan) => {
-      if (teamRoster.length >= DEFAULT_SQUAD_SIZE) return;
+      if (teamRoster.length >= DEFAULT_SQUAD_SIZE && currentPlayers.length < DEFAULT_SQUAD_SIZE) return;
       const nationality = nationalityForRosterSlot(
         team,
         teamRoster,

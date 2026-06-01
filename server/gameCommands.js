@@ -6,6 +6,7 @@ import {
   DEFAULT_SQUAD_SIZE,
   defaultSaveName,
   ensureSquadDepth,
+  MIN_SENIOR_GOALKEEPERS,
   getDefaultSettings,
   listPlayableCountries,
   managerName,
@@ -83,12 +84,24 @@ function selectedSquadIsIncomplete(game, team) {
   );
 }
 
+function selectedSquadHasThinGoalkeeperDepth(game, team) {
+  const seniorGoalkeepers = (game.players ?? []).filter(
+    (player) =>
+      player.team_id === team.id &&
+      !player.retired &&
+      player.squad_role !== "Youth" &&
+      player.position === "Goalkeeper",
+  );
+  return seniorGoalkeepers.length < MIN_SENIOR_GOALKEEPERS;
+}
+
 function repairOpeningDaySelectedSquad(game) {
   const team = activeTeam(game);
   if (!team || !isOpeningDayGame(game)) return game;
   if (
     teamNeedsProfileRefresh(team) ||
     selectedSquadIsIncomplete(game, team) ||
+    selectedSquadHasThinGoalkeeperDepth(game, team) ||
     selectedSquadHasLegacyNationalities(game, team)
   ) {
     regenerateTeamSquad(game, team.id);
