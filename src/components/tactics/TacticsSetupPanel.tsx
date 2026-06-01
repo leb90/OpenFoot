@@ -50,9 +50,9 @@ export default function TacticsSetupPanel({
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <div className="p-4">
+    <Card>
+      <div className="grid grid-cols-1 gap-4 p-4 xl:grid-cols-[minmax(280px,0.85fr)_minmax(0,1.15fr)]">
+        <div>
           <h3 className="mb-3 text-sm font-heading font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
             {t("tactics.formation")}
           </h3>
@@ -70,14 +70,12 @@ export default function TacticsSetupPanel({
             ))}
           </div>
         </div>
-      </Card>
 
-      <Card>
-        <div className="p-4">
+        <div>
           <h3 className="mb-3 text-sm font-heading font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
             {t("tactics.playStyle")}
           </h3>
-          <div className="grid grid-cols-3 justify-center gap-2">
+          <div className="grid grid-cols-2 justify-center gap-2 sm:grid-cols-3">
             {PLAY_STYLES.map((style) => (
               <button
                 key={style.id}
@@ -103,7 +101,7 @@ export default function TacticsSetupPanel({
             </p>
           </div>
         </div>
-      </Card>
-    </div>
+      </div>
+    </Card>
   );
 }

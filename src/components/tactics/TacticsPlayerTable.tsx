@@ -1,5 +1,5 @@
 import { AlertTriangle, ChevronDown, ChevronUp, Star } from "lucide-react";
-import type { JSX } from "react";
+import type { DragEvent, JSX } from "react";
 import { useTranslation } from "react-i18next";
 
 import { calcAge, getPlayerOvr, positionBadgeVariant } from "../../lib/helpers";
@@ -12,12 +12,27 @@ import {
   isPlayerOutOfPosition,
   normalisePosition,
   translatePositionAbbreviation,
+  type DragState,
   type SquadSection,
 } from "../squad/SquadTab.helpers";
 
 interface TacticsPlayerTableProps {
+  className?: string;
+  dragState: DragState | null;
   emptyMessage: string;
   highlightedPlayerId: string | null;
+  onDragEnd: () => void;
+  onDragStart: (
+    event: DragEvent<HTMLElement>,
+    playerId: string,
+    from: SquadSection,
+    slotIndex: number | null,
+  ) => void;
+  onPlayerDrop: (
+    event: DragEvent<HTMLElement>,
+    targetPlayerId: string,
+    targetSection: SquadSection,
+  ) => void;
   onSelectPlayer: (playerId: string) => void;
   players: PlayerData[];
   section: SquadSection;
@@ -26,6 +41,7 @@ interface TacticsPlayerTableProps {
   title: string;
   toggleSort: (key: SortKey) => void;
   totalCount: number;
+  xiSlotIndexByPlayerId: Map<string, number>;
   xiActivePosition: Map<string, string>;
 }
 
@@ -88,17 +104,36 @@ function SortHeader({
 }
 
 function renderTableRow(props: {
+  dragState: DragState | null;
   highlightedPlayerId: string | null;
+  onDragEnd: () => void;
+  onDragStart: (
+    event: DragEvent<HTMLElement>,
+    playerId: string,
+    from: SquadSection,
+    slotIndex: number | null,
+  ) => void;
+  onPlayerDrop: (
+    event: DragEvent<HTMLElement>,
+    targetPlayerId: string,
+    targetSection: SquadSection,
+  ) => void;
   onSelectPlayer: (playerId: string) => void;
   player: PlayerData;
   section: SquadSection;
+  xiSlotIndexByPlayerId: Map<string, number>;
   xiActivePosition: Map<string, string>;
 }): JSX.Element {
   const {
+    dragState,
     highlightedPlayerId,
+    onDragEnd,
+    onDragStart,
+    onPlayerDrop,
     onSelectPlayer,
     player,
     section,
+    xiSlotIndexByPlayerId,
     xiActivePosition,
   } = props;
   const { t } = useTranslation();
@@ -111,16 +146,35 @@ function renderTableRow(props: {
   const isWrongPosition =
     section === "xi" && isPlayerOutOfPosition(player, activePosition);
   const overallRating = getPlayerOvr(player);
+  const canDrag = section === "xi" || !player.injury;
+  const isDragging = dragState?.playerId === player.id;
+  const slotIndex =
+    section === "xi" ? xiSlotIndexByPlayerId.get(player.id) ?? null : null;
 
   return (
     <tr
       key={player.id}
       data-testid={`${section}-player-${player.id}`}
+      draggable={canDrag}
+      onDragStart={(event) => {
+        if (canDrag) {
+          onDragStart(event, player.id, section, slotIndex);
+        }
+      }}
+      onDragEnd={onDragEnd}
+      onDragOver={(event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+      }}
+      onDrop={(event) => onPlayerDrop(event, player.id, section)}
       onClick={() => onSelectPlayer(player.id)}
-      className={`group cursor-pointer transition-colors ${isHighlighted
-          ? "bg-primary-500/10 dark:bg-primary-500/10"
-          : "hover:bg-gray-50 dark:hover:bg-navy-700/50"
-        }`}
+      className={`group cursor-grab transition-colors active:cursor-grabbing ${
+        isDragging
+          ? "bg-primary-500/15 opacity-70 dark:bg-primary-500/15"
+          : isHighlighted
+            ? "bg-primary-500/10 dark:bg-primary-500/10"
+            : "hover:bg-gray-50 dark:hover:bg-navy-700/50"
+      }`}
     >
       <td className="px-4 py-2.5">
         <div className="flex items-center gap-1.5">
@@ -192,8 +246,13 @@ function renderTableRow(props: {
 }
 
 export default function TacticsPlayerTable({
+  className = "",
+  dragState,
   emptyMessage,
   highlightedPlayerId,
+  onDragEnd,
+  onDragStart,
+  onPlayerDrop,
   onSelectPlayer,
   players,
   section,
@@ -202,6 +261,7 @@ export default function TacticsPlayerTable({
   title,
   toggleSort,
   totalCount,
+  xiSlotIndexByPlayerId,
   xiActivePosition,
 }: TacticsPlayerTableProps): JSX.Element {
   const { t } = useTranslation();
@@ -219,7 +279,7 @@ export default function TacticsPlayerTable({
       : "mt-0.5 text-xs text-gray-400";
 
   return (
-    <Card>
+    <Card className={className}>
       <div className={headingClassName}>
         <h3 className={titleClassName}>
           {section === "xi" ? (
@@ -288,10 +348,15 @@ export default function TacticsPlayerTable({
           <tbody className="divide-y divide-gray-100 dark:divide-navy-600">
             {players.map((player) =>
               renderTableRow({
+                dragState,
                 highlightedPlayerId,
+                onDragEnd,
+                onDragStart,
+                onPlayerDrop,
                 onSelectPlayer,
                 player,
                 section,
+                xiSlotIndexByPlayerId,
                 xiActivePosition,
               }),
             )}

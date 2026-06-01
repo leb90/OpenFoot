@@ -124,6 +124,10 @@ export default function TacticsTab({
   );
 
   const xiIds = new Set(startingXiIds);
+  const xiSlotIndexByPlayerId = useMemo(
+    () => new Map(startingXiIds.map((id, index) => [id, index])),
+    [startingXiIds],
+  );
   const bench = roster.filter((player) => !xiIds.has(player.id));
   const xiActivePosition = useMemo(
     () => buildActivePositionMap(pitchSlotRows),
@@ -359,6 +363,58 @@ export default function TacticsTab({
     resetDragState();
   }
 
+  async function handleTablePlayerDrop(
+    event: DragEvent<HTMLElement>,
+    targetPlayerId: string,
+    targetSection: SquadSection,
+  ): Promise<void> {
+    event.preventDefault();
+    const draggedPlayerId = event.dataTransfer.getData("text/plain");
+    const currentDragState = dragStateRef.current ?? dragState;
+    const resolvedDragState =
+      currentDragState ??
+      (draggedPlayerId
+        ? {
+            playerId: draggedPlayerId,
+            from: xiIds.has(draggedPlayerId) ? "xi" : "bench",
+            slotIndex: xiIds.has(draggedPlayerId)
+              ? startingXiIds.indexOf(draggedPlayerId)
+              : null,
+          }
+        : null);
+
+    if (!resolvedDragState || resolvedDragState.playerId === targetPlayerId) {
+      resetDragState();
+      return;
+    }
+
+    const nextXiIds =
+      targetSection === "xi"
+        ? applyLineupDrop(
+            startingXiIds,
+            resolvedDragState,
+            startingXiIds.indexOf(targetPlayerId),
+          )
+        : applyLineupSwap(
+            startingXiIds,
+            {
+              id: resolvedDragState.playerId,
+              from: resolvedDragState.from,
+            },
+            targetPlayerId,
+            "bench",
+          );
+
+    if (!nextXiIds || nextXiIds.join(",") === startingXiIds.join(",")) {
+      resetDragState();
+      return;
+    }
+
+    await persistStartingXI(nextXiIds);
+    clearLineupSelection();
+    resetDragState();
+  }
+
   async function handleLineupPlayerClick(
     playerId: string,
     section: SquadSection,
@@ -423,64 +479,140 @@ export default function TacticsTab({
   }
 
   return (
-    <div className="max-w-6xl mx-auto flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-7xl flex-col gap-4">
       <div
         ref={dragPreviewRef}
         aria-hidden="true"
         className="pointer-events-none fixed -left-20 top-0 h-8 w-8 rounded-full border border-white/15 bg-navy-900/90 shadow-lg"
       />
-      <div className="flex gap-1 self-start rounded-lg bg-gray-100 p-1 dark:bg-navy-800">
-        <button
-          type="button"
-          onClick={() => setActiveTab("lineup")}
-          className={`rounded-md px-4 py-2 text-xs font-heading font-bold uppercase tracking-wider transition-colors ${
-            activeTab === "lineup"
-              ? "bg-white text-gray-900 shadow-sm dark:bg-navy-700 dark:text-white"
-              : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          }`}
-        >
-          {t("tactics.lineupTab")}
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("roles")}
-          className={`rounded-md px-4 py-2 text-xs font-heading font-bold uppercase tracking-wider transition-colors ${
-            activeTab === "roles"
-              ? "bg-white text-gray-900 shadow-sm dark:bg-navy-700 dark:text-white"
-              : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          }`}
-        >
-          {t("tactics.rolesTab")}
-        </button>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h2 className="font-heading text-3xl font-bold uppercase tracking-wide text-gray-900 dark:text-white">
+            {t("dashboard.tactics")}
+          </h2>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            {myTeam.name} - {formation} -{" "}
+            {t(`tactics.playStyles.${activePlayStyle}`, activePlayStyle)}
+          </p>
+        </div>
+        <div className="flex gap-1 self-start rounded-lg bg-gray-100 p-1 dark:bg-navy-800 lg:self-auto">
+          <button
+            type="button"
+            onClick={() => setActiveTab("lineup")}
+            className={`rounded-md px-4 py-2 text-xs font-heading font-bold uppercase tracking-wider transition-colors ${
+              activeTab === "lineup"
+                ? "bg-white text-gray-900 shadow-sm dark:bg-navy-700 dark:text-white"
+                : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
+          >
+            {t("tactics.lineupTab")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("roles")}
+            className={`rounded-md px-4 py-2 text-xs font-heading font-bold uppercase tracking-wider transition-colors ${
+              activeTab === "roles"
+                ? "bg-white text-gray-900 shadow-sm dark:bg-navy-700 dark:text-white"
+                : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            }`}
+          >
+            {t("tactics.rolesTab")}
+          </button>
+        </div>
       </div>
 
       {activeTab === "lineup" ? (
         <>
-          <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.95fr)] gap-4 items-start">
-            <TacticsPitch
-              benchPlayers={bench}
-              dragState={dragState}
-              formation={formation}
-              comparePlayerId={comparePlayerId}
-              hoveredSlot={hoveredSlot}
-              onClearSelection={clearLineupSelection}
-              onDragEnd={resetDragState}
-              onDragStart={handleDragStart}
-              onLineupPlayerClick={(playerId, section) => {
-                void handleLineupPlayerClick(playerId, section);
-              }}
-              onSlotDragLeave={handleSlotDragLeave}
-              onSlotDragOver={handleSlotDragOver}
-              onSlotDrop={(event, slotIndex) => {
-                void handleSlotDrop(event, slotIndex);
-              }}
-              outOfPositionCount={outOfPositionCount}
-              pitchSlotRows={pitchSlotRows}
-              selectedPlayer={selectedPlayer}
-              selectedPlayerId={selectedPlayerId}
-            />
+          <TacticsSetupPanel
+            activePlayStyle={activePlayStyle}
+            formation={formation}
+            onFormationChange={(nextFormation) => {
+              void handleFormationChange(nextFormation);
+            }}
+            onPlayStyleChange={(playStyle) => {
+              void handlePlayStyleChange(playStyle);
+            }}
+          />
 
-            <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(500px,0.95fr)]">
+            <div className="flex min-w-0 flex-col gap-4">
+              <TacticsFilters
+                onClear={handleClearFilters}
+                onPlayerSearchChange={setPlayerSearch}
+                onPositionFilterChange={setPositionFilter}
+                playerSearch={playerSearch}
+                positionFilter={positionFilter}
+              />
+
+              <TacticsPlayerTable
+                className="overflow-hidden"
+                dragState={dragState}
+                emptyMessage={t("squad.noLineupMatches")}
+                highlightedPlayerId={selectedPlayerId}
+                onDragEnd={resetDragState}
+                onDragStart={handleDragStart}
+                onPlayerDrop={(event, targetPlayerId, targetSection) => {
+                  void handleTablePlayerDrop(event, targetPlayerId, targetSection);
+                }}
+                onSelectPlayer={onSelectPlayer}
+                players={filteredStartingXI}
+                section="xi"
+                sortDir={sortDir}
+                sortKey={sortKey}
+                title={t("preMatch.startingXI")}
+                toggleSort={toggleSort}
+                totalCount={startingXI.length}
+                xiSlotIndexByPlayerId={xiSlotIndexByPlayerId}
+                xiActivePosition={xiActivePosition}
+              />
+
+              <TacticsPlayerTable
+                className="overflow-hidden"
+                dragState={dragState}
+                emptyMessage={t("squad.noBenchMatches")}
+                highlightedPlayerId={selectedPlayerId}
+                onDragEnd={resetDragState}
+                onDragStart={handleDragStart}
+                onPlayerDrop={(event, targetPlayerId, targetSection) => {
+                  void handleTablePlayerDrop(event, targetPlayerId, targetSection);
+                }}
+                onSelectPlayer={onSelectPlayer}
+                players={filteredBench}
+                section="bench"
+                sortDir={sortDir}
+                sortKey={sortKey}
+                title={t("preMatch.substitutes")}
+                toggleSort={toggleSort}
+                totalCount={bench.length}
+                xiSlotIndexByPlayerId={xiSlotIndexByPlayerId}
+                xiActivePosition={xiActivePosition}
+              />
+            </div>
+
+            <div className="flex min-w-0 flex-col gap-4 xl:sticky xl:top-4 xl:self-start">
+              <TacticsPitch
+                benchPlayers={bench}
+                dragState={dragState}
+                formation={formation}
+                comparePlayerId={comparePlayerId}
+                hoveredSlot={hoveredSlot}
+                onClearSelection={clearLineupSelection}
+                onDragEnd={resetDragState}
+                onDragStart={handleDragStart}
+                onLineupPlayerClick={(playerId, section) => {
+                  void handleLineupPlayerClick(playerId, section);
+                }}
+                onSlotDragLeave={handleSlotDragLeave}
+                onSlotDragOver={handleSlotDragOver}
+                onSlotDrop={(event, slotIndex) => {
+                  void handleSlotDrop(event, slotIndex);
+                }}
+                outOfPositionCount={outOfPositionCount}
+                pitchSlotRows={pitchSlotRows}
+                selectedPlayer={selectedPlayer}
+                selectedPlayerId={selectedPlayerId}
+              />
+
               <TacticsPlayerFocusPanel
                 canConfirmSwap={canConfirmSwap}
                 onConfirmSwap={() => {
@@ -489,54 +621,8 @@ export default function TacticsTab({
                 selectedPlayer={selectedPlayer}
                 comparePlayer={comparePlayer}
               />
-              <TacticsSetupPanel
-                activePlayStyle={activePlayStyle}
-                formation={formation}
-                onFormationChange={(nextFormation) => {
-                  void handleFormationChange(nextFormation);
-                }}
-                onPlayStyleChange={(playStyle) => {
-                  void handlePlayStyleChange(playStyle);
-                }}
-              />
             </div>
           </div>
-
-          <TacticsFilters
-            onClear={handleClearFilters}
-            onPlayerSearchChange={setPlayerSearch}
-            onPositionFilterChange={setPositionFilter}
-            playerSearch={playerSearch}
-            positionFilter={positionFilter}
-          />
-
-          <TacticsPlayerTable
-            emptyMessage={t("squad.noLineupMatches")}
-            highlightedPlayerId={selectedPlayerId}
-            onSelectPlayer={onSelectPlayer}
-            players={filteredStartingXI}
-            section="xi"
-            sortDir={sortDir}
-            sortKey={sortKey}
-            title={t("preMatch.startingXI")}
-            toggleSort={toggleSort}
-            totalCount={startingXI.length}
-            xiActivePosition={xiActivePosition}
-          />
-
-          <TacticsPlayerTable
-            emptyMessage={t("squad.noBenchMatches")}
-            highlightedPlayerId={selectedPlayerId}
-            onSelectPlayer={onSelectPlayer}
-            players={filteredBench}
-            section="bench"
-            sortDir={sortDir}
-            sortKey={sortKey}
-            title={t("preMatch.substitutes")}
-            toggleSort={toggleSort}
-            totalCount={bench.length}
-            xiActivePosition={xiActivePosition}
-          />
         </>
       ) : (
         <TacticsRolesPanel

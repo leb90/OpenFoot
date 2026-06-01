@@ -99,7 +99,7 @@ function getBenchPlayerButtonClassName(options: {
   const isComparing = comparePlayerId === player.id;
   const isSelected = selectedPlayerId === player.id;
   let className =
-    "flex min-h-20 min-w-0 cursor-grab flex-col rounded-xl border px-3 py-2 text-left shadow-sm transition-all active:cursor-grabbing";
+    "flex min-h-16 min-w-0 cursor-grab flex-col rounded-xl border px-2.5 py-2 text-left shadow-sm transition-all active:cursor-grabbing";
 
   if (isDragging) {
     className = `${className} opacity-70 ring-2 ring-white/20`;
@@ -173,7 +173,7 @@ export default function TacticsPitch({
         <div>
           <h3 className="flex items-center gap-2 text-sm font-heading font-bold uppercase tracking-wide text-white">
             <Star className="h-4 w-4 fill-current text-accent-400" />
-            {t("preMatch.startingXI")} — {formation}
+            {t("preMatch.startingXI")} - {formation}
           </h3>
           <p className="mt-0.5 text-xs text-gray-400">
             {t("tactics.pitchInteractionHint")}
@@ -197,8 +197,9 @@ export default function TacticsPitch({
           ) : null}
         </div>
       </div>
-      <div className="p-4 sm:p-6">
-        <div className="relative min-h-115 overflow-visible rounded-xl border border-primary-500/20 bg-linear-to-b from-primary-500 to-primary-600 p-4 dark:from-primary-700 dark:to-primary-800 sm:min-h-130 sm:p-5">
+      <div className="p-4 sm:p-5">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_128px]">
+          <div className="relative min-h-115 overflow-visible rounded-xl border border-primary-500/20 bg-linear-to-b from-primary-500 to-primary-600 p-4 dark:from-primary-700 dark:to-primary-800 sm:min-h-130 sm:p-5">
           <div className="absolute inset-x-6 top-1/2 border-t border-white/50" />
           <div className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/50" />
           <div className="absolute inset-x-[18%] bottom-4 h-[18%] rounded-t-4xl border border-white/50 border-b-0" />
@@ -286,8 +287,8 @@ export default function TacticsPitch({
               })}
             </div>
           ))}
-        </div>
-        <div className="mt-4 border-t border-white/10 pt-4">
+          </div>
+        <div className="min-w-0 rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-navy-600 dark:bg-navy-900/40">
           <div className="mb-3 flex items-center justify-between gap-3">
             <div>
               <h4 className="text-xs font-heading font-bold uppercase tracking-wider text-gray-500 dark:text-white/80">
@@ -299,7 +300,7 @@ export default function TacticsPitch({
             </div>
           </div>
           {benchPlayers.length > 0 ? (
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
               {benchPlayers.map((player) => {
                 const benchRating = getPlayerOvr(player);
 
@@ -325,21 +326,21 @@ export default function TacticsPitch({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-heading font-bold text-white">
+                        <div className="truncate text-xs font-heading font-bold text-white">
                           {player.match_name}
                         </div>
-                        <div className="mt-1 text-sm uppercase tracking-wider text-white/60">
+                        <div className="mt-1 text-[10px] uppercase tracking-wider text-white/60">
                           {translatePositionAbbreviation(
                             t,
                             player.natural_position || player.position,
                           )}
                         </div>
                       </div>
-                      <div className="shrink-0 rounded-full border border-primary-200 bg-primary-500/80 px-2 py-1 text-xs font-heading font-bold text-white">
+                      <div className="shrink-0 rounded-full border border-primary-200 bg-primary-500/80 px-2 py-1 text-[11px] font-heading font-bold text-white">
                         {benchRating}
                       </div>
                     </div>
-                    <div className="mt-2 flex items-center justify-between gap-2 text-sm text-white/60">
+                    <div className="mt-2 flex items-center justify-between gap-2 text-xs text-white/60">
                       <span>{player.condition}%</span>
                       <span>{player.morale}</span>
                     </div>
@@ -352,6 +353,7 @@ export default function TacticsPitch({
               {t("preMatch.noBench")}
             </div>
           )}
+          </div>
         </div>
       </div>
     </Card>

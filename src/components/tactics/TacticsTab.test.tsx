@@ -320,7 +320,42 @@ describe("TacticsTab", () => {
     });
   });
 
-  it("does not render drag handles in the lineup tables", () => {
+  it("sends the correct starting xi order when a bench table row is dropped onto a starter row", async () => {
+    render(
+      <TacticsTab
+        gameState={makeGameState()}
+        onSelectPlayer={vi.fn()}
+        onGameUpdate={vi.fn()}
+      />,
+    );
+
+    const benchPlayer = screen.getByTestId("bench-player-d5");
+    const starterRow = screen.getByTestId("xi-player-d2");
+    const dataTransfer = createDataTransfer();
+
+    fireEvent.dragStart(benchPlayer, { dataTransfer });
+    fireEvent.drop(starterRow, { dataTransfer });
+
+    await waitFor(() => {
+      expect(mockedInvoke).toHaveBeenCalledWith("set_starting_xi", {
+        playerIds: [
+          "gk1",
+          "d1",
+          "d5",
+          "d3",
+          "d4",
+          "m1",
+          "m2",
+          "m3",
+          "m4",
+          "f1",
+          "f2",
+        ],
+      });
+    });
+  });
+
+  it("makes lineup table rows draggable", () => {
     render(
       <TacticsTab
         gameState={makeGameState()}
@@ -335,6 +370,14 @@ describe("TacticsTab", () => {
     expect(
       screen.queryByTestId("xi-player-drag-handle-d1"),
     ).not.toBeInTheDocument();
+    expect(screen.getByTestId("bench-player-d5")).toHaveAttribute(
+      "draggable",
+      "true",
+    );
+    expect(screen.getByTestId("xi-player-d1")).toHaveAttribute(
+      "draggable",
+      "true",
+    );
     expect(screen.getByTestId("pitch-bench-player-d5")).toHaveAttribute(
       "draggable",
       "true",
