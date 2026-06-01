@@ -217,6 +217,30 @@ describe("default football name pools", () => {
     expect(parisPlayers.some((player) => player.position === "Forward" && player.ovr >= 88)).toBe(true);
   });
 
+  it("uses explicit fictional aliases for marquee player profiles", () => {
+    const game = createGameState({
+      firstName: "Test",
+      lastName: "Manager",
+      dob: "1980-01-01",
+      nationality: "AR",
+      startupOptions: {
+        startYear: 2026,
+        startPhase: "seasonStart",
+        countryCode: "ES",
+      },
+    });
+    const madrid = game.teams.find((team) => team.id === "es_madrid_crown");
+    const frenchForward = game.players.find(
+      (player) =>
+        player.team_id === madrid?.id &&
+        player.nationality === "FR" &&
+        player.position === "Forward" &&
+        player.ovr >= 90,
+    );
+
+    expect(frenchForward?.full_name).toBe("Yann Mbele");
+  });
+
   it("creates the Argentine split-zone league phase without national cups", () => {
     const game = createGameState({
       firstName: "Test",

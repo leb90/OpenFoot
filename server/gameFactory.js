@@ -895,9 +895,11 @@ function generatePlayer(team, slot, startYear, profile = null, slotPlan = null, 
     (profile
       ? `${team.id}:${slot}:${profile.position}:${profile.detail_position ?? ""}:${profile.nationality}:${profile.overall}:${profile.age}`
       : null);
-  const { firstName, lastName } = nameSeed
+  const generatedName = nameSeed
     ? generateDeterministicName(nationality, nameSeed)
     : generateName(nationality);
+  const firstName = profile?.alias_first_name ?? generatedName.firstName;
+  const lastName = profile?.alias_last_name ?? generatedName.lastName;
   const position = profile?.position ?? slotPlan?.position ?? POSITIONS_BY_SLOT[slot] ?? "Midfielder";
   const detailPosition = canonicalDetailPosition(
     profile?.detail_position ?? slotPlan?.detail_position ?? null,
