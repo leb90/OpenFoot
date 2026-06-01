@@ -1,12 +1,11 @@
 import { useId } from "react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { Button } from "../ui";
+import { Button, CountryFlag } from "../ui";
 import {
   ArrowLeft,
   CalendarDays,
   ChevronRight,
-  Globe2,
   Landmark,
   Loader2,
   MapPin,
@@ -276,13 +275,17 @@ export default function WorldSelect({
                   >
                     <div className="flex items-start gap-3">
                       <span
-                        className={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                        className={`mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg ${
                           selected
-                            ? "bg-primary-500 text-white"
-                            : "bg-gray-200 text-gray-600 dark:bg-navy-700 dark:text-gray-300"
+                            ? "bg-primary-500/20 ring-1 ring-primary-400/50"
+                            : "bg-gray-200 ring-1 ring-gray-300 dark:bg-navy-700 dark:ring-navy-600"
                         }`}
                       >
-                        <Globe2 className="h-4 w-4" />
+                        <CountryFlag
+                          code={country.code}
+                          className="text-[1.35rem] leading-none"
+                          title={country.name}
+                        />
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-heading text-base font-bold uppercase tracking-wide text-gray-900 dark:text-white">

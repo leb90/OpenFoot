@@ -40,6 +40,11 @@ vi.mock("../ui", () => ({
   }: ComponentPropsWithoutRef<"button"> & { iconRight?: unknown }) => (
     <button {...props}>{children}</button>
   ),
+  CountryFlag: ({ code, title }: { code: string; title?: string }) => (
+    <span data-testid={`country-flag-${code}`} title={title}>
+      {code}
+    </span>
+  ),
 }));
 
 const countries: PlayableCountryInfo[] = [
@@ -130,6 +135,8 @@ describe("WorldSelect", () => {
 
     expect(screen.getByText("countries:2")).toBeInTheDocument();
     expect(screen.getByText("France")).toBeInTheDocument();
+    expect(screen.getByTestId("country-flag-FR")).toHaveAttribute("title", "France");
+    expect(screen.getByTestId("country-flag-ENG")).toHaveAttribute("title", "England");
     expect(screen.getAllByText("French Ligue Elite").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Paris Capitol").length).toBeGreaterThan(0);
     expect(
