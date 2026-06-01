@@ -1,6 +1,7 @@
 import type { DragEvent, JSX } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@/lib/apiClient";
+import { ListChecks } from "lucide-react";
 import type {
   GameStateData,
   PlayerData,
@@ -19,10 +20,12 @@ import {
 } from "../squad/SquadTab.helpers";
 import TacticsFilters from "./TacticsFilters";
 import {
+  buildBestAvailableStartingXIIds,
   buildTacticsRoster,
   countOutOfPositionPlayers,
   filterAndSortTacticsPlayers,
   getSelectedAndComparePlayers,
+  isPlayerUnavailableForSelection,
   resolveStartingXiIds,
   type SortKey,
 } from "./TacticsTab.helpers";
@@ -31,6 +34,7 @@ import TacticsPlayerFocusPanel from "./TacticsPlayerFocusPanel";
 import TacticsPlayerTable from "./TacticsPlayerTable";
 import TacticsRolesPanel from "./TacticsRolesPanel";
 import TacticsSetupPanel from "./TacticsSetupPanel";
+import { Button } from "../ui";
 
 interface TacticsTabProps {
   gameState: GameStateData;
@@ -82,7 +86,13 @@ export default function TacticsTab({
     () => new Map(roster.map((player) => [player.id, player])),
     [roster],
   );
-  const available = roster.filter((player) => !player.injury);
+  const available = roster.filter(
+    (player) => !isPlayerUnavailableForSelection(player),
+  );
+  const bestAvailableStartingXiIds = useMemo(
+    () => buildBestAvailableStartingXIIds(roster, formation),
+    [formation, roster],
+  );
   const pitchRows = useMemo(() => buildPitchRows(formation), [formation]);
 
   const startingXiIds = useMemo(
@@ -268,6 +278,15 @@ export default function TacticsTab({
     } catch (error) {
       console.error("Failed to set play style:", error);
     }
+  }
+
+  async function handleBestAvailableLineup(): Promise<void> {
+    if (bestAvailableStartingXiIds.length < 11) {
+      return;
+    }
+
+    clearLineupSelection();
+    await persistStartingXI(bestAvailableStartingXiIds);
   }
 
   function clearLineupSelection(): void {
@@ -557,6 +576,28 @@ export default function TacticsTab({
                 dragState={dragState}
                 emptyMessage={t("squad.noPlayersMatch")}
                 highlightedPlayerId={selectedPlayerId}
+                headerAction={
+                  <Button
+                    aria-label={t(
+                      "tactics.bestAvailableLineup",
+                      "Ordenar Mejor opcion disponible",
+                    )}
+                    className="w-full whitespace-normal text-center leading-tight shadow-lg sm:w-auto sm:whitespace-nowrap"
+                    disabled={bestAvailableStartingXiIds.length < 11}
+                    icon={<ListChecks />}
+                    onClick={() => {
+                      void handleBestAvailableLineup();
+                    }}
+                    size="sm"
+                    type="button"
+                    variant="accent"
+                  >
+                    {t(
+                      "tactics.bestAvailableLineup",
+                      "Ordenar Mejor opcion disponible",
+                    )}
+                  </Button>
+                }
                 onDragEnd={resetDragState}
                 onDragStart={handleDragStart}
                 onPlayerDrop={(event, targetPlayerId, targetSection) => {

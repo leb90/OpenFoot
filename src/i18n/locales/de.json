@@ -576,6 +576,7 @@
     "noStartersForRoles": "Lege deine Startelf fest, um Teamrollen und Standards zuzuweisen.",
     "startingXI": "Startelf — {{formation}}",
     "fullSquad": "Gesamter Kader",
+    "bestAvailableLineup": "Beste verfuegbare Option",
     "pitchInteractionHint": "Ziehe Spieler zwischen Feld und Bank, klicke einen Spieler zur Analyse an, klicke einen zweiten zum Vergleichen an und bestätige den Tausch anschließend im Vergleichsbereich.",
     "selectedPlayer": "Ausgewählter Spieler",
     "comparePlayer": "Vergleichsspieler",

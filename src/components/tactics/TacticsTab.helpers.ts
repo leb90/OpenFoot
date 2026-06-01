@@ -70,6 +70,26 @@ interface ResolveStartingXiIdsOptions {
   savedStartingXiIds: string[];
 }
 
+export function isPlayerUnavailableForSelection(player: PlayerData): boolean {
+  const hasActiveInjury =
+    player.injury != null && player.injury.days_remaining > 0;
+  const hasActiveSuspension =
+    player.suspension != null && player.suspension.matches_remaining > 0;
+
+  return hasActiveInjury || hasActiveSuspension;
+}
+
+export function buildBestAvailableStartingXIIds(
+  players: PlayerData[],
+  formation: string,
+): string[] {
+  return buildStartingXIIds(
+    players.filter((player) => !isPlayerUnavailableForSelection(player)),
+    [],
+    formation,
+  );
+}
+
 function comparePlayersForSlot(
   leftPlayer: PlayerData,
   rightPlayer: PlayerData,

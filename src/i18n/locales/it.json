@@ -595,6 +595,7 @@
     "noStartersForRoles": "Imposta il tuo XI titolare per assegnare ruoli di squadra e calci piazzati.",
     "startingXI": "XI titolare — {{formation}}",
     "fullSquad": "Rosa completa",
+    "bestAvailableLineup": "Migliore opzione disponibile",
     "pitchInteractionHint": "Trascina i giocatori tra campo e panchina, clicca un giocatore per ispezionarlo, cliccane un secondo per confrontarli, poi conferma lo scambio nel pannello di confronto.",
     "selectedPlayer": "Giocatore selezionato",
     "comparePlayer": "Giocatore di confronto",

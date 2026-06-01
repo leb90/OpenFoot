@@ -576,6 +576,7 @@
     "noStartersForRoles": "Define o teu onze inicial para atribuir funções da equipa e bolas paradas.",
     "startingXI": "Onze Inicial — {{formation}}",
     "fullSquad": "Plantel Completo",
+    "bestAvailableLineup": "Melhor opcao disponivel",
     "pitchInteractionHint": "Arrasta jogadores entre o campo e o banco, clica num jogador para o analisar, clica num segundo para os comparar e depois confirma a troca no painel de comparação.",
     "selectedPlayer": "Jogador selecionado",
     "comparePlayer": "Jogador de comparação",

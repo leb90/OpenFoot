@@ -576,6 +576,7 @@
     "noStartersForRoles": "Définissez votre onze de départ pour attribuer les rôles d'équipe et les coups de pied arrêtés.",
     "startingXI": "Onze de départ — {{formation}}",
     "fullSquad": "Effectif complet",
+    "bestAvailableLineup": "Meilleure option disponible",
     "pitchInteractionHint": "Faites glisser les joueurs entre le terrain et le banc, cliquez sur un joueur pour l'inspecter, cliquez sur un second pour les comparer, puis confirmez l'échange dans le panneau de comparaison.",
     "selectedPlayer": "Joueur sélectionné",
     "comparePlayer": "Joueur de comparaison",

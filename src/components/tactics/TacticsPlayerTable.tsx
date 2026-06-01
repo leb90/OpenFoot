@@ -1,5 +1,5 @@
 import { AlertTriangle, ChevronDown, ChevronUp, Star } from "lucide-react";
-import type { DragEvent, JSX } from "react";
+import type { DragEvent, JSX, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { calcAge, getPlayerOvr, positionBadgeVariant } from "../../lib/helpers";
@@ -22,6 +22,7 @@ interface TacticsPlayerTableProps {
   className?: string;
   dragState: DragState | null;
   emptyMessage: string;
+  headerAction?: ReactNode;
   highlightedPlayerId: string | null;
   onDragEnd: () => void;
   onDragStart: (
@@ -295,6 +296,7 @@ export default function TacticsPlayerTable({
   className = "",
   dragState,
   emptyMessage,
+  headerAction,
   highlightedPlayerId,
   onDragEnd,
   onDragStart,
@@ -329,15 +331,22 @@ export default function TacticsPlayerTable({
   return (
     <Card className={className}>
       <div className={headingClassName}>
-        <h3 className={titleClassName}>
-          {section === "xi" ? (
-            <Star className="h-4 w-4 fill-current text-accent-400" />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className={titleClassName}>
+              {section === "xi" ? (
+                <Star className="h-4 w-4 fill-current text-accent-400" />
+              ) : null}
+              {title}
+            </h3>
+            <p className={countClassName}>
+              {players.length} / {totalCount} {t("squad.playersLabel")}
+            </p>
+          </div>
+          {headerAction ? (
+            <div className="flex shrink-0 sm:justify-end">{headerAction}</div>
           ) : null}
-          {title}
-        </h3>
-        <p className={countClassName}>
-          {players.length} / {totalCount} {t("squad.playersLabel")}
-        </p>
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left">

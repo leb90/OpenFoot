@@ -143,6 +143,11 @@ export interface PlayerMoraleCoreData {
 
 export type PlayerSquadRole = "Senior" | "Youth";
 
+export interface PlayerSuspensionData {
+  reason: string;
+  matches_remaining: number;
+}
+
 export interface PlayerData {
   id: string;
   match_name: string;
@@ -180,6 +185,7 @@ export interface PlayerData {
   condition: number;
   morale: number;
   injury: null | { name: string; days_remaining: number };
+  suspension?: null | PlayerSuspensionData;
   team_id: string | null;
   retired: boolean;
   squad_role?: PlayerSquadRole;

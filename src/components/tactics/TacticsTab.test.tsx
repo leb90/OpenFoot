@@ -315,6 +315,107 @@ describe("TacticsTab", () => {
     expect(screen.queryByText("Academy Prospect")).not.toBeInTheDocument();
   });
 
+  it("orders the best available lineup while skipping injured and suspended players", async () => {
+    const gameState = makeGameState();
+    gameState.players.push(
+      makePlayer("gk2", "Goalkeeper", { ovr: 88 }),
+      makePlayer("lb1", "Defender", {
+        natural_position: "LeftBack",
+        alternate_positions: ["LeftBack"],
+        ovr: 82,
+      }),
+      makePlayer("cb1", "Defender", {
+        natural_position: "CenterBack",
+        alternate_positions: ["CenterBack"],
+        ovr: 86,
+      }),
+      makePlayer("cb2", "Defender", {
+        natural_position: "CenterBack",
+        alternate_positions: ["CenterBack"],
+        ovr: 84,
+      }),
+      makePlayer("cb-injured", "Defender", {
+        natural_position: "CenterBack",
+        alternate_positions: ["CenterBack"],
+        injury: { name: "Knock", days_remaining: 2 },
+        ovr: 99,
+      }),
+      makePlayer("rb1", "Defender", {
+        natural_position: "RightBack",
+        alternate_positions: ["RightBack"],
+        ovr: 82,
+      }),
+      makePlayer("lm1", "Midfielder", {
+        natural_position: "LeftMidfielder",
+        alternate_positions: ["LeftMidfielder"],
+        ovr: 83,
+      }),
+      makePlayer("cm1", "Midfielder", {
+        natural_position: "CentralMidfielder",
+        alternate_positions: ["CentralMidfielder"],
+        ovr: 86,
+      }),
+      makePlayer("cm2", "Midfielder", {
+        natural_position: "CentralMidfielder",
+        alternate_positions: ["CentralMidfielder"],
+        ovr: 84,
+      }),
+      makePlayer("rm1", "Midfielder", {
+        natural_position: "RightMidfielder",
+        alternate_positions: ["RightMidfielder"],
+        ovr: 83,
+      }),
+      makePlayer("st1", "Forward", {
+        natural_position: "Striker",
+        alternate_positions: ["Striker"],
+        ovr: 86,
+      }),
+      makePlayer("st2", "Forward", {
+        natural_position: "Striker",
+        alternate_positions: ["Striker"],
+        ovr: 84,
+      }),
+      makePlayer("st-suspended", "Forward", {
+        natural_position: "Striker",
+        alternate_positions: ["Striker"],
+        suspension: { reason: "RedCard", matches_remaining: 1 },
+        ovr: 99,
+      }),
+    );
+
+    render(
+      <TacticsTab
+        gameState={gameState}
+        onSelectPlayer={vi.fn()}
+        onGameUpdate={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Ordenar Mejor opcion disponible",
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mockedInvoke).toHaveBeenCalledWith("set_starting_xi", {
+        playerIds: [
+          "gk2",
+          "lb1",
+          "cb1",
+          "cb2",
+          "rb1",
+          "lm1",
+          "cm1",
+          "cm2",
+          "rm1",
+          "st1",
+          "st2",
+        ],
+      });
+    });
+  });
+
   it("sends the correct starting xi order when a squad-list bench defender is dropped onto a defensive slot", async () => {
     render(
       <TacticsTab

@@ -576,6 +576,7 @@
     "noStartersForRoles": "Defina sua escalação titular para atribuir funções do time e bolas paradas.",
     "startingXI": "Onze Inicial — {{formation}}",
     "fullSquad": "Elenco Completo",
+    "bestAvailableLineup": "Melhor opcao disponivel",
     "pitchInteractionHint": "Arraste jogadores entre o campo e o banco, clique em um jogador para analisá-lo, clique em um segundo para compará-los e então confirme a troca no painel de comparação.",
     "selectedPlayer": "Jogador selecionado",
     "comparePlayer": "Jogador de comparação",

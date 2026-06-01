@@ -576,6 +576,7 @@
     "noStartersForRoles": "Set your starting XI to assign team roles and set pieces.",
     "startingXI": "Starting XI — {{formation}}",
     "fullSquad": "Full Squad",
+    "bestAvailableLineup": "Best available XI",
     "pitchInteractionHint": "Drag players between the pitch and bench, click one player to inspect them, click a second player to compare them, then confirm the swap in the compare panel.",
     "selectedPlayer": "Selected player",
     "comparePlayer": "Comparison player",
