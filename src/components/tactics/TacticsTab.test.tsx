@@ -243,7 +243,7 @@ describe("TacticsTab", () => {
     mockedInvoke.mockResolvedValue(makeGameState());
   });
 
-  it("renders play style guidance plus bench cards inside the pitch view", () => {
+  it("renders play style guidance plus a single squad list", () => {
     render(
       <TacticsTab
         gameState={makeGameState()}
@@ -258,11 +258,9 @@ describe("TacticsTab", () => {
         "Keeps your team measured in and out of possession, with a steady shape and fewer extremes.",
       ),
     ).toBeInTheDocument();
-    expect(screen.getAllByText("preMatch.substitutes").length).toBeGreaterThan(
-      0,
-    );
+    expect(screen.getByText("tactics.fullSquad")).toBeInTheDocument();
     expect(screen.getByTestId("bench-player-d5")).toBeInTheDocument();
-    expect(screen.getByTestId("pitch-bench-player-d5")).toBeInTheDocument();
+    expect(screen.queryByTestId("pitch-bench-player-d5")).not.toBeInTheDocument();
   });
 
   it("keeps youth academy players out of first-team tactics selection", () => {
@@ -285,7 +283,7 @@ describe("TacticsTab", () => {
     expect(screen.queryByText("Academy Prospect")).not.toBeInTheDocument();
   });
 
-  it("sends the correct starting xi order when a pitch-view bench defender is dropped onto a defensive slot", async () => {
+  it("sends the correct starting xi order when a squad-list bench defender is dropped onto a defensive slot", async () => {
     render(
       <TacticsTab
         gameState={makeGameState()}
@@ -294,7 +292,7 @@ describe("TacticsTab", () => {
       />,
     );
 
-    const benchPlayer = screen.getByTestId("pitch-bench-player-d5");
+    const benchPlayer = screen.getByTestId("bench-player-d5");
     const pitchSlot = screen.getByTestId("pitch-slot-1");
     const dataTransfer = createDataTransfer();
 
@@ -378,13 +376,10 @@ describe("TacticsTab", () => {
       "draggable",
       "true",
     );
-    expect(screen.getByTestId("pitch-bench-player-d5")).toHaveAttribute(
-      "draggable",
-      "true",
-    );
+    expect(screen.queryByTestId("pitch-bench-player-d5")).not.toBeInTheDocument();
   });
 
-  it("shows a bench player's natural position on the pitch bench cards when it differs from position", () => {
+  it("shows a bench player's natural position in the squad list when it differs from position", () => {
     const gameState = makeGameState();
     gameState.players = gameState.players.map((player) =>
       player.id === "d5"
@@ -404,13 +399,13 @@ describe("TacticsTab", () => {
       />,
     );
 
-    const benchCard = screen.getByTestId("pitch-bench-player-d5");
+    const benchRow = screen.getByTestId("bench-player-d5");
 
     expect(
-      within(benchCard).getByText("common.posAbbr.Defender"),
-    ).toBeInTheDocument();
+      within(benchRow).getAllByText("common.posAbbr.Defender").length,
+    ).toBeGreaterThan(0);
     expect(
-      within(benchCard).queryByText("common.posAbbr.Midfielder"),
+      within(benchRow).queryByText("common.posAbbr.Midfielder"),
     ).not.toBeInTheDocument();
   });
 
@@ -429,46 +424,20 @@ describe("TacticsTab", () => {
     expect(screen.queryByText("Forward")).not.toBeInTheDocument();
   });
 
-  it("allows selecting a bench player from the pitch view and swapping them with a starter", async () => {
+  it("opens bench player profiles from the single squad list", () => {
+    const onSelectPlayer = vi.fn();
+
     render(
       <TacticsTab
         gameState={makeGameState()}
-        onSelectPlayer={vi.fn()}
+        onSelectPlayer={onSelectPlayer}
         onGameUpdate={vi.fn()}
       />,
     );
 
-    fireEvent.click(screen.getByTestId("pitch-bench-player-d5"));
+    fireEvent.click(screen.getByTestId("bench-player-d5"));
 
-    expect(screen.getByText("tactics.selectedPlayer")).toBeInTheDocument();
-    expect(screen.getAllByText("Player d5").length).toBeGreaterThan(0);
-
-    fireEvent.click(screen.getByTestId("pitch-player-d2"));
-
-    expect(mockedInvoke).not.toHaveBeenCalled();
-    expect(screen.getByText("tactics.comparePlayer")).toBeInTheDocument();
-
-    fireEvent.click(
-      screen.getByRole("button", { name: "tactics.confirmSwap" }),
-    );
-
-    await waitFor(() => {
-      expect(mockedInvoke).toHaveBeenCalledWith("set_starting_xi", {
-        playerIds: [
-          "gk1",
-          "d1",
-          "d5",
-          "d3",
-          "d4",
-          "m1",
-          "m2",
-          "m3",
-          "m4",
-          "f1",
-          "f2",
-        ],
-      });
-    });
+    expect(onSelectPlayer).toHaveBeenCalledWith("d5");
   });
 
   it("uses pitch clicks for selection and swap instead of opening the player profile", async () => {

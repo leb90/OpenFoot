@@ -35,7 +35,8 @@ interface TacticsPlayerTableProps {
   ) => void;
   onSelectPlayer: (playerId: string) => void;
   players: PlayerData[];
-  section: SquadSection;
+  resolvePlayerSection?: (player: PlayerData) => SquadSection;
+  section: SquadSection | "mixed";
   sortDir: "asc" | "desc";
   sortKey: SortKey;
   title: string;
@@ -184,6 +185,9 @@ function renderTableRow(props: {
           >
             {translatePositionAbbreviation(t, activePosition)}
           </Badge>
+          <Badge variant={section === "xi" ? "success" : "neutral"} size="sm">
+            {section === "xi" ? "XI" : "SUB"}
+          </Badge>
           {isWrongPosition ? (
             <span
               title={t("squad.outOfPositionTooltip")}
@@ -218,7 +222,7 @@ function renderTableRow(props: {
         {player.traits.length > 0 ? (
           <TraitList traits={player.traits} size="xs" max={2} />
         ) : (
-          <span className="text-xs text-gray-500">—</span>
+          <span className="text-xs text-gray-500">-</span>
         )}
       </td>
       <td className="px-4 py-2.5">
@@ -237,7 +241,7 @@ function renderTableRow(props: {
               {t("common.injured")}
             </Badge>
           ) : (
-            <span className="text-xs text-gray-500">—</span>
+            <span className="text-xs text-gray-500">-</span>
           )}
         </div>
       </td>
@@ -255,6 +259,7 @@ export default function TacticsPlayerTable({
   onPlayerDrop,
   onSelectPlayer,
   players,
+  resolvePlayerSection,
   section,
   sortDir,
   sortKey,
@@ -346,8 +351,12 @@ export default function TacticsPlayerTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-navy-600">
-            {players.map((player) =>
-              renderTableRow({
+            {players.map((player) => {
+              const rowSection =
+                resolvePlayerSection ??
+                (() => (section === "mixed" ? "bench" : section));
+
+              return renderTableRow({
                 dragState,
                 highlightedPlayerId,
                 onDragEnd,
@@ -355,11 +364,11 @@ export default function TacticsPlayerTable({
                 onPlayerDrop,
                 onSelectPlayer,
                 player,
-                section,
+                section: rowSection(player),
                 xiSlotIndexByPlayerId,
                 xiActivePosition,
-              }),
-            )}
+              });
+            })}
           </tbody>
         </table>
         {players.length === 0 ? (

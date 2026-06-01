@@ -16,7 +16,6 @@ import {
 } from "../squad/SquadTab.helpers";
 
 interface TacticsPitchProps {
-  benchPlayers: PlayerData[];
   dragState: DragState | null;
   formation: string;
   comparePlayerId: string | null;
@@ -88,36 +87,6 @@ function getPitchPlayerButtonClassName(options: {
   return `${className} border-white/10 bg-black/15`;
 }
 
-function getBenchPlayerButtonClassName(options: {
-  dragState: DragState | null;
-  comparePlayerId: string | null;
-  player: PlayerData;
-  selectedPlayerId: string | null;
-}): string {
-  const { dragState, comparePlayerId, player, selectedPlayerId } = options;
-  const isDragging = dragState?.playerId === player.id;
-  const isComparing = comparePlayerId === player.id;
-  const isSelected = selectedPlayerId === player.id;
-  let className =
-    "flex min-h-16 min-w-0 cursor-grab flex-col rounded-xl border px-2.5 py-2 text-left shadow-sm transition-all active:cursor-grabbing";
-
-  if (isDragging) {
-    className = `${className} opacity-70 ring-2 ring-white/20`;
-  } else {
-    className = `${className} hover:-translate-y-0.5 hover:shadow-md`;
-  }
-
-  if (isSelected) {
-    return `${className} border-accent-300 bg-accent-600/80 dark:bg-accent-500/15 ring-2 ring-accent-300/40`;
-  }
-
-  if (isComparing) {
-    return `${className} border-primary-300 bg-primary-500/12 ring-2 ring-primary-300/30`;
-  }
-
-  return `${className} border-white/10 bg-gray-500/70 dark:bg-navy-800`;
-}
-
 function getPitchRatingClassName(
   player: PlayerData,
   wrongPos: boolean,
@@ -148,7 +117,6 @@ function getEmptySlotClassName(isHovered: boolean): string {
 }
 
 export default function TacticsPitch({
-  benchPlayers,
   dragState,
   formation,
   comparePlayerId,
@@ -198,8 +166,7 @@ export default function TacticsPitch({
         </div>
       </div>
       <div className="p-4 sm:p-5">
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_120px]">
-          <div className="relative h-96 overflow-visible rounded-xl border border-primary-500/20 bg-linear-to-b from-primary-500 to-primary-600 p-4 dark:from-primary-700 dark:to-primary-800 sm:h-[26rem] sm:p-5 xl:h-[27rem]">
+        <div className="relative h-[28rem] overflow-visible rounded-xl border border-primary-500/20 bg-linear-to-b from-primary-500 to-primary-600 p-4 dark:from-primary-700 dark:to-primary-800 sm:h-[30rem] sm:p-5 xl:h-[31rem]">
           <div className="absolute inset-x-6 top-1/2 border-t border-white/50" />
           <div className="absolute left-1/2 top-1/2 h-20 w-20 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/50" />
           <div className="absolute inset-x-[18%] bottom-4 h-[18%] rounded-t-4xl border border-white/50 border-b-0" />
@@ -287,73 +254,6 @@ export default function TacticsPitch({
               })}
             </div>
           ))}
-          </div>
-        <div className="max-h-96 min-w-0 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-3 dark:border-navy-600 dark:bg-navy-900/40 sm:max-h-[26rem] xl:max-h-[27rem]">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div>
-              <h4 className="text-xs font-heading font-bold uppercase tracking-wider text-gray-500 dark:text-white/80">
-                {t("preMatch.substitutes")}
-              </h4>
-              <p className="mt-1 text-sm text-black dark:text-white/50">
-                {benchPlayers.length} {t("squad.playersLabel", "players")}
-              </p>
-            </div>
-          </div>
-          {benchPlayers.length > 0 ? (
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
-              {benchPlayers.map((player) => {
-                const benchRating = getPlayerOvr(player);
-
-                return (
-                  <button
-                    key={player.id}
-                    type="button"
-                    draggable={!player.injury}
-                    data-testid={`pitch-bench-player-${player.id}`}
-                    onClick={() => onLineupPlayerClick(player.id, "bench")}
-                    onDragStart={(event) => {
-                      if (!player.injury) {
-                        onDragStart(event, player.id, "bench", null);
-                      }
-                    }}
-                    onDragEnd={onDragEnd}
-                    className={getBenchPlayerButtonClassName({
-                      dragState,
-                      comparePlayerId,
-                      player,
-                      selectedPlayerId,
-                    })}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="truncate text-xs font-heading font-bold text-white">
-                          {player.match_name}
-                        </div>
-                        <div className="mt-1 text-[10px] uppercase tracking-wider text-white/60">
-                          {translatePositionAbbreviation(
-                            t,
-                            player.natural_position || player.position,
-                          )}
-                        </div>
-                      </div>
-                      <div className="shrink-0 rounded-full border border-primary-200 bg-primary-500/80 px-2 py-1 text-[11px] font-heading font-bold text-white">
-                        {benchRating}
-                      </div>
-                    </div>
-                    <div className="mt-2 flex items-center justify-between gap-2 text-xs text-white/60">
-                      <span>{player.condition}%</span>
-                      <span>{player.morale}</span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-white/15 bg-black/10 px-3 py-4 text-sm text-white/50">
-              {t("preMatch.noBench")}
-            </div>
-          )}
-          </div>
         </div>
       </div>
     </Card>

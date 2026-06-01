@@ -221,6 +221,10 @@ export default function TacticsTab({
       ),
     [bench, playerSearch, positionFilter, sortKey, sortDir, xiActivePosition],
   );
+  const filteredSquad = useMemo(
+    () => [...filteredStartingXI, ...filteredBench],
+    [filteredStartingXI, filteredBench],
+  );
 
   const outOfPositionCount = countOutOfPositionPlayers(
     startingXI,
@@ -547,7 +551,7 @@ export default function TacticsTab({
               <TacticsPlayerTable
                 className="overflow-hidden"
                 dragState={dragState}
-                emptyMessage={t("squad.noLineupMatches")}
+                emptyMessage={t("squad.noPlayersMatch")}
                 highlightedPlayerId={selectedPlayerId}
                 onDragEnd={resetDragState}
                 onDragStart={handleDragStart}
@@ -555,35 +559,16 @@ export default function TacticsTab({
                   void handleTablePlayerDrop(event, targetPlayerId, targetSection);
                 }}
                 onSelectPlayer={onSelectPlayer}
-                players={filteredStartingXI}
-                section="xi"
+                players={filteredSquad}
+                resolvePlayerSection={(player) =>
+                  xiIds.has(player.id) ? "xi" : "bench"
+                }
+                section="mixed"
                 sortDir={sortDir}
                 sortKey={sortKey}
-                title={t("preMatch.startingXI")}
+                title={t("tactics.fullSquad")}
                 toggleSort={toggleSort}
-                totalCount={startingXI.length}
-                xiSlotIndexByPlayerId={xiSlotIndexByPlayerId}
-                xiActivePosition={xiActivePosition}
-              />
-
-              <TacticsPlayerTable
-                className="overflow-hidden"
-                dragState={dragState}
-                emptyMessage={t("squad.noBenchMatches")}
-                highlightedPlayerId={selectedPlayerId}
-                onDragEnd={resetDragState}
-                onDragStart={handleDragStart}
-                onPlayerDrop={(event, targetPlayerId, targetSection) => {
-                  void handleTablePlayerDrop(event, targetPlayerId, targetSection);
-                }}
-                onSelectPlayer={onSelectPlayer}
-                players={filteredBench}
-                section="bench"
-                sortDir={sortDir}
-                sortKey={sortKey}
-                title={t("preMatch.substitutes")}
-                toggleSort={toggleSort}
-                totalCount={bench.length}
+                totalCount={roster.length}
                 xiSlotIndexByPlayerId={xiSlotIndexByPlayerId}
                 xiActivePosition={xiActivePosition}
               />
@@ -591,7 +576,6 @@ export default function TacticsTab({
 
             <div className="flex min-w-0 flex-col gap-4 xl:sticky xl:top-4 xl:self-start">
               <TacticsPitch
-                benchPlayers={bench}
                 dragState={dragState}
                 formation={formation}
                 comparePlayerId={comparePlayerId}
