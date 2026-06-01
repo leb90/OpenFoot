@@ -12339,23 +12339,23 @@
   "continental_competitions": [
     {
       "id": "euro_champions_cup",
-      "name": "European Champions Cup",
+      "name": "Invictus Champions Cup",
       "confederation": "UEFA",
       "region": "Europe",
       "model": "league_phase_36",
       "entrants": 36,
-      "enabled": false,
-      "qualification": "Uses domestic league continental_slots metadata; league phase simulation is planned."
+      "enabled": true,
+      "qualification": "Uses domestic league continental_slots metadata; top domestic teams enter a 36-team league phase."
     },
     {
       "id": "south_american_liberators_cup",
-      "name": "South American Liberators Cup",
+      "name": "Copa Libertad Continental",
       "confederation": "CONMEBOL",
       "region": "South America",
-      "model": "qualifiers_plus_group_stage",
+      "model": "qualification_league_phase_47",
       "entrants": 47,
-      "enabled": false,
-      "qualification": "Uses domestic league continental_slots metadata; qualifying rounds and group stage simulation are planned."
+      "enabled": true,
+      "qualification": "Uses domestic league continental_slots metadata; direct slots and coefficient wildcards feed the continental phase."
     }
   ]
 }

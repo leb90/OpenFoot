@@ -1,6 +1,7 @@
 import React from "react";
 import { MatchEvent, MatchSnapshot } from "./types";
 import type { FixtureData, GameStateData } from "../../store/gameStore";
+import { getAllCompetitionFixtures } from "../../lib/fixtures";
 import {
   Circle,
   CircleOff,
@@ -200,8 +201,8 @@ export function resolveMatchFixture(
   snapshot: MatchSnapshot | null,
   fixtureIndex?: number,
 ): FixtureData | null {
-  const fixtures = gameState?.league?.fixtures;
-  if (!fixtures || !snapshot) return null;
+  const fixtures = gameState ? getAllCompetitionFixtures(gameState) : [];
+  if (fixtures.length === 0 || !snapshot) return null;
 
   if (
     typeof fixtureIndex === "number" &&

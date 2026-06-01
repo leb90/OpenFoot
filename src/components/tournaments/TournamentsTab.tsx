@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { invoke } from "@/lib/apiClient";
 import type { ReactNode } from "react";
 import {
+  ContinentalTournamentData,
   FixtureData,
   GameStateData,
+  LeagueData,
   SeasonAwardEntryData,
   SeasonAwardsData,
   SeasonManagerAwardEntryData,
@@ -39,19 +41,43 @@ interface TournamentsTabProps {
   onSelectPlayer?: (id: string) => void;
 }
 
+type TournamentView = "overview" | "fixtures" | "standings" | "awards";
+type CompetitionData = (LeagueData | ContinentalTournamentData) & {
+  source: "domestic" | "continental";
+};
+
 export default function TournamentsTab({
   gameState,
   onSelectTeam,
   onSelectPlayer,
 }: TournamentsTabProps) {
   const { t } = useTranslation();
-  const league = gameState.league;
+  const domesticLeague = gameState.league;
+  const competitions: CompetitionData[] = [
+    ...(domesticLeague
+      ? [{ ...domesticLeague, source: "domestic" as const }]
+      : []),
+    ...(gameState.continental_tournaments ?? []).map((tournament) => ({
+      ...tournament,
+      source: "continental" as const,
+    })),
+  ];
+  const [selectedCompetitionId, setSelectedCompetitionId] = useState<string | null>(
+    null,
+  );
+  const league =
+    competitions.find((competition) => competition.id === selectedCompetitionId) ??
+    competitions[0] ??
+    null;
+  const isDomesticCompetition = league?.source === "domestic";
+  const availableViews: TournamentView[] = isDomesticCompetition
+    ? ["overview", "standings", "fixtures", "awards"]
+    : ["overview", "standings", "fixtures"];
   const userTeamId = gameState.manager.team_id;
   const seasonContext = resolveSeasonContext(gameState);
   const isPreseason = seasonContext.phase === "Preseason";
-  const [view, setView] = useState<
-    "overview" | "fixtures" | "standings" | "awards"
-  >("overview");
+  const [view, setView] = useState<TournamentView>("overview");
+  const activeView = availableViews.includes(view) ? view : "overview";
   const [awardsBySeason, setAwardsBySeason] = useState<
     Record<number, SeasonAwardsData>
   >({});
@@ -59,11 +85,11 @@ export default function TournamentsTab({
     "idle" | "loading" | "error"
   >("idle");
   const [awardsRetryCount, setAwardsRetryCount] = useState(0);
-  const currentSeason = league?.season ?? 0;
+  const currentSeason = domesticLeague?.season ?? league?.season ?? 0;
   const awards = awardsBySeason[currentSeason] ?? null;
 
   useEffect(() => {
-    if (view !== "awards" || awards) {
+    if (activeView !== "awards" || awards || !isDomesticCompetition) {
       return;
     }
 
@@ -91,7 +117,7 @@ export default function TournamentsTab({
     return () => {
       cancelled = true;
     };
-  }, [view, awards, currentSeason, awardsRetryCount]);
+  }, [activeView, awards, currentSeason, awardsRetryCount, isDomesticCompetition]);
 
   if (!league) {
     return (
@@ -257,13 +283,36 @@ export default function TournamentsTab({
         </div>
       </Card>
 
+      {competitions.length > 1 && (
+        <div className="flex flex-wrap gap-2 mb-5">
+          {competitions.map((competition) => (
+            <button
+              key={competition.id}
+              onClick={() => {
+                setSelectedCompetitionId(competition.id);
+                if (competition.source === "continental" && view === "awards") {
+                  setView("overview");
+                }
+              }}
+              className={`px-4 py-2 rounded-lg font-heading font-bold text-sm uppercase tracking-wider transition-all ${
+                league.id === competition.id
+                  ? "bg-accent-500 text-navy-950 shadow-md shadow-accent-500/20"
+                  : "bg-white dark:bg-navy-800 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 border border-gray-200 dark:border-navy-600"
+              }`}
+            >
+              {competition.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Tab switcher */}
       <div className="flex gap-2 mb-5">
-        {(["overview", "standings", "fixtures", "awards"] as const).map((v) => (
+        {availableViews.map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
-            className={`px-4 py-2 rounded-lg font-heading font-bold text-sm uppercase tracking-wider transition-all ${view === v
+            className={`px-4 py-2 rounded-lg font-heading font-bold text-sm uppercase tracking-wider transition-all ${activeView === v
               ? "bg-primary-500 text-white shadow-md shadow-primary-500/20"
               : "bg-white dark:bg-navy-800 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 border border-gray-200 dark:border-navy-600"
               }`}
@@ -294,7 +343,7 @@ export default function TournamentsTab({
       </div>
 
       {/* Overview */}
-      {view === "overview" && (
+      {activeView === "overview" && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Mini standings */}
           <Card className="lg:col-span-2">
@@ -442,7 +491,7 @@ export default function TournamentsTab({
       )}
 
       {/* Full standings */}
-      {view === "standings" &&
+      {activeView === "standings" &&
         (isPreseason ? (
           <Card>
             <CardBody>
@@ -561,7 +610,7 @@ export default function TournamentsTab({
         ))}
 
       {/* Fixtures */}
-      {view === "fixtures" && (
+      {activeView === "fixtures" && (
         <div className="flex flex-col gap-4">
           {sortedMatchdays.map(([md, fixtures]) => (
             <Card key={md}>
@@ -618,7 +667,7 @@ export default function TournamentsTab({
         </div>
       )}
       {/* Awards */}
-      {view === "awards" && (
+      {activeView === "awards" && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {awards ? (
             <>

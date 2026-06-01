@@ -62,11 +62,19 @@ Controls playable countries, league metadata, fictional clubs, and squad strengt
   "continental_competitions": [
     {
       "id": "euro_champions_cup",
-      "name": "European Champions Cup",
+      "name": "Invictus Champions Cup",
       "confederation": "UEFA",
       "model": "league_phase_36",
       "entrants": 36,
-      "enabled": false
+      "enabled": true
+    },
+    {
+      "id": "south_american_liberators_cup",
+      "name": "Copa Libertad Continental",
+      "confederation": "CONMEBOL",
+      "model": "qualification_league_phase_47",
+      "entrants": 47,
+      "enabled": true
     }
   ],
   "countries": [

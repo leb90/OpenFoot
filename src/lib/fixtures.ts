@@ -1,5 +1,5 @@
 import type { TFunction } from "i18next";
-import type { FixtureData, LeagueData } from "../store/gameStore";
+import type { FixtureData, GameStateData, LeagueData } from "../store/gameStore";
 
 export function getFixtureDisplayLabel(
     t: TFunction,
@@ -13,15 +13,34 @@ export function getFixtureDisplayLabel(
         return t("season.friendly");
     }
 
+    if (fixture.competition === "Continental") {
+        return fixture.competition_name
+            ? `${fixture.competition_name} - ${t("common.matchday", { n: fixture.matchday })}`
+            : t("common.matchday", { n: fixture.matchday });
+    }
+
     return t("common.matchday", { n: fixture.matchday });
 }
 
 export function isCompetitiveFixture(fixture: FixtureData): boolean {
-    return !fixture.competition || fixture.competition === "League";
+    return (
+        !fixture.competition ||
+        fixture.competition === "League" ||
+        fixture.competition === "Continental"
+    );
 }
 
 export function getCompetitiveFixtures(fixtures: FixtureData[]): FixtureData[] {
     return fixtures.filter(isCompetitiveFixture);
+}
+
+export function getAllCompetitionFixtures(gameState: GameStateData): FixtureData[] {
+    return [
+        ...(gameState.league?.fixtures ?? []),
+        ...(gameState.continental_tournaments ?? []).flatMap(
+            (tournament) => tournament.fixtures ?? [],
+        ),
+    ];
 }
 
 export function findNextFixture(

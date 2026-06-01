@@ -77,6 +77,8 @@ export interface TeamData {
   match_roles?: TeamMatchRolesData;
   form: string[];
   history: TeamSeasonRecord[];
+  is_external_context?: boolean;
+  continental_seed?: number | null;
 }
 
 export interface PlayerSeasonStats {
@@ -361,7 +363,10 @@ export interface FixtureData {
   date: string;
   home_team_id: string;
   away_team_id: string;
-  competition: "League" | "Friendly" | "PreseasonTournament";
+  competition: "League" | "Friendly" | "PreseasonTournament" | "Continental";
+  competition_id?: string;
+  competition_name?: string;
+  stage?: string;
   group_id?: string;
   status: "Scheduled" | "InProgress" | "Completed";
   result: null | {
@@ -457,6 +462,60 @@ export interface LeagueData {
   standings: StandingData[];
   transfer_log?: CompletedTransferData[];
   transfer_rumours?: TransferRumourData[];
+}
+
+export interface ContinentalParticipantData {
+  team_id: string;
+  country_code: string;
+  country_name: string;
+  seed: number;
+  domestic_seed?: number;
+  qualification_path?: string;
+}
+
+export interface ContinentalTournamentData {
+  id: string;
+  name: string;
+  season: number;
+  confederation?: string | null;
+  region?: string | null;
+  format?: string;
+  format_code?: string;
+  phase?: string;
+  entrants?: number;
+  matchdays?: number;
+  expected_fixture_count?: number;
+  qualification_rules?: {
+    league_phase_rounds?: number;
+    round_of_16_direct_places?: number;
+    playoff_places?: number;
+    knockout_places?: number;
+    note?: string;
+  };
+  participants: ContinentalParticipantData[];
+  fixtures: FixtureData[];
+  standings: StandingData[];
+}
+
+export interface WorldContextData {
+  country_code: string;
+  country_name: string;
+  league_id: string;
+  league_name: string;
+  cup_name: string | null;
+  confederation?: string | null;
+  continent?: string | null;
+  continental_tournaments?: {
+    id: string;
+    name: string;
+    entrants?: number;
+  }[];
+  competitions_enabled?: {
+    league: boolean;
+    domestic_cups: boolean;
+    international_cups: boolean;
+  };
+  legal_names?: string;
 }
 
 export type SeasonPhase = "Preseason" | "InSeason" | "PostSeason";
@@ -567,6 +626,8 @@ export interface GameStateData {
   messages: MessageData[];
   news: NewsArticle[];
   league: LeagueData | null;
+  continental_tournaments?: ContinentalTournamentData[];
+  world?: WorldContextData | null;
   scouting_assignments: ScoutingAssignment[];
   youth_scouting_assignments?: YouthScoutingAssignment[];
   board_objectives: BoardObjective[];

@@ -120,8 +120,8 @@ function defaultStartingXi(game, teamId) {
     .map((player) => player.id);
 }
 
-function updateStanding(game, teamId, goalsFor, goalsAgainst) {
-  const standing = game.league?.standings?.find((row) => row.team_id === teamId);
+function updateStanding(standings, teamId, goalsFor, goalsAgainst) {
+  const standing = standings?.find((row) => row.team_id === teamId);
   if (!standing) return;
   standing.played += 1;
   standing.goals_for += goalsFor;
@@ -137,7 +137,36 @@ function updateStanding(game, teamId, goalsFor, goalsAgainst) {
   }
 }
 
-function simulateFixture(game, fixture) {
+function fixtureEntries(game) {
+  return [
+    ...(game.league?.fixtures ?? []).map((fixture) => ({
+      fixture,
+      standings: game.league?.standings ?? [],
+    })),
+    ...(game.continental_tournaments ?? []).flatMap((tournament) =>
+      (tournament.fixtures ?? []).map((fixture) => ({
+        fixture,
+        standings: tournament.standings ?? [],
+      })),
+    ),
+  ];
+}
+
+function findScheduledFixtureForTeam(game, teamId, date) {
+  if (!teamId) return null;
+
+  return (
+    fixtureEntries(game).find(({ fixture }) => {
+      return (
+        fixture.date === date &&
+        fixture.status === "Scheduled" &&
+        (fixture.home_team_id === teamId || fixture.away_team_id === teamId)
+      );
+    })?.fixture ?? null
+  );
+}
+
+function simulateFixture(game, fixture, standings = game.league?.standings ?? []) {
   const homeGoals = Math.floor(Math.random() * 4);
   const awayGoals = Math.floor(Math.random() * 4);
   fixture.status = "Completed";
@@ -148,8 +177,8 @@ function simulateFixture(game, fixture) {
     away_scorers: [],
     report: null,
   };
-  updateStanding(game, fixture.home_team_id, homeGoals, awayGoals);
-  updateStanding(game, fixture.away_team_id, awayGoals, homeGoals);
+  updateStanding(standings, fixture.home_team_id, homeGoals, awayGoals);
+  updateStanding(standings, fixture.away_team_id, awayGoals, homeGoals);
 
   const home = game.teams.find((team) => team.id === fixture.home_team_id);
   const away = game.teams.find((team) => team.id === fixture.away_team_id);
@@ -221,9 +250,9 @@ function refreshSeasonContext(game) {
 function advanceOneDay(game, { playToday = true } = {}) {
   const currentDate = game.clock.current_date.split("T")[0];
   if (playToday) {
-    for (const fixture of game.league?.fixtures ?? []) {
+    for (const { fixture, standings } of fixtureEntries(game)) {
       if (fixture.date === currentDate && fixture.status === "Scheduled") {
-        simulateFixture(game, fixture);
+        simulateFixture(game, fixture, standings);
       }
     }
   }
@@ -677,22 +706,12 @@ export async function runCommand(command, args, context) {
         let daysSkipped = 0;
         while (daysSkipped < 365) {
           const current = game.clock.current_date.split("T")[0];
-          const todayMatch = game.league?.fixtures?.find(
-            (fixture) =>
-              fixture.date === current &&
-              fixture.status === "Scheduled" &&
-              (fixture.home_team_id === teamId || fixture.away_team_id === teamId),
-          );
+          const todayMatch = findScheduledFixtureForTeam(game, teamId, current);
           if (todayMatch && daysSkipped > 0) break;
           advanceOneDay(game, { playToday: !todayMatch });
           daysSkipped += 1;
           const next = game.clock.current_date.split("T")[0];
-          const nextMatch = game.league?.fixtures?.find(
-            (fixture) =>
-              fixture.date === next &&
-              fixture.status === "Scheduled" &&
-              (fixture.home_team_id === teamId || fixture.away_team_id === teamId),
-          );
+          const nextMatch = findScheduledFixtureForTeam(game, teamId, next);
           if (nextMatch) break;
         }
         return { action: "advanced", game, blockers: [], days_skipped: daysSkipped };
@@ -925,6 +944,7 @@ export async function runCommand(command, args, context) {
     case "get_available_jobs": {
       const game = await requireGame(session);
       return game.teams
+        .filter((team) => !team.is_external_context)
         .filter((team) => !team.manager_id || team.id !== game.manager.team_id)
         .slice(0, 6)
         .map((team) => ({

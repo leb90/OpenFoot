@@ -10,6 +10,7 @@ export {
 export {
   expectedFixtureCount,
   findNextFixture,
+  getAllCompetitionFixtures,
   getCompetitiveFixtures,
   getFixtureDisplayLabel,
   hasFullLeagueSchedule,

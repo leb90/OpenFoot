@@ -159,7 +159,7 @@ describe("default football name pools", () => {
     });
   });
 
-  it("creates an isolated double round-robin league for the selected country", () => {
+  it("creates a domestic double round-robin league and continental campaign for the selected country", () => {
     const game = createGameState({
       firstName: "Test",
       lastName: "Manager",
@@ -173,16 +173,22 @@ describe("default football name pools", () => {
     });
     const paris = game.teams.find((team) => team.id === "fr_paris_capitol");
     const parisPlayers = game.players.filter((player) => player.team_id === paris?.id);
+    const domesticTeams = game.teams.filter((team) => team.league_id === game.league.id);
+    const continental = game.continental_tournaments[0];
 
     expect(game.world.country_code).toBe("FR");
     expect(game.league.name).toBe("French Ligue Elite");
-    expect(game.teams).toHaveLength(18);
+    expect(domesticTeams).toHaveLength(18);
     expect(game.league.fixtures).toHaveLength(306);
     expect(Math.max(...game.league.fixtures.map((fixture) => fixture.matchday))).toBe(34);
     expect(game.league.expected_fixture_count).toBe(306);
     expect(game.league.domestic_cup).toBeNull();
-    expect(game.teams.every((team) => team.country === "FR")).toBe(true);
+    expect(domesticTeams.every((team) => team.country === "FR")).toBe(true);
     expect(game.league.fixtures.every((fixture) => fixture.home_team_id.startsWith("fr_"))).toBe(true);
+    expect(continental.name).toBe("Invictus Champions Cup");
+    expect(continental.participants).toHaveLength(36);
+    expect(continental.fixtures).toHaveLength(144);
+    expect(Math.max(...continental.fixtures.map((fixture) => fixture.matchday))).toBe(8);
     expect(parisPlayers.some((player) => player.position === "Forward" && player.ovr >= 88)).toBe(true);
   });
 
@@ -198,7 +204,7 @@ describe("default football name pools", () => {
         countryCode: "AR",
       },
     });
-    const fixtureCountsByTeam = new Map(game.teams.map((team) => [team.id, 0]));
+    const fixtureCountsByTeam = new Map(game.league.standings.map((row) => [row.team_id, 0]));
 
     game.league.fixtures.forEach((fixture) => {
       fixtureCountsByTeam.set(
@@ -211,12 +217,15 @@ describe("default football name pools", () => {
       );
     });
 
-    expect(game.teams).toHaveLength(30);
+    expect(game.league.standings).toHaveLength(30);
     expect(game.league.format_code).toBe("split_groups_playoffs");
     expect(game.league.fixtures).toHaveLength(240);
     expect(Math.max(...game.league.fixtures.map((fixture) => fixture.matchday))).toBe(16);
     expect(new Set(fixtureCountsByTeam.values())).toEqual(new Set([16]));
     expect(game.league.domestic_cup).toBeNull();
+    expect(game.continental_tournaments[0].name).toBe("Copa Libertad Continental");
+    expect(game.continental_tournaments[0].participants).toHaveLength(47);
+    expect(game.continental_tournaments[0].fixtures).toHaveLength(138);
   });
 
   it("supports non-standard round-robin leg counts used by continental feeder leagues", () => {
@@ -243,11 +252,11 @@ describe("default football name pools", () => {
       },
     });
 
-    expect(croatia.teams).toHaveLength(10);
+    expect(croatia.league.standings).toHaveLength(10);
     expect(croatia.league.round_robin_legs).toBe(4);
     expect(croatia.league.fixtures).toHaveLength(180);
     expect(Math.max(...croatia.league.fixtures.map((fixture) => fixture.matchday))).toBe(36);
-    expect(colombia.teams).toHaveLength(20);
+    expect(colombia.league.standings).toHaveLength(20);
     expect(colombia.league.round_robin_legs).toBe(1);
     expect(colombia.league.fixtures).toHaveLength(190);
     expect(Math.max(...colombia.league.fixtures.map((fixture) => fixture.matchday))).toBe(19);

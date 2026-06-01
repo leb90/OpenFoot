@@ -489,6 +489,8 @@ function generateTeams(startYear, country = null) {
       financial_ledger: [],
       formation: "4-4-2",
       play_style: template.play_style ?? "Balanced",
+      is_external_context: Boolean(template.is_external_context),
+      continental_seed: template.continental_seed ?? null,
       squad_strength: template.squad_strength ?? null,
       player_profiles: template.key_players ?? [],
       training_focus: "Physical",
@@ -651,6 +653,202 @@ function buildFixturesForLeague(teamIds, startDate, leagueDefinition = {}) {
   return buildRoundRobinFixtures(teamIds, startDate, { legs });
 }
 
+function sortTeamsByContinentalSeed(teams) {
+  return [...teams].sort(
+    (a, b) =>
+      (b.reputation ?? 0) - (a.reputation ?? 0) ||
+      a.name.localeCompare(b.name),
+  );
+}
+
+function createStandingRows(teamIds) {
+  return teamIds.map((teamId) => ({
+    team_id: teamId,
+    played: 0,
+    won: 0,
+    drawn: 0,
+    lost: 0,
+    goals_for: 0,
+    goals_against: 0,
+    points: 0,
+  }));
+}
+
+function qualifiedTeamsForCountry(country, startYear, selectedCountry, selectedCountryTeams) {
+  const championsSlots = Math.max(0, Number(country.league?.continental_slots?.champions ?? 0));
+  if (championsSlots === 0) return { qualified: [], candidates: [] };
+
+  const generatedTeams =
+    country.code === selectedCountry?.code
+      ? selectedCountryTeams
+      : generateTeams(startYear, {
+          ...country,
+          teams: (country.teams ?? []).map((team) => ({
+            ...team,
+            is_external_context: true,
+          })),
+        });
+  const sortedTeams = sortTeamsByContinentalSeed(generatedTeams);
+
+  return {
+    qualified: sortedTeams.slice(0, championsSlots),
+    candidates: sortedTeams,
+  };
+}
+
+function tournamentDefinitionForConfederation(confederation) {
+  const definitions = worldDefinition.continental_competitions ?? [];
+  if (confederation === "UEFA") {
+    return definitions.find((competition) => competition.id === "euro_champions_cup");
+  }
+  if (confederation === "CONMEBOL") {
+    return definitions.find((competition) => competition.id === "south_american_liberators_cup");
+  }
+  return null;
+}
+
+function buildSwissStyleFixtures(teamIds, startDate, { rounds, fixturePrefix, competitionId, competitionName }) {
+  const rotation = teamIds.length % 2 === 0 ? [...teamIds] : [...teamIds, null];
+  const fixtures = [];
+
+  for (let round = 0; round < rounds; round += 1) {
+    const matchDate = isoDate(addDays(startDate, round * 21));
+    for (let index = 0; index < rotation.length / 2; index += 1) {
+      const first = rotation[index];
+      const second = rotation[rotation.length - 1 - index];
+      if (!first || !second) continue;
+
+      fixtures.push({
+        id: `${fixturePrefix}_${round + 1}_${index + 1}`,
+        competition: "Continental",
+        competition_id: competitionId,
+        competition_name: competitionName,
+        stage: "league_phase",
+        matchday: round + 1,
+        date: matchDate,
+        home_team_id: round % 2 === 0 ? first : second,
+        away_team_id: round % 2 === 0 ? second : first,
+        status: "Scheduled",
+        result: null,
+      });
+    }
+
+    rotation.splice(1, 0, rotation.pop());
+  }
+
+  return fixtures;
+}
+
+function buildContinentalTournament(startYear, selectedCountry, selectedCountryTeams) {
+  const definition = tournamentDefinitionForConfederation(selectedCountry?.confederation);
+  if (!definition) {
+    return { contextTeams: [], tournaments: [] };
+  }
+
+  const confederationCountries = (worldDefinition.countries ?? []).filter(
+    (country) => country.confederation === selectedCountry.confederation,
+  );
+  const qualifiedByCountry = confederationCountries.map((country) => ({
+    country,
+    ...qualifiedTeamsForCountry(country, startYear, selectedCountry, selectedCountryTeams),
+  }));
+  const initialQualified = qualifiedByCountry.flatMap(({ country, qualified }) =>
+    qualified.map((team, index) => ({
+      team,
+      country,
+      seed: index + 1,
+      qualification_path: "Domestic league slot",
+    })),
+  );
+  const alreadyQualifiedIds = new Set(initialQualified.map(({ team }) => team.id));
+  const wildcardPool = qualifiedByCountry
+    .flatMap(({ country, candidates }) =>
+      candidates
+        .filter((team) => !alreadyQualifiedIds.has(team.id))
+        .map((team, index) => ({
+          team,
+          country,
+          seed: index + 1,
+          qualification_path: "Continental coefficient wildcard",
+        })),
+    )
+    .sort(
+      (a, b) =>
+        (b.team.reputation ?? 0) - (a.team.reputation ?? 0) ||
+        a.team.name.localeCompare(b.team.name),
+    );
+  const targetEntrants = Number(definition.entrants ?? initialQualified.length);
+  const participantRecords =
+    initialQualified.length >= targetEntrants
+      ? initialQualified
+          .sort(
+            (a, b) =>
+              (b.team.reputation ?? 0) - (a.team.reputation ?? 0) ||
+              a.team.name.localeCompare(b.team.name),
+          )
+          .slice(0, targetEntrants)
+      : [...initialQualified, ...wildcardPool.slice(0, targetEntrants - initialQualified.length)];
+  const participantIds = new Set(participantRecords.map(({ team }) => team.id));
+  const selectedCountryTeamIds = new Set(selectedCountryTeams.map((team) => team.id));
+  const contextTeams = participantRecords
+    .filter(({ team }) => !selectedCountryTeamIds.has(team.id))
+    .map(({ team }) => ({
+      ...team,
+      is_external_context: true,
+    }));
+  const teamIds = participantRecords.map(({ team }) => team.id);
+  const tournamentStart = addDays(startDateForYear(startYear), selectedCountry.confederation === "UEFA" ? 70 : 120);
+  const rounds = selectedCountry.confederation === "UEFA" ? 8 : 6;
+  const fixtures = buildSwissStyleFixtures(teamIds, tournamentStart, {
+    rounds,
+    fixturePrefix: definition.id === "euro_champions_cup" ? "invictus" : "libertad",
+    competitionId: definition.id,
+    competitionName: definition.name,
+  });
+
+  return {
+    contextTeams,
+    tournaments: [
+      {
+        id: definition.id,
+        name: definition.name,
+        season: startYear,
+        confederation: definition.confederation,
+        region: definition.region,
+        format: definition.model,
+        format_code: "continental_league_phase",
+        phase: "league_phase",
+        entrants: targetEntrants,
+        matchdays: rounds,
+        expected_fixture_count: fixtures.length,
+        qualification_rules:
+          definition.id === "euro_champions_cup"
+            ? {
+                league_phase_rounds: 8,
+                round_of_16_direct_places: 8,
+                playoff_places: 16,
+                note: "Domestic champions slots feed the league phase. Top 8 advance directly; places 9-24 enter playoffs.",
+              }
+            : {
+                league_phase_rounds: 6,
+                knockout_places: 16,
+                note: "Domestic Libertadores-style slots and coefficient wildcards feed the league phase. Top 16 advance to knockouts.",
+              },
+        participants: participantRecords.map(({ team, country, seed, qualification_path }, index) => ({
+          team_id: team.id,
+          country_code: country.code,
+          country_name: country.name,
+          seed: index + 1,
+          domestic_seed: seed,
+          qualification_path,
+        })),
+        fixtures,
+        standings: createStandingRows(teamIds),
+      },
+    ],
+  };
+}
+
 function buildLeague(teams, startYear, currentDate, country = null) {
   const seasonStart = addDays(startDateForYear(startYear), 30);
   const fixtures = buildFixturesForLeague(
@@ -746,7 +944,11 @@ export function createGameState({
     throw new Error("be.error.createManager.invalidDob");
   }
 
-  const teams = generateTeams(startYear, country);
+  const domesticTeams = generateTeams(startYear, country);
+  const continentalSetup = country
+    ? buildContinentalTournament(startYear, country, domesticTeams)
+    : { contextTeams: [], tournaments: [] };
+  const teams = [...domesticTeams, ...continentalSetup.contextTeams];
   const players = teams.flatMap((team) => generatePlayersForTeam(team, startYear));
   const staff = teams.flatMap((team) =>
     ["AssistantManager", "Coach", "Scout", "Physio"].map((role) =>
@@ -789,7 +991,8 @@ export function createGameState({
     staff,
     messages: [],
     news: [],
-    league: buildLeague(teams, startYear, currentDateString, country),
+    league: buildLeague(domesticTeams, startYear, currentDateString, country),
+    continental_tournaments: continentalSetup.tournaments,
     world: country
       ? {
           country_code: country.code,
@@ -797,6 +1000,13 @@ export function createGameState({
           league_id: country.league.id,
           league_name: country.league.name,
           cup_name: null,
+          confederation: country.confederation ?? null,
+          continent: country.continent ?? null,
+          continental_tournaments: continentalSetup.tournaments.map((tournament) => ({
+            id: tournament.id,
+            name: tournament.name,
+            entrants: tournament.entrants,
+          })),
           competitions_enabled: country.league.competitions_enabled,
           legal_names: "fictional",
         }
@@ -807,7 +1017,7 @@ export function createGameState({
       {
         id: "obj_league_position",
         description: "Finish in the top half",
-        target: Math.ceil(teams.length / 2),
+        target: Math.ceil(domesticTeams.length / 2),
         objective_type: "LeaguePosition",
         met: false,
       },

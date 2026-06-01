@@ -1,4 +1,8 @@
-import { findNextFixture, getPlayerOvr } from "../../lib/helpers";
+import {
+  findNextFixture,
+  getAllCompetitionFixtures,
+  getPlayerOvr,
+} from "../../lib/helpers";
 import { hasCompetitiveStandings } from "../../lib/seasonContext";
 import type {
   FixtureData,
@@ -95,7 +99,7 @@ export function getNextOpponentWidgetData(
     return null;
   }
 
-  const nextFixture = findNextFixture(league.fixtures, userTeamId);
+  const nextFixture = findNextFixture(getAllCompetitionFixtures(gameState), userTeamId);
 
   if (!nextFixture) {
     return null;

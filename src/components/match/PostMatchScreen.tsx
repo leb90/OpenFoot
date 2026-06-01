@@ -11,6 +11,7 @@ import {
   TeamTalkTone,
 } from "./types";
 import { getEventDisplay, getPlayerName } from "./helpers";
+import { getAllCompetitionFixtures } from "../../lib/fixtures";
 import { getTalkIcon } from "./TeamTalkIcons";
 import { Badge, ThemeToggle } from "../ui";
 import {
@@ -82,13 +83,11 @@ export default function PostMatchScreen({
 
   const resultType =
     userScore > oppScore ? "win" : userScore < oppScore ? "loss" : "draw";
-  const isLeagueFixture =
-    currentFixture?.competition !== "Friendly" &&
-    currentFixture?.competition !== "PreseasonTournament";
-  const summaryTitle = isLeagueFixture
+  const hasRoundSummary = currentFixture?.competition === "League";
+  const summaryTitle = hasRoundSummary
     ? t("match.roundSummary")
     : t("match.otherMatches");
-  const summaryContextLabel = isLeagueFixture
+  const summaryContextLabel = hasRoundSummary
     ? roundSummary
       ? t("schedule.matchday", {
         number: roundSummary.matchday,
@@ -97,10 +96,10 @@ export default function PostMatchScreen({
     : currentFixture
       ? t("match.otherMatchesToday")
       : null;
-  const summaryEmptyState = isLeagueFixture
+  const summaryEmptyState = hasRoundSummary
     ? t("match.roundSummaryUnavailable")
     : t("match.otherMatchesUnavailable");
-  const shouldRenderSummaryBody = isLeagueFixture
+  const shouldRenderSummaryBody = hasRoundSummary
     ? roundSummary !== null
     : currentFixture !== null;
   const getTeamNameById = (teamId: string) =>
@@ -176,11 +175,12 @@ export default function PostMatchScreen({
         return primaryPlayer;
     }
   };
-  const otherMatchEntries = isLeagueFixture
+  const allFixtures = getAllCompetitionFixtures(gameState);
+  const otherMatchEntries = hasRoundSummary
     ? (roundSummary?.completed_results || [])
       .filter((result) => result.fixture_id !== currentFixture?.id)
       .map((result) => {
-        const fixture = gameState.league?.fixtures.find(
+        const fixture = allFixtures.find(
           (candidate) => candidate.id === result.fixture_id,
         );
 
@@ -203,7 +203,7 @@ export default function PostMatchScreen({
           awayTeamName: string;
         } => entry !== null,
       )
-    : (gameState.league?.fixtures || [])
+    : allFixtures
       .filter(
         (fixture) =>
           fixture.id !== currentFixture?.id &&
@@ -528,7 +528,7 @@ export default function PostMatchScreen({
                     </div>
                   </div>
 
-                  {isLeagueFixture && roundSummary && (
+                  {hasRoundSummary && roundSummary && (
                     <>
                       <div>
                         <p className="text-[10px] font-heading font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2">

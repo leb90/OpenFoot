@@ -6,6 +6,8 @@ import {
   getTeamShort,
   findNextFixture,
   formatMatchDate,
+  getAllCompetitionFixtures,
+  getFixtureDisplayLabel,
   isSeasonComplete,
 } from "../lib/helpers";
 
@@ -26,7 +28,7 @@ export default function NextMatchDisplay({
     );
   }
 
-  const nextFixture = findNextFixture(league.fixtures, userTeamId);
+  const nextFixture = findNextFixture(getAllCompetitionFixtures(gameState), userTeamId);
   if (!nextFixture) {
     return (
       <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
@@ -46,9 +48,7 @@ export default function NextMatchDisplay({
   const fixtureLabel =
     nextFixture.competition === "League"
       ? t("home.matchdayN", { n: nextFixture.matchday })
-      : nextFixture.competition === "PreseasonTournament"
-        ? t("season.preseasonTournament")
-        : t("season.friendly");
+      : getFixtureDisplayLabel(t, nextFixture);
 
   return (
     <div className="flex items-center justify-between py-6 px-4 bg-gray-50 dark:bg-navy-800 rounded-lg border border-gray-100 dark:border-navy-600 transition-colors">

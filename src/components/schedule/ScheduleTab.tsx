@@ -7,7 +7,11 @@ import {
   TableProperties,
   Trophy,
 } from "lucide-react";
-import { getTeamName, formatMatchDate } from "../../lib/helpers";
+import {
+  formatMatchDate,
+  getAllCompetitionFixtures,
+  getTeamName,
+} from "../../lib/helpers";
 import { resolveSeasonContext } from "../../lib/seasonContext";
 import { useTranslation } from "react-i18next";
 
@@ -32,19 +36,29 @@ export default function ScheduleTab({
       return `league-${fixture.matchday}`;
     }
 
+    if (fixture.competition === "Continental") {
+      return `${fixture.competition_id ?? "continental"}-${fixture.matchday}`;
+    }
+
     return `${fixture.competition}-${fixture.date}`;
   };
 
   const getFixtureGroupLabel = (fixture: FixtureData): string => {
     if (fixture.competition === "League") {
-      return `${t("schedule.matchday", { number: fixture.matchday })} — ${formatMatchDate(fixture.date, )}`;
+      return `${t("schedule.matchday", { number: fixture.matchday })} - ${formatMatchDate(fixture.date)}`;
     }
 
     if (fixture.competition === "PreseasonTournament") {
-      return `${t("season.preseasonTournament")} — ${formatMatchDate(fixture.date)}`;
+      return `${t("season.preseasonTournament")} - ${formatMatchDate(fixture.date)}`;
     }
 
-    return `${t("season.friendly")} — ${formatMatchDate(fixture.date)}`;
+    if (fixture.competition === "Continental") {
+      const competitionName = fixture.competition_name ?? t("dashboard.tournaments");
+      const matchday = t("schedule.matchday", { number: fixture.matchday });
+      return `${competitionName} - ${matchday} - ${formatMatchDate(fixture.date)}`;
+    }
+
+    return `${t("season.friendly")} - ${formatMatchDate(fixture.date)}`;
   };
 
   const buildTeamMenuItem = (
@@ -65,7 +79,7 @@ export default function ScheduleTab({
 
   // Group fixtures by matchday
   const matchdays = new Map<string, FixtureData[]>();
-  league.fixtures.forEach((f) => {
+  getAllCompetitionFixtures(gameState).forEach((f) => {
     const key = getFixtureGroupKey(f);
     const list = matchdays.get(key) || [];
     list.push(f);
