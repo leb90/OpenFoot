@@ -3,7 +3,9 @@ import { prisma } from "./prisma.js";
 import {
   addWelcomeMessages,
   createGameState,
+  DEFAULT_SQUAD_SIZE,
   defaultSaveName,
+  ensureSquadDepth,
   getDefaultSettings,
   listPlayableCountries,
   managerName,
@@ -47,6 +49,12 @@ function activeTeam(game) {
   return game.teams.find((team) => team.id === game.manager.team_id) ?? null;
 }
 
+function prepareGameSnapshot(snapshot) {
+  const game = clone(snapshot);
+  ensureSquadDepth(game);
+  return game;
+}
+
 async function setSessionDraft(sessionId, game, extra = {}) {
   await prisma.webSession.update({
     where: { id: sessionId },
@@ -60,14 +68,14 @@ async function setSessionDraft(sessionId, game, extra = {}) {
 
 async function requireGame(session) {
   if (session.draftGame) {
-    return clone(session.draftGame);
+    return prepareGameSnapshot(session.draftGame);
   }
 
   if (session.activeSaveId) {
     const save = await prisma.gameSave.findUnique({
       where: { id: session.activeSaveId },
     });
-    if (save) return clone(save.snapshot);
+    if (save) return prepareGameSnapshot(save.snapshot);
   }
 
   throw new Error("be.error.noActiveGameSession");
@@ -449,7 +457,10 @@ export async function runCommand(command, args, context) {
           name: "OpenFoot Fictional World",
           description: "Generated country-based career database",
           team_count: listPlayableCountries().reduce((sum, country) => sum + country.team_count, 0),
-          player_count: listPlayableCountries().reduce((sum, country) => sum + country.team_count * 22, 0),
+          player_count: listPlayableCountries().reduce(
+            (sum, country) => sum + country.team_count * DEFAULT_SQUAD_SIZE,
+            0,
+          ),
           history_mode: "generated",
           base_year: null,
           snapshot_date: null,

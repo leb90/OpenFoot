@@ -383,7 +383,7 @@ createGameState(startupOptions)
 |-- Select country and fictional clubs
 |-- For each club:
 |   |-- Create Team with defined reputation, finances, stadium, colors, and strength profile
-|   |-- Generate 22 players (2 GK, 7 DEF, 7 MID, 6 FWD)
+|   |-- Generate 36 players (3 GK, 13 DEF, 11 MID, 9 FWD)
 |   |   |-- Pick nationality from local/regional/global football-market weights
 |   |   |-- Pick name from nationality pool
 |   |   |-- Generate attributes by position and OVR profile

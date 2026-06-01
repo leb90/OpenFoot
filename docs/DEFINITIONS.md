@@ -207,7 +207,7 @@ For the country-based career setup, prefer `default_world.json`. `default_teams.
 
 **Notes:**
 - The number of teams determines the league size. Must be an **even** number ≥ 2 for schedule generation.
-- Each team gets 22 players (2 GK, 7 DEF, 7 MID, 6 FWD) and 4 staff (AssistantManager, Coach, Scout, Physio).
+- Each team gets 36 players (3 GK, 13 DEF, 11 MID, 9 FWD) and 4 staff (AssistantManager, Coach, Scout, Physio).
 - Player nationalities are weighted toward the team's country, then realistic regional transfer markets, with only a small chance of wider global football markets.
 - 12 free-agent staff are also generated regardless of team count.
 

@@ -30,30 +30,50 @@ const SUPPORTED_CURRENCIES = [
   { code: "USD", symbol: "USD", exchange_rate: 1.08 },
 ];
 
-const POSITIONS_BY_SLOT = [
-  "Goalkeeper",
-  "Goalkeeper",
-  "Defender",
-  "Defender",
-  "Defender",
-  "Defender",
-  "Defender",
-  "Defender",
-  "Defender",
-  "Midfielder",
-  "Midfielder",
-  "Midfielder",
-  "Midfielder",
-  "Midfielder",
-  "Midfielder",
-  "Midfielder",
-  "Forward",
-  "Forward",
-  "Forward",
-  "Forward",
-  "Forward",
-  "Forward",
+const SQUAD_SLOT_PLAN = [
+  { position: "Goalkeeper", detail_position: "Goalkeeper", age_band: "prime", squad_role: "Senior", rating_offset: 1 },
+  { position: "Goalkeeper", detail_position: "Goalkeeper", age_band: "rotation", squad_role: "Senior", rating_offset: -4 },
+  { position: "Goalkeeper", detail_position: "Goalkeeper", age_band: "prospect", squad_role: "Youth", rating_offset: -9 },
+
+  { position: "Defender", detail_position: "RightBack", age_band: "prime", squad_role: "Senior", rating_offset: 0 },
+  { position: "Defender", detail_position: "CenterBack", age_band: "prime", squad_role: "Senior", rating_offset: 1 },
+  { position: "Defender", detail_position: "CenterBack", age_band: "prime", squad_role: "Senior", rating_offset: 0 },
+  { position: "Defender", detail_position: "LeftBack", age_band: "prime", squad_role: "Senior", rating_offset: 0 },
+  { position: "Defender", detail_position: "RightBack", age_band: "rotation", squad_role: "Senior", rating_offset: -4 },
+  { position: "Defender", detail_position: "CenterBack", age_band: "rotation", squad_role: "Senior", rating_offset: -3 },
+  { position: "Defender", detail_position: "CenterBack", age_band: "rotation", squad_role: "Senior", rating_offset: -5 },
+  { position: "Defender", detail_position: "LeftBack", age_band: "rotation", squad_role: "Senior", rating_offset: -4 },
+  { position: "Defender", detail_position: "WingBack", age_band: "young", squad_role: "Senior", rating_offset: -6 },
+  { position: "Defender", detail_position: "CenterBack", age_band: "veteran", squad_role: "Senior", rating_offset: -5 },
+  { position: "Defender", detail_position: "FullBack", age_band: "young", squad_role: "Senior", rating_offset: -7 },
+  { position: "Defender", detail_position: "CenterBack", age_band: "prospect", squad_role: "Youth", rating_offset: -9 },
+  { position: "Defender", detail_position: "FullBack", age_band: "prospect", squad_role: "Youth", rating_offset: -10 },
+
+  { position: "Midfielder", detail_position: "DefensiveMidfielder", age_band: "prime", squad_role: "Senior", rating_offset: 1 },
+  { position: "Midfielder", detail_position: "CentralMidfielder", age_band: "prime", squad_role: "Senior", rating_offset: 1 },
+  { position: "Midfielder", detail_position: "CentralMidfielder", age_band: "prime", squad_role: "Senior", rating_offset: 0 },
+  { position: "Midfielder", detail_position: "AttackingMidfielder", age_band: "prime", squad_role: "Senior", rating_offset: 1 },
+  { position: "Midfielder", detail_position: "WideMidfielder", age_band: "rotation", squad_role: "Senior", rating_offset: -3 },
+  { position: "Midfielder", detail_position: "CentralMidfielder", age_band: "rotation", squad_role: "Senior", rating_offset: -4 },
+  { position: "Midfielder", detail_position: "DefensiveMidfielder", age_band: "rotation", squad_role: "Senior", rating_offset: -5 },
+  { position: "Midfielder", detail_position: "AttackingMidfielder", age_band: "rotation", squad_role: "Senior", rating_offset: -4 },
+  { position: "Midfielder", detail_position: "WideMidfielder", age_band: "young", squad_role: "Senior", rating_offset: -6 },
+  { position: "Midfielder", detail_position: "CentralMidfielder", age_band: "prospect", squad_role: "Youth", rating_offset: -8 },
+  { position: "Midfielder", detail_position: "AttackingMidfielder", age_band: "young", squad_role: "Senior", rating_offset: -7 },
+
+  { position: "Forward", detail_position: "Striker", age_band: "prime", squad_role: "Senior", rating_offset: 1 },
+  { position: "Forward", detail_position: "RightWinger", age_band: "prime", squad_role: "Senior", rating_offset: 1 },
+  { position: "Forward", detail_position: "LeftWinger", age_band: "prime", squad_role: "Senior", rating_offset: 1 },
+  { position: "Forward", detail_position: "Striker", age_band: "rotation", squad_role: "Senior", rating_offset: -3 },
+  { position: "Forward", detail_position: "Winger", age_band: "rotation", squad_role: "Senior", rating_offset: -4 },
+  { position: "Forward", detail_position: "Winger", age_band: "rotation", squad_role: "Senior", rating_offset: -5 },
+  { position: "Forward", detail_position: "SecondStriker", age_band: "young", squad_role: "Senior", rating_offset: -6 },
+  { position: "Forward", detail_position: "Striker", age_band: "prospect", squad_role: "Youth", rating_offset: -8 },
+  { position: "Forward", detail_position: "Winger", age_band: "young", squad_role: "Senior", rating_offset: -7 },
 ];
+
+const POSITIONS_BY_SLOT = SQUAD_SLOT_PLAN.map((slot) => slot.position);
+const DEFAULT_SQUAD_SIZE = SQUAD_SLOT_PLAN.length;
 
 const GLOBAL_FOOTBALL_MARKET = [
   "BR",
@@ -125,7 +145,7 @@ const MATCH_ROLE_DEFAULTS = {
   corner_taker: null,
 };
 
-export { DEFAULT_SETTINGS, SUPPORTED_CURRENCIES };
+export { DEFAULT_SETTINGS, DEFAULT_SQUAD_SIZE, SUPPORTED_CURRENCIES };
 
 export function getDefaultSettings(settings = {}) {
   const merged = { ...DEFAULT_SETTINGS, ...settings };
@@ -329,29 +349,51 @@ function ratingBaseForPosition(team, position) {
   return strength.midfield ?? team.reputation / 10;
 }
 
-function generatedRatingForSlot(team, position, slot) {
+function generatedRatingForSlot(team, position, slot, slotPlan = null) {
   const base = ratingBaseForPosition(team, position);
-  const depthPenalty = slot % 2 === 0 ? 0 : randomInt(1, 5);
-  return clamp(Math.round(base + randomInt(-3, 4) - depthPenalty), 45, 92);
+  const offset = slotPlan?.rating_offset ?? (slot % 2 === 0 ? 0 : -randomInt(1, 5));
+  return clamp(Math.round(base + offset + randomInt(-2, 3)), 45, 92);
 }
 
-function playerProfileForSlot(profiles, position) {
+function playerProfileForSlot(profiles, position, detailPosition = null) {
+  if (detailPosition) {
+    const detailIndex = profiles.findIndex(
+      (profile) => profile.position === position && profile.detail_position === detailPosition,
+    );
+    if (detailIndex !== -1) return profiles.splice(detailIndex, 1)[0];
+  }
+
   const index = profiles.findIndex((profile) => profile.position === position);
   if (index === -1) return null;
   return profiles.splice(index, 1)[0];
 }
 
-function generatePlayer(team, slot, startYear, profile = null) {
+function ageForBand(ageBand) {
+  switch (ageBand) {
+    case "prospect":
+      return randomInt(17, 22);
+    case "young":
+      return randomInt(20, 25);
+    case "prime":
+      return randomInt(23, 31);
+    case "veteran":
+      return randomInt(30, 36);
+    case "rotation":
+    default:
+      return randomInt(21, 33);
+  }
+}
+
+function generatePlayer(team, slot, startYear, profile = null, slotPlan = null) {
   const nationality = profile?.nationality ?? generatePlayerNationality(team.country);
   const { firstName, lastName } = generateName(nationality);
-  const position = profile?.position ?? POSITIONS_BY_SLOT[slot] ?? "Midfielder";
-  const age =
-    profile?.age ??
-    (slot === 8 || slot === 15 || slot === 21 ? randomInt(17, 22) : randomInt(18, 35));
+  const position = profile?.position ?? slotPlan?.position ?? POSITIONS_BY_SLOT[slot] ?? "Midfielder";
+  const detailPosition = profile?.detail_position ?? slotPlan?.detail_position ?? null;
+  const age = profile?.age ?? ageForBand(slotPlan?.age_band);
   const dob = `${startYear - age}-${String(randomInt(1, 13)).padStart(2, "0")}-${String(
     randomInt(1, 29),
   ).padStart(2, "0")}`;
-  const targetOvr = profile?.overall ?? generatedRatingForSlot(team, position, slot);
+  const targetOvr = profile?.overall ?? generatedRatingForSlot(team, position, slot, slotPlan);
   const attributes = generateAttributesForOvr(position, targetOvr);
   const ovr = playerOvr(position, attributes);
   const potential =
@@ -369,7 +411,7 @@ function generatePlayer(team, slot, startYear, profile = null) {
     birth_country: nationality,
     position,
     natural_position: position,
-    alternate_positions: profile?.detail_position ? [profile.detail_position] : [],
+    alternate_positions: detailPosition && detailPosition !== position ? [detailPosition] : [],
     footedness: profile?.footedness ?? (Math.random() < 0.25 ? "Left" : "Right"),
     weak_foot: randomInt(2, 5),
     training_focus: null,
@@ -380,7 +422,7 @@ function generatePlayer(team, slot, startYear, profile = null) {
     injury: null,
     team_id: team.id,
     retired: false,
-    squad_role: age <= 20 ? "Youth" : "Senior",
+    squad_role: profile?.squad_role ?? slotPlan?.squad_role ?? (age <= 20 ? "Youth" : "Senior"),
     contract_end: `${startYear + randomInt(1, 5)}-06-30`,
     wage: Math.max(500, Math.round(marketValue / 210)),
     market_value: marketValue,
@@ -406,9 +448,90 @@ function generatePlayer(team, slot, startYear, profile = null) {
 function generatePlayersForTeam(team, startYear) {
   const profiles = [...(team.player_profiles ?? [])];
 
-  return POSITIONS_BY_SLOT.map((position, slot) =>
-    generatePlayer(team, slot, startYear, playerProfileForSlot(profiles, position)),
+  const plannedPlayers = SQUAD_SLOT_PLAN.map((slotPlan, slot) =>
+    generatePlayer(
+      team,
+      slot,
+      startYear,
+      playerProfileForSlot(profiles, slotPlan.position, slotPlan.detail_position),
+      slotPlan,
+    ),
   );
+
+  const extraPlayers = profiles.map((profile, index) =>
+    generatePlayer(team, SQUAD_SLOT_PLAN.length + index, startYear, profile),
+  );
+
+  return [...plannedPlayers, ...extraPlayers];
+}
+
+function squadSlotPlansByPosition() {
+  return SQUAD_SLOT_PLAN.reduce((groups, slotPlan) => {
+    groups[slotPlan.position] = [...(groups[slotPlan.position] ?? []), slotPlan];
+    return groups;
+  }, {});
+}
+
+function missingSquadSlotPlans(currentPlayers) {
+  const counts = currentPlayers.reduce((totals, player) => {
+    totals[player.position] = (totals[player.position] ?? 0) + 1;
+    return totals;
+  }, {});
+
+  return Object.entries(squadSlotPlansByPosition()).flatMap(([position, slotPlans]) =>
+    slotPlans.slice(counts[position] ?? 0),
+  );
+}
+
+function startYearFromGame(game) {
+  const rawDate = game?.clock?.start_date ?? game?.clock?.current_date;
+  const year = Number(String(rawDate ?? "").slice(0, 4));
+  return Number.isFinite(year) && year > 1900 ? year : new Date().getUTCFullYear();
+}
+
+export function ensureSquadDepth(game) {
+  if (!game || !Array.isArray(game.teams)) {
+    return { added: 0, squad_size: DEFAULT_SQUAD_SIZE };
+  }
+
+  if (!Array.isArray(game.players)) {
+    game.players = [];
+  }
+
+  const startYear = startYearFromGame(game);
+  let added = 0;
+
+  game.teams.forEach((team) => {
+    const currentPlayers = game.players.filter(
+      (player) => player.team_id === team.id && !player.retired,
+    );
+    if (currentPlayers.length >= DEFAULT_SQUAD_SIZE) return;
+
+    const missingPlans = missingSquadSlotPlans(currentPlayers);
+    let teamAdded = 0;
+
+    missingPlans.forEach((slotPlan) => {
+      if (currentPlayers.length + teamAdded >= DEFAULT_SQUAD_SIZE) return;
+      game.players.push(
+        generatePlayer(team, currentPlayers.length + teamAdded, startYear, null, slotPlan),
+      );
+      teamAdded += 1;
+      added += 1;
+    });
+
+    if (Array.isArray(team.starting_xi_ids) && team.starting_xi_ids.length > 0) {
+      const rosterIds = new Set(
+        game.players
+          .filter((player) => player.team_id === team.id && !player.retired)
+          .map((player) => player.id),
+      );
+      team.starting_xi_ids = team.starting_xi_ids.filter((playerId) =>
+        rosterIds.has(playerId),
+      );
+    }
+  });
+
+  return { added, squad_size: DEFAULT_SQUAD_SIZE };
 }
 
 function generateStaff(team, role, startYear) {

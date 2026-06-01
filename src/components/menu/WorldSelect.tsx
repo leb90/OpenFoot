@@ -441,7 +441,7 @@ export default function WorldSelect({
                         <TeamStat
                           icon={<Users className="h-4 w-4" />}
                           label={t("teamSelect.squad")}
-                          value="22"
+                          value="36"
                         />
                         <TeamStat
                           icon={<Landmark className="h-4 w-4" />}
@@ -480,7 +480,7 @@ export default function WorldSelect({
                     label={t("teamSelect.reputation")}
                     value={reputationLabel(t, selectedTeam.reputation)}
                   />
-                  <DetailMetric label={t("teamSelect.squad")} value="22" />
+                  <DetailMetric label={t("teamSelect.squad")} value="36" />
                   <DetailMetric
                     label={t("teamSelect.finances")}
                     value={formatCompactMoney(selectedTeam.finance)}

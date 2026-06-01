@@ -4,7 +4,12 @@ import { readFileSync } from "node:fs";
 
 import { describe, expect, it } from "vitest";
 
-import { createGameState, listPlayableCountries } from "./gameFactory.js";
+import {
+  createGameState,
+  DEFAULT_SQUAD_SIZE,
+  ensureSquadDepth,
+  listPlayableCountries,
+} from "./gameFactory.js";
 
 const namesDefinition = JSON.parse(
   readFileSync("server/data/default_names.json", "utf8"),
@@ -71,6 +76,13 @@ const REQUIRED_SOUTH_AMERICAN_COUNTRIES = [
   "BO",
   "VE",
 ];
+
+function countRosterByPosition(players) {
+  return players.reduce((counts, player) => {
+    counts[player.position] = (counts[player.position] ?? 0) + 1;
+    return counts;
+  }, {});
+}
 
 describe("default football name pools", () => {
   it("covers the main football markets with usable first and last names", () => {
@@ -189,6 +201,13 @@ describe("default football name pools", () => {
     expect(continental.participants).toHaveLength(36);
     expect(continental.fixtures).toHaveLength(144);
     expect(Math.max(...continental.fixtures.map((fixture) => fixture.matchday))).toBe(8);
+    expect(parisPlayers).toHaveLength(DEFAULT_SQUAD_SIZE);
+    expect(countRosterByPosition(parisPlayers)).toEqual({
+      Goalkeeper: 3,
+      Defender: 13,
+      Midfielder: 11,
+      Forward: 9,
+    });
     expect(parisPlayers.some((player) => player.position === "Forward" && player.ovr >= 88)).toBe(true);
   });
 
@@ -226,6 +245,51 @@ describe("default football name pools", () => {
     expect(game.continental_tournaments[0].name).toBe("Copa Libertad Continental");
     expect(game.continental_tournaments[0].participants).toHaveLength(47);
     expect(game.continental_tournaments[0].fixtures).toHaveLength(138);
+
+    const millionairesPlayers = game.players.filter(
+      (player) => player.team_id === "ar_buenos_aires_millionaires",
+    );
+    expect(millionairesPlayers).toHaveLength(DEFAULT_SQUAD_SIZE);
+    expect(countRosterByPosition(millionairesPlayers)).toEqual({
+      Goalkeeper: 3,
+      Defender: 13,
+      Midfielder: 11,
+      Forward: 9,
+    });
+  });
+
+  it("backfills legacy short squads without replacing existing players", () => {
+    const game = createGameState({
+      firstName: "Test",
+      lastName: "Manager",
+      dob: "1980-01-01",
+      nationality: "AR",
+      startupOptions: {
+        startYear: 2026,
+        startPhase: "seasonStart",
+        countryCode: "AR",
+      },
+    });
+    const teamId = "ar_buenos_aires_millionaires";
+    const originalRoster = game.players.filter((player) => player.team_id === teamId);
+    const keptRoster = originalRoster.slice(0, 22);
+    const keptIds = new Set(keptRoster.map((player) => player.id));
+    game.players = game.players.filter((player) => player.team_id !== teamId).concat(keptRoster);
+
+    const result = ensureSquadDepth(game);
+    const backfilledRoster = game.players.filter((player) => player.team_id === teamId);
+
+    expect(result.added).toBe(14);
+    expect(backfilledRoster).toHaveLength(DEFAULT_SQUAD_SIZE);
+    keptIds.forEach((id) => {
+      expect(backfilledRoster.some((player) => player.id === id)).toBe(true);
+    });
+    expect(countRosterByPosition(backfilledRoster)).toEqual({
+      Goalkeeper: 3,
+      Defender: 13,
+      Midfielder: 11,
+      Forward: 9,
+    });
   });
 
   it("supports non-standard round-robin leg counts used by continental feeder leagues", () => {
