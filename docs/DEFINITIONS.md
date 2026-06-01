@@ -59,15 +59,28 @@ Controls playable countries, league metadata, fictional clubs, and squad strengt
 ```json
 {
   "version": 1,
+  "continental_competitions": [
+    {
+      "id": "euro_champions_cup",
+      "name": "European Champions Cup",
+      "confederation": "UEFA",
+      "model": "league_phase_36",
+      "entrants": 36,
+      "enabled": false
+    }
+  ],
   "countries": [
     {
       "code": "FR",
       "name": "France",
+      "confederation": "UEFA",
+      "continent": "Europe",
       "league": {
         "id": "fr_ligue_elite",
         "name": "French Ligue Elite",
         "format": "Double round-robin",
         "format_code": "double_round_robin",
+        "round_robin_legs": 2,
         "target_teams": 18,
         "matchdays": 34,
         "season": "August-May",
@@ -79,6 +92,10 @@ Controls playable countries, league metadata, fictional clubs, and squad strengt
         "relegation": {
           "automatic": 2,
           "playoff_spots": 1
+        },
+        "continental_slots": {
+          "champions": 3,
+          "secondary": 2
         }
       },
       "teams": []
@@ -89,7 +106,10 @@ Controls playable countries, league metadata, fictional clubs, and squad strengt
 
 | Field | Type | Description |
 |-------|------|-------------|
+| `continental_competitions[]` | `object[]` | Planned regional competitions fed by domestic qualification slots. They are metadata until tournament simulation is implemented. |
 | `countries[].code` | `string` | Football country code used by generation and selection. |
+| `countries[].confederation` | `string` | Regional governing body marker such as `UEFA` or `CONMEBOL`. |
+| `countries[].continent` | `string` | Display/grouping metadata for the country. |
 | `countries[].league` | `object` | Domestic league metadata shown in setup and stored in saves. |
 | `countries[].teams` | `TeamDef[]` | Fictional playable clubs for that country. |
 
@@ -98,10 +118,12 @@ Controls playable countries, league metadata, fictional clubs, and squad strengt
 | Field | Type | Description |
 |-------|------|-------------|
 | `format_code` | `string` | Fixture generator mode. Current values are `double_round_robin` and `split_groups_playoffs`. |
+| `round_robin_legs` | `number` | Number of times each round-robin pairing is generated. Defaults to `2`; use `1` for short phases and `4` for quadruple round-robin leagues. |
 | `target_teams` | `number` | Expected first-division size for validation and setup display. |
 | `matchdays` | `number` | League dates generated for the current format. |
 | `competitions_enabled` | `object` | Feature flags for league, domestic cups, and international cups. Cups are currently disabled. |
 | `relegation` | `object` | Metadata for automatic relegation and promotion/relegation playoff places. Lower divisions are not simulated yet. |
+| `continental_slots` | `object` | Simplified qualification slots for future regional competitions. |
 
 #### Country TeamDef additions
 

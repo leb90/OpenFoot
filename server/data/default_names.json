@@ -2208,6 +2208,156 @@
         "Al-Hassan",
         "Al-Omari"
       ]
+    },
+    "UA": {
+      "first_names": [
+        "Andriy",
+        "Oleksandr",
+        "Dmytro",
+        "Mykola",
+        "Taras",
+        "Viktor",
+        "Bohdan",
+        "Roman",
+        "Serhiy",
+        "Yuriy",
+        "Maksym",
+        "Ivan"
+      ],
+      "last_names": [
+        "Shevchenko",
+        "Kovalenko",
+        "Bondarenko",
+        "Tkachenko",
+        "Melnyk",
+        "Kravchenko",
+        "Boyko",
+        "Savchenko",
+        "Koval",
+        "Polishchuk",
+        "Lysenko",
+        "Moroz"
+      ]
+    },
+    "EC": {
+      "first_names": [
+        "Jose",
+        "Luis",
+        "Carlos",
+        "Jhon",
+        "Andres",
+        "Miguel",
+        "Bryan",
+        "Cristian",
+        "Juan",
+        "Diego",
+        "Leonardo",
+        "Kevin"
+      ],
+      "last_names": [
+        "Valencia",
+        "Preciado",
+        "Mina",
+        "Caicedo",
+        "Quinonez",
+        "Cevallos",
+        "Mendez",
+        "Ibarra",
+        "Estrada",
+        "Arroyo",
+        "Paredes",
+        "Castillo"
+      ]
+    },
+    "PE": {
+      "first_names": [
+        "Jose",
+        "Luis",
+        "Carlos",
+        "Miguel",
+        "Andy",
+        "Paolo",
+        "Edison",
+        "Christian",
+        "Jairo",
+        "Yoshimar",
+        "Renato",
+        "Alex"
+      ],
+      "last_names": [
+        "Flores",
+        "Garcia",
+        "Quispe",
+        "Tapia",
+        "Cueva",
+        "Carrillo",
+        "Ramos",
+        "Gallese",
+        "Advincula",
+        "Ruidiaz",
+        "Polo",
+        "Yotun"
+      ]
+    },
+    "BO": {
+      "first_names": [
+        "Carlos",
+        "Marcelo",
+        "Erwin",
+        "Miguel",
+        "Juan",
+        "Jose",
+        "Ramiro",
+        "Roberto",
+        "Jaime",
+        "Diego",
+        "Henry",
+        "Javier"
+      ],
+      "last_names": [
+        "Moreno",
+        "Arce",
+        "Saucedo",
+        "Vaca",
+        "Bejarano",
+        "Justiniano",
+        "Chumacero",
+        "Ribera",
+        "Sagredo",
+        "Fernandez",
+        "Viscarra",
+        "Cuellar"
+      ]
+    },
+    "VE": {
+      "first_names": [
+        "Jose",
+        "Juan",
+        "Salomon",
+        "Yeferson",
+        "Darwin",
+        "Cristian",
+        "Rafael",
+        "Ruben",
+        "Jefferson",
+        "Alexander",
+        "Eduard",
+        "Ronaldo"
+      ],
+      "last_names": [
+        "Rondon",
+        "Soteldo",
+        "Martinez",
+        "Machis",
+        "Herrera",
+        "Murillo",
+        "Osorio",
+        "Otero",
+        "Aramburu",
+        "Cadiz",
+        "Savarin",
+        "Farias"
+      ]
     }
   }
 }

@@ -431,8 +431,11 @@ export interface LeagueData {
   name: string;
   season: number;
   country_code?: string | null;
+  confederation?: string | null;
+  continent?: string | null;
   format?: string;
   format_code?: string;
+  round_robin_legs?: number;
   matchdays?: number;
   expected_fixture_count?: number;
   relegation?: {
@@ -445,6 +448,10 @@ export interface LeagueData {
     domestic_cups: boolean;
     international_cups: boolean;
   };
+  continental_slots?: {
+    champions?: number;
+    secondary?: number;
+  } | null;
   domestic_cup?: null;
   fixtures: FixtureData[];
   standings: StandingData[];

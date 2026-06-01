@@ -9,6 +9,9 @@ import { createGameState, listPlayableCountries } from "./gameFactory.js";
 const namesDefinition = JSON.parse(
   readFileSync("server/data/default_names.json", "utf8"),
 );
+const worldDefinition = JSON.parse(
+  readFileSync("server/data/default_world.json", "utf8"),
+);
 
 const REQUIRED_FOOTBALL_MARKETS = [
   "AR",
@@ -24,6 +27,49 @@ const REQUIRED_FOOTBALL_MARKETS = [
   "PT",
   "EG",
   "GE",
+  "UA",
+  "EC",
+  "PE",
+  "BO",
+  "VE",
+];
+
+const REQUIRED_EUROPEAN_COUNTRIES = [
+  "ENG",
+  "ES",
+  "FR",
+  "DE",
+  "IT",
+  "NL",
+  "PT",
+  "BE",
+  "TR",
+  "SCO",
+  "AT",
+  "CH",
+  "DK",
+  "SE",
+  "NO",
+  "GR",
+  "CZ",
+  "HR",
+  "RS",
+  "PL",
+  "UA",
+  "IE",
+];
+
+const REQUIRED_SOUTH_AMERICAN_COUNTRIES = [
+  "AR",
+  "BR",
+  "UY",
+  "CL",
+  "CO",
+  "PY",
+  "EC",
+  "PE",
+  "BO",
+  "VE",
 ];
 
 describe("default football name pools", () => {
@@ -75,13 +121,42 @@ describe("default football name pools", () => {
     const countries = listPlayableCountries();
     const france = countries.find((country) => country.code === "FR");
     const argentina = countries.find((country) => country.code === "AR");
+    const belgium = countries.find((country) => country.code === "BE");
+    const uruguay = countries.find((country) => country.code === "UY");
 
-    expect(countries.length).toBeGreaterThanOrEqual(8);
+    expect(countries.length).toBeGreaterThanOrEqual(32);
     expect(france?.league.name).toBe("French Ligue Elite");
     expect(france?.team_count).toBe(18);
     expect(argentina?.team_count).toBe(30);
     expect(argentina?.league.format_code).toBe("split_groups_playoffs");
+    expect(belgium?.confederation).toBe("UEFA");
+    expect(uruguay?.confederation).toBe("CONMEBOL");
+    expect(belgium?.league.continental_slots?.champions).toBeGreaterThan(0);
+    expect(uruguay?.league.continental_slots?.champions).toBeGreaterThan(0);
     expect(france?.teams.some((team) => team.id === "fr_paris_capitol")).toBe(true);
+  });
+
+  it("covers the base countries needed for Champions-style and Libertadores-style tournaments", () => {
+    const countries = worldDefinition.countries ?? [];
+    const countryCodes = new Set(countries.map((country) => country.code));
+    const competitions = worldDefinition.continental_competitions ?? [];
+
+    REQUIRED_EUROPEAN_COUNTRIES.forEach((code) => {
+      expect(countryCodes.has(code), `${code} country`).toBe(true);
+    });
+    REQUIRED_SOUTH_AMERICAN_COUNTRIES.forEach((code) => {
+      expect(countryCodes.has(code), `${code} country`).toBe(true);
+    });
+
+    expect(competitions.find((competition) => competition.id === "euro_champions_cup")?.entrants).toBe(36);
+    expect(
+      competitions.find((competition) => competition.id === "south_american_liberators_cup")?.entrants,
+    ).toBe(47);
+
+    countries.forEach((country) => {
+      expect(country.teams.length, `${country.code} team count`).toBe(country.league.target_teams);
+      expect(country.league.continental_slots?.champions, `${country.code} champions slots`).toBeGreaterThan(0);
+    });
   });
 
   it("creates an isolated double round-robin league for the selected country", () => {
@@ -142,5 +217,39 @@ describe("default football name pools", () => {
     expect(Math.max(...game.league.fixtures.map((fixture) => fixture.matchday))).toBe(16);
     expect(new Set(fixtureCountsByTeam.values())).toEqual(new Set([16]));
     expect(game.league.domestic_cup).toBeNull();
+  });
+
+  it("supports non-standard round-robin leg counts used by continental feeder leagues", () => {
+    const croatia = createGameState({
+      firstName: "Test",
+      lastName: "Manager",
+      dob: "1980-01-01",
+      nationality: "AR",
+      startupOptions: {
+        startYear: 2026,
+        startPhase: "seasonStart",
+        countryCode: "HR",
+      },
+    });
+    const colombia = createGameState({
+      firstName: "Test",
+      lastName: "Manager",
+      dob: "1980-01-01",
+      nationality: "AR",
+      startupOptions: {
+        startYear: 2026,
+        startPhase: "seasonStart",
+        countryCode: "CO",
+      },
+    });
+
+    expect(croatia.teams).toHaveLength(10);
+    expect(croatia.league.round_robin_legs).toBe(4);
+    expect(croatia.league.fixtures).toHaveLength(180);
+    expect(Math.max(...croatia.league.fixtures.map((fixture) => fixture.matchday))).toBe(36);
+    expect(colombia.teams).toHaveLength(20);
+    expect(colombia.league.round_robin_legs).toBe(1);
+    expect(colombia.league.fixtures).toHaveLength(190);
+    expect(Math.max(...colombia.league.fixtures.map((fixture) => fixture.matchday))).toBe(19);
   });
 });

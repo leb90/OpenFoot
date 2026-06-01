@@ -42,6 +42,7 @@ export interface PlayableLeagueInfo {
   tier: number;
   format: string;
   format_code?: string;
+  round_robin_legs?: number;
   target_teams: number;
   matchdays?: number;
   season: string;
@@ -58,12 +59,18 @@ export interface PlayableLeagueInfo {
     domestic_cups: boolean;
     international_cups: boolean;
   };
+  continental_slots?: {
+    champions?: number;
+    secondary?: number;
+  };
   cup_name?: string;
 }
 
 export interface PlayableCountryInfo {
   code: string;
   name: string;
+  confederation?: string | null;
+  continent?: string | null;
   league: PlayableLeagueInfo;
   team_count: number;
   teams: PlayableTeamPreview[];

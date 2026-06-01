@@ -62,6 +62,10 @@ const GLOBAL_FOOTBALL_MARKET = [
   "CO",
   "CL",
   "PY",
+  "EC",
+  "PE",
+  "BO",
+  "VE",
   "US",
   "MX",
   "MA",
@@ -85,7 +89,15 @@ const REGIONAL_FOOTBALL_MARKETS = {
   NL: ["BE", "DE", "DK", "NO", "SE", "BR", "AR"],
   BE: ["FR", "NL", "DE", "MA", "BR"],
   BR: ["AR", "UY", "CO", "CL", "PY", "PT"],
-  AR: ["UY", "BR", "CO", "CL", "PY", "ES"],
+  AR: ["UY", "BR", "CO", "CL", "PY", "PE", "EC", "ES"],
+  UY: ["AR", "BR", "PY", "CL", "CO"],
+  CL: ["AR", "UY", "CO", "PY", "PE", "EC"],
+  CO: ["AR", "BR", "UY", "CL", "PY", "EC", "PE", "VE"],
+  PY: ["AR", "BR", "UY", "CL", "CO", "BO"],
+  EC: ["CO", "PE", "AR", "BR", "UY", "VE"],
+  PE: ["EC", "CO", "CL", "AR", "UY", "BO"],
+  BO: ["PY", "AR", "BR", "PE", "CL"],
+  VE: ["CO", "EC", "AR", "BR", "UY"],
   US: ["MX", "BR", "AR", "CO", "CL", "PY"],
   MX: ["US", "AR", "BR", "CO", "CL", "PY"],
   JP: ["KR", "BR", "AR"],
@@ -102,6 +114,7 @@ const REGIONAL_FOOTBALL_MARKETS = {
   RS: ["HR", "GR", "TR", "AT", "DE"],
   CZ: ["DE", "AT", "PL", "SK"],
   PL: ["DE", "CZ", "AT", "TR"],
+  UA: ["PL", "CZ", "HR", "RS", "TR"],
 };
 
 const MATCH_ROLE_DEFAULTS = {
@@ -633,7 +646,9 @@ function buildFixturesForLeague(teamIds, startDate, leagueDefinition = {}) {
     return buildSplitGroupFixtures(teamIds, startDate);
   }
 
-  return buildRoundRobinFixtures(teamIds, startDate, { legs: 2 });
+  const legs = Math.max(1, Number(leagueDefinition.round_robin_legs ?? 2));
+
+  return buildRoundRobinFixtures(teamIds, startDate, { legs });
 }
 
 function buildLeague(teams, startYear, currentDate, country = null) {
@@ -658,11 +673,15 @@ function buildLeague(teams, startYear, currentDate, country = null) {
     id: country?.league?.id ?? `league_${startYear}`,
     name: country?.league?.name ?? "Premier Division",
     country_code: country?.code ?? null,
+    confederation: country?.confederation ?? null,
+    continent: country?.continent ?? null,
     format: country?.league?.format ?? "Double round-robin",
     format_code: country?.league?.format_code ?? "double_round_robin",
+    round_robin_legs: country?.league?.round_robin_legs ?? 2,
     matchdays: country?.league?.matchdays ?? Math.max(1, teams.length - 1) * 2,
     expected_fixture_count: fixtures.length,
     relegation: country?.league?.relegation ?? null,
+    continental_slots: country?.league?.continental_slots ?? null,
     competitions_enabled: country?.league?.competitions_enabled ?? {
       league: true,
       domestic_cups: false,
@@ -801,6 +820,8 @@ export function listPlayableCountries() {
   return (worldDefinition.countries ?? []).map((country) => ({
     code: country.code,
     name: country.name,
+    confederation: country.confederation ?? null,
+    continent: country.continent ?? null,
     league: country.league,
     team_count: country.teams?.length ?? 0,
     teams: (country.teams ?? []).map((team) => ({

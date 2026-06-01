@@ -22,19 +22,20 @@ OpenFoot now starts careers from a country-based fictional world instead of one 
 
 ## First Data Step
 
-`server/data/default_names.json` now contains country-specific first-name and surname pools for 39 football nations/markets. Player generation uses the player's nationality to mix first and last names from the matching pool, and foreign players are selected through regional/global football-market weights instead of a purely random country draw.
+`server/data/default_names.json` now contains country-specific first-name and surname pools for 44 football nations/markets. Player generation uses the player's nationality to mix first and last names from the matching pool, and foreign players are selected through regional/global football-market weights instead of a purely random country draw.
 
 ## Playable Country Step
 
 `server/data/default_world.json` now defines the first fictional country-based world:
 
-- Countries: England, Spain, France, Germany, Italy, Netherlands, Portugal, Argentina, and Brazil.
-- Full first-division team counts are included for this first pass: 20 clubs for England, Spain, Italy, and Brazil; 18 clubs for France, Germany, Netherlands, and Portugal; 30 clubs for Argentina.
-- Domestic cups and international cups are intentionally disabled for now.
+- Countries: 22 UEFA countries and all 10 CONMEBOL countries needed for Champions-style and Libertadores-style qualification pools.
+- Full first-division team counts are included for each playable country. Some leagues model only the regular phase when the real structure has post-season splits or finals.
+- Domestic cups and international cups are metadata only for now.
+- Continental competition metadata exists for `euro_champions_cup` (36-team league phase target) and `south_american_liberators_cup` (47-team target), but those tournaments are not simulated yet.
 - Each country has a domestic league definition, season window, target top-division size, relegation metadata, and fictional clubs.
 - Club names are intentionally unlicensed and PES-style: based on city/color/identity patterns, not official trademarks.
 - Player names are generated from the nationality pools. Key player profiles only store position, nationality, age, footedness, potential, and OVR archetype.
 - The new career flow creates an isolated league for the selected country instead of mixing all clubs into one global table.
-- Standard European and Brazilian leagues generate home-and-away schedules. Argentina generates a split-zone league phase with two interzonal match layers, while playoffs are stored as metadata for a later simulation pass.
+- Standard leagues generate round-robin schedules using the configured number of legs. Argentina generates a split-zone league phase with two interzonal match layers, while playoffs are stored as metadata for a later simulation pass.
 
-The next data pass should add second divisions for promotion/relegation, then domestic and continental cups as separate competitions.
+The next data pass should generate continental tournaments from the stored qualification slots, then add second divisions and domestic cups as separate competitions.

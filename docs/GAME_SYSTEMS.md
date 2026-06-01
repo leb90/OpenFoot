@@ -252,17 +252,19 @@ On the frontend, traits are rendered as colored badges (`TraitBadge.tsx`) with:
 
 League schedules are generated in `server/gameFactory.js` from the selected country's `format_code`.
 
-For `double_round_robin`, the game uses the circle method:
+For `double_round_robin`, the game uses the circle method and the league's configured `round_robin_legs`:
 
-1. Fix team index 0, rotate the rest for `n-1` rounds (first leg)
-2. Repeat with reversed home/away for `n-1` rounds (second leg)
-3. Total matchdays: `2 × (n-1)` where `n` is the number of teams
+1. Fix team index 0, rotate the rest for `n-1` rounds.
+2. Repeat the generated round list for the configured number of legs, reversing home/away on alternating legs.
+3. Total matchdays: `round_robin_legs x (n-1)` where `n` is the number of teams.
 
 Each matchday is spaced 7 days apart from `start_date`.
 
 Examples:
 - 20 teams: 38 matchdays, 380 fixtures.
 - 18 teams: 34 matchdays, 306 fixtures.
+- 10 teams with four legs: 36 matchdays, 180 fixtures.
+- 20 teams with one short-tournament leg: 19 matchdays, 190 fixtures.
 - Argentina uses `split_groups_playoffs`: 30 teams, two zones, 16 league dates, and 240 league-phase fixtures. The playoff bracket is metadata for a later simulation pass.
 
 ### Standings
