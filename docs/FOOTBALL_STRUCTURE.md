@@ -37,5 +37,7 @@ OpenFoot now starts careers from a country-based fictional world instead of one 
 - Player names are generated from the nationality pools. Key player profiles only store position, nationality, age, footedness, potential, and OVR archetype.
 - The new career flow creates an isolated league for the selected country instead of mixing all clubs into one global table.
 - Standard leagues generate round-robin schedules using the configured number of legs. Argentina generates a split-zone league phase with two interzonal match layers, while playoffs are stored as metadata for a later simulation pass.
+- Country registration rules now constrain generated squads and free-agent signings. Argentina uses a six-foreign-player roster cap with five on the match sheet, Brazil uses a nine-foreign-player practical matchday cap, Spain and France apply non-EU limits, and other leagues use local/homegrown minimums until their official rules are modeled in full.
+- FC Ratings and similar public rating pages are used only as manual reference for fictional archetypes. OpenFoot stores generated names and rating/position/nationality profiles, not copied real rosters or scraped site data.
 
 The next data pass should generate continental tournaments from the stored qualification slots, then add second divisions and domestic cups as separate competitions.

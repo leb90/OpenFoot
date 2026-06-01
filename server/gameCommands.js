@@ -10,6 +10,7 @@ import {
   listPlayableCountries,
   managerName,
   managerTeamName,
+  registrationStatusForPlayer,
 } from "./gameFactory.js";
 
 function clone(value) {
@@ -364,6 +365,50 @@ function simpleProjection(game, playerId, weeklyWage = 0, fee = 0) {
     exceeds_transfer_budget: fee > team.transfer_budget,
     exceeds_finance: fee > team.finance,
     player_id: playerId,
+  };
+}
+
+function freeAgentRegistrationStatus(game, playerId) {
+  const team = ensureManagerTeam(game);
+  const player = game.players.find((candidate) => candidate.id === playerId);
+  if (!player) {
+    return {
+      team,
+      player: null,
+      status: { allowed: false, reason: "player_not_found", rules: team.registration_rules ?? null },
+    };
+  }
+
+  return {
+    team,
+    player,
+    status: registrationStatusForPlayer(game, team, player),
+  };
+}
+
+function registrationPolicyProjection(status) {
+  return {
+    allowed: status.allowed,
+    reason: status.reason,
+    current: status.current,
+    limit: status.limit,
+    rules: status.rules,
+  };
+}
+
+function registrationBlockedFeedback(status) {
+  return {
+    mood: "firm",
+    headline_key: "transfers.feedback.rejected",
+    detail_key: null,
+    tension: 30,
+    patience: 65,
+    round: 1,
+    params: {
+      reason: status.reason ?? "registration_policy",
+      limit: status.limit === null ? "" : String(status.limit),
+      current: status.current === null ? "" : String(status.current),
+    },
   };
 }
 
@@ -831,18 +876,21 @@ export async function runCommand(command, args, context) {
 
     case "preview_free_agent_contract_impact": {
       const game = await requireGame(session);
+      const { status } = freeAgentRegistrationStatus(game, args.playerId);
+      const projection = simpleProjection(game, args.playerId, args.weeklyWage ?? 0);
       return {
         projection: {
-          current_annual_wage_bill: simpleProjection(game, args.playerId).annual_wage_bill_before,
-          projected_annual_wage_bill: simpleProjection(game, args.playerId, args.weeklyWage ?? 0).annual_wage_bill_after,
+          current_annual_wage_bill: projection.annual_wage_bill_before,
+          projected_annual_wage_bill: projection.annual_wage_bill_after,
           annual_wage_budget: ensureManagerTeam(game).wage_budget * 52,
           annual_soft_cap: ensureManagerTeam(game).wage_budget * 52,
-          current_weekly_wage_spend: simpleProjection(game, args.playerId).annual_wage_bill_before / 52,
-          projected_weekly_wage_spend: simpleProjection(game, args.playerId, args.weeklyWage ?? 0).annual_wage_bill_after / 52,
+          current_weekly_wage_spend: projection.annual_wage_bill_before / 52,
+          projected_weekly_wage_spend: projection.annual_wage_bill_after / 52,
           current_cash_runway_weeks: null,
           projected_cash_runway_weeks: null,
           currently_over_budget: false,
-          policy_allows: true,
+          policy_allows: status.allowed,
+          registration_policy: registrationPolicyProjection(status),
         },
       };
     }
@@ -851,6 +899,20 @@ export async function runCommand(command, args, context) {
       return mutateGame(sessionId, session, (game) => {
         const team = ensureManagerTeam(game);
         const player = game.players.find((candidate) => candidate.id === args.playerId);
+        const status = player
+          ? registrationStatusForPlayer(game, team, player)
+          : { allowed: false, reason: "player_not_found", current: null, limit: null, rules: team.registration_rules ?? null };
+        if (!status.allowed) {
+          return {
+            outcome: "rejected",
+            game,
+            suggested_wage: null,
+            suggested_years: null,
+            session_status: "blocked",
+            is_terminal: true,
+            feedback: registrationBlockedFeedback(status),
+          };
+        }
         if (player && !player.team_id) {
           player.team_id = team.id;
           player.wage = args.weeklyWage ?? player.wage;

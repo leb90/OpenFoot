@@ -48,6 +48,17 @@ export interface TeamMatchRolesData {
   corner_taker: string | null;
 }
 
+export interface RegistrationRulesData {
+  max_squad_size?: number;
+  min_domestic_players?: number;
+  max_foreign_players?: number | null;
+  matchday_foreign_limit?: number | null;
+  max_non_eu_players?: number | null;
+  matchday_non_eu_limit?: number | null;
+  homegrown_minimum?: number;
+  source_note?: string;
+}
+
 export interface TeamData {
   id: string;
   name: string;
@@ -79,6 +90,7 @@ export interface TeamData {
   history: TeamSeasonRecord[];
   is_external_context?: boolean;
   continental_seed?: number | null;
+  registration_rules?: RegistrationRulesData;
 }
 
 export interface PlayerSeasonStats {
@@ -516,6 +528,7 @@ export interface WorldContextData {
     international_cups: boolean;
   };
   legal_names?: string;
+  registration_rules?: RegistrationRulesData;
 }
 
 export type SeasonPhase = "Preseason" | "InSeason" | "PostSeason";

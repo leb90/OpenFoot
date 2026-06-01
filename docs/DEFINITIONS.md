@@ -132,6 +132,7 @@ Controls playable countries, league metadata, fictional clubs, and squad strengt
 | `competitions_enabled` | `object` | Feature flags for league, domestic cups, and international cups. Cups are currently disabled. |
 | `relegation` | `object` | Metadata for automatic relegation and promotion/relegation playoff places. Lower divisions are not simulated yet. |
 | `continental_slots` | `object` | Simplified qualification slots for future regional competitions. |
+| `registration_rules` | `object` | Optional country/league registration policy exposed to saves and setup UI. |
 
 #### Country TeamDef additions
 
@@ -145,6 +146,7 @@ Controls playable countries, league metadata, fictional clubs, and squad strengt
 | `finance` | `number` | Fixed starting balance. |
 | `squad_strength` | `object` | Rating baseline by goalkeeper, defense, midfield, and attack. |
 | `key_players` | `array` | Optional fake-player archetypes with position, nationality, age, OVR, and potential. |
+| `registration_rules` | `object` | Optional override for the country's default squad registration policy. |
 
 **Notes:**
 - Do not add official club names, official badges, or real player names.
@@ -209,6 +211,7 @@ For the country-based career setup, prefer `default_world.json`. `default_teams.
 - The number of teams determines the league size. Must be an **even** number ≥ 2 for schedule generation.
 - Each team gets 36 players (3 GK, 13 DEF, 11 MID, 9 FWD) and 4 staff (AssistantManager, Coach, Scout, Physio).
 - Player nationalities are weighted toward the team's country, then realistic regional transfer markets, with only a small chance of wider global football markets.
+- Country registration rules can cap foreign or non-EU players. If a fictional profile would exceed a cap, the generator preserves the role and rating archetype but assigns a compliant generated nationality/name.
 - 12 free-agent staff are also generated regardless of team count.
 
 ---

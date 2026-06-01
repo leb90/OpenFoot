@@ -3300,10 +3300,36 @@
           "play_style": "Possession",
           "squad_strength": {
             "goalkeeper": 78,
-            "defense": 79,
-            "midfield": 81,
-            "attack": 82
-          }
+            "defense": 76,
+            "midfield": 75,
+            "attack": 76
+          },
+          "key_players": [
+            { "position": "Defender", "detail_position": "LB", "nationality": "AR", "overall": 78, "age": 34 },
+            { "position": "Defender", "detail_position": "RB", "nationality": "AR", "overall": 78, "age": 29 },
+            { "position": "Goalkeeper", "detail_position": "GK", "nationality": "AR", "overall": 78, "age": 32 },
+            { "position": "Goalkeeper", "detail_position": "GK", "nationality": "AR", "overall": 78, "age": 38 },
+            { "position": "Midfielder", "detail_position": "CM", "nationality": "CO", "overall": 77, "age": 25 },
+            { "position": "Forward", "detail_position": "ST", "nationality": "AR", "overall": 77, "age": 29 },
+            { "position": "Defender", "detail_position": "CB", "nationality": "AR", "overall": 77, "age": 29 },
+            { "position": "Midfielder", "detail_position": "CAM", "nationality": "CO", "overall": 77, "age": 32 },
+            { "position": "Defender", "detail_position": "RB", "nationality": "AR", "overall": 76, "age": 29 },
+            { "position": "Forward", "detail_position": "ST", "nationality": "AR", "overall": 76, "age": 27 },
+            { "position": "Defender", "detail_position": "CB", "nationality": "AR", "overall": 76, "age": 30 },
+            { "position": "Defender", "detail_position": "CB", "nationality": "CL", "overall": 76, "age": 31 },
+            { "position": "Forward", "detail_position": "ST", "nationality": "AR", "overall": 76, "age": 25 },
+            { "position": "Forward", "detail_position": "ST", "nationality": "CO", "overall": 76, "age": 32 },
+            { "position": "Defender", "detail_position": "CB", "nationality": "AR", "overall": 76, "age": 34 },
+            { "position": "Midfielder", "detail_position": "CM", "nationality": "AR", "overall": 75, "age": 32 },
+            { "position": "Midfielder", "detail_position": "CM", "nationality": "AR", "overall": 74, "age": 26 },
+            { "position": "Defender", "detail_position": "LB", "nationality": "AR", "overall": 74, "age": 37 },
+            { "position": "Midfielder", "detail_position": "CM", "nationality": "AR", "overall": 74, "age": 35 },
+            { "position": "Midfielder", "detail_position": "CDM", "nationality": "AR", "overall": 74, "age": 40 },
+            { "position": "Forward", "detail_position": "LW", "nationality": "AR", "overall": 74, "age": 32 },
+            { "position": "Defender", "detail_position": "CB", "nationality": "UY", "overall": 73, "age": 22 },
+            { "position": "Midfielder", "detail_position": "CM", "nationality": "PY", "overall": 73, "age": 23 },
+            { "position": "Defender", "detail_position": "CB", "nationality": "AR", "overall": 73, "age": 21 }
+          ]
         },
         {
           "id": "ar_la_ribera_bluegold",
@@ -3321,10 +3347,28 @@
           "play_style": "Counter",
           "squad_strength": {
             "goalkeeper": 78,
-            "defense": 79,
-            "midfield": 80,
-            "attack": 82
-          }
+            "defense": 76,
+            "midfield": 78,
+            "attack": 76
+          },
+          "key_players": [
+            { "position": "Midfielder", "detail_position": "CDM", "nationality": "AR", "overall": 78, "age": 32 },
+            { "position": "Goalkeeper", "detail_position": "GK", "nationality": "AR", "overall": 78, "age": 37 },
+            { "position": "Defender", "detail_position": "CB", "nationality": "AR", "overall": 77, "age": 29 },
+            { "position": "Defender", "detail_position": "LB", "nationality": "AR", "overall": 77, "age": 33 },
+            { "position": "Midfielder", "detail_position": "CM", "nationality": "AR", "overall": 77, "age": 27 },
+            { "position": "Forward", "detail_position": "ST", "nationality": "UY", "overall": 76, "age": 38 },
+            { "position": "Forward", "detail_position": "LW", "nationality": "CL", "overall": 76, "age": 27 },
+            { "position": "Defender", "detail_position": "RB", "nationality": "PE", "overall": 75, "age": 34 },
+            { "position": "Midfielder", "detail_position": "CAM", "nationality": "ES", "overall": 75, "age": 28 },
+            { "position": "Forward", "detail_position": "ST", "nationality": "AR", "overall": 75, "age": 28 },
+            { "position": "Defender", "detail_position": "CB", "nationality": "AR", "overall": 75, "age": 24 },
+            { "position": "Midfielder", "detail_position": "CM", "nationality": "AR", "overall": 74, "age": 23 },
+            { "position": "Forward", "detail_position": "RW", "nationality": "AR", "overall": 74, "age": 22 },
+            { "position": "Defender", "detail_position": "RB", "nationality": "AR", "overall": 74, "age": 25 },
+            { "position": "Midfielder", "detail_position": "CM", "nationality": "AR", "overall": 73, "age": 21 },
+            { "position": "Goalkeeper", "detail_position": "GK", "nationality": "AR", "overall": 73, "age": 26 }
+          ]
         },
         {
           "id": "ar_avellaneda_red",

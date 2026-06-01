@@ -75,6 +75,123 @@ const SQUAD_SLOT_PLAN = [
 const POSITIONS_BY_SLOT = SQUAD_SLOT_PLAN.map((slot) => slot.position);
 const DEFAULT_SQUAD_SIZE = SQUAD_SLOT_PLAN.length;
 
+const EU_EEA_FOOTBALL_CODES = new Set([
+  "AT",
+  "BE",
+  "BG",
+  "HR",
+  "CY",
+  "CZ",
+  "DK",
+  "EE",
+  "FI",
+  "FR",
+  "DE",
+  "GR",
+  "HU",
+  "IE",
+  "IT",
+  "LV",
+  "LT",
+  "LU",
+  "MT",
+  "NL",
+  "NO",
+  "PL",
+  "PT",
+  "RO",
+  "SK",
+  "SI",
+  "ES",
+  "SE",
+  "CH",
+]);
+
+const DEFAULT_REGISTRATION_RULE = {
+  max_squad_size: DEFAULT_SQUAD_SIZE,
+  min_domestic_players: 12,
+  max_foreign_players: null,
+  matchday_foreign_limit: null,
+  max_non_eu_players: null,
+  matchday_non_eu_limit: null,
+  homegrown_minimum: 0,
+  source_note: "OpenFoot baseline: local core plus international market freedom.",
+};
+
+const COUNTRY_REGISTRATION_RULES = {
+  AR: {
+    min_domestic_players: 30,
+    max_foreign_players: 6,
+    matchday_foreign_limit: 5,
+    source_note: "AFA/LPF 2026 style: six foreign contracts, five on a match sheet.",
+  },
+  BR: {
+    min_domestic_players: 27,
+    max_foreign_players: 9,
+    matchday_foreign_limit: 9,
+    source_note: "CBF style: no full-roster cap, but nine foreign players per matchday; generation keeps squads inside that practical limit.",
+  },
+  CL: {
+    min_domestic_players: 30,
+    max_foreign_players: 6,
+    matchday_foreign_limit: 6,
+    source_note: "ANFP-style six foreign-player squad cap.",
+  },
+  CO: { min_domestic_players: 28, max_foreign_players: 8, matchday_foreign_limit: 5 },
+  UY: { min_domestic_players: 28, max_foreign_players: 8, matchday_foreign_limit: 6 },
+  PY: { min_domestic_players: 28, max_foreign_players: 8, matchday_foreign_limit: 5 },
+  EC: { min_domestic_players: 28, max_foreign_players: 8, matchday_foreign_limit: 6 },
+  PE: { min_domestic_players: 28, max_foreign_players: 8, matchday_foreign_limit: 6 },
+  BO: { min_domestic_players: 28, max_foreign_players: 8, matchday_foreign_limit: 6 },
+  VE: { min_domestic_players: 28, max_foreign_players: 8, matchday_foreign_limit: 6 },
+
+  ENG: {
+    min_domestic_players: 12,
+    homegrown_minimum: 8,
+    source_note: "Premier League-style homegrown pressure without a direct foreign-player cap.",
+  },
+  ES: {
+    min_domestic_players: 12,
+    max_non_eu_players: 5,
+    matchday_non_eu_limit: 3,
+    source_note: "LaLiga-style non-EU cap: five registered, three on matchday.",
+  },
+  FR: {
+    min_domestic_players: 14,
+    max_non_eu_players: 4,
+    matchday_non_eu_limit: 4,
+    source_note: "Ligue 1-style limit of four non-EU/EEA players.",
+  },
+  IT: {
+    min_domestic_players: 12,
+    max_non_eu_players: 8,
+    source_note: "Serie A has signing-window non-EU controls; OpenFoot approximates it as a softer squad cap.",
+  },
+  DE: { min_domestic_players: 12, homegrown_minimum: 8 },
+  NL: { min_domestic_players: 12, homegrown_minimum: 8 },
+  PT: { min_domestic_players: 12, homegrown_minimum: 8 },
+  BE: { min_domestic_players: 12, homegrown_minimum: 8 },
+  SCO: { min_domestic_players: 14, homegrown_minimum: 8 },
+  IE: { min_domestic_players: 16, homegrown_minimum: 8 },
+  AT: { min_domestic_players: 14, homegrown_minimum: 8 },
+  CH: { min_domestic_players: 14, max_non_eu_players: 10, homegrown_minimum: 8 },
+  DK: { min_domestic_players: 14, homegrown_minimum: 8 },
+  SE: { min_domestic_players: 14, homegrown_minimum: 8 },
+  NO: { min_domestic_players: 14, homegrown_minimum: 8 },
+  GR: { min_domestic_players: 14, max_non_eu_players: 8, homegrown_minimum: 8 },
+  CZ: { min_domestic_players: 14, homegrown_minimum: 8 },
+  HR: { min_domestic_players: 14, homegrown_minimum: 8 },
+  RS: { min_domestic_players: 16, max_foreign_players: 8, matchday_foreign_limit: 4 },
+  PL: { min_domestic_players: 14, max_non_eu_players: 8, homegrown_minimum: 8 },
+  UA: { min_domestic_players: 16, max_foreign_players: 10, matchday_foreign_limit: 7 },
+  TR: {
+    min_domestic_players: 22,
+    max_foreign_players: 14,
+    matchday_foreign_limit: 12,
+    source_note: "TFF-style foreign-player registration pressure.",
+  },
+};
+
 const GLOBAL_FOOTBALL_MARKET = [
   "BR",
   "AR",
@@ -170,6 +287,131 @@ function clamp(value, min, max) {
 
 function choice(values) {
   return values[randomInt(0, values.length)];
+}
+
+export function registrationRulesForCountry(countryCode) {
+  return {
+    ...DEFAULT_REGISTRATION_RULE,
+    ...(COUNTRY_REGISTRATION_RULES[countryCode] ?? {}),
+  };
+}
+
+function isForeignNationality(nationality, teamCountry) {
+  return nationality !== teamCountry;
+}
+
+function isNonEuNationality(nationality) {
+  return !EU_EEA_FOOTBALL_CODES.has(nationality);
+}
+
+function countDomesticPlayers(players, teamCountry) {
+  return players.filter((player) => player.nationality === teamCountry).length;
+}
+
+function countForeignPlayers(players, teamCountry) {
+  return players.filter((player) => isForeignNationality(player.nationality, teamCountry)).length;
+}
+
+function countNonEuPlayers(players) {
+  return players.filter((player) => isNonEuNationality(player.nationality)).length;
+}
+
+function minimumDomesticPlayers(rules) {
+  const fromForeignLimit =
+    rules.max_foreign_players === null
+      ? 0
+      : Math.max(0, DEFAULT_SQUAD_SIZE - rules.max_foreign_players);
+  return Math.max(rules.min_domestic_players ?? 0, fromForeignLimit);
+}
+
+function nationalityFitsRegistrationRules(nationality, team, currentPlayers, rules) {
+  if (
+    rules.max_foreign_players !== null &&
+    isForeignNationality(nationality, team.country) &&
+    countForeignPlayers(currentPlayers, team.country) >= rules.max_foreign_players
+  ) {
+    return false;
+  }
+
+  if (
+    rules.max_non_eu_players !== null &&
+    isNonEuNationality(nationality) &&
+    countNonEuPlayers(currentPlayers) >= rules.max_non_eu_players
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function nationalityForRosterSlot(team, currentPlayers, remainingSlotsAfter, profile, rules) {
+  const minDomestic = minimumDomesticPlayers(rules);
+  const domesticNeeded = Math.max(0, minDomestic - countDomesticPlayers(currentPlayers, team.country));
+  if (domesticNeeded > remainingSlotsAfter) {
+    return team.country;
+  }
+
+  if (
+    profile?.nationality &&
+    nationalityFitsRegistrationRules(profile.nationality, team, currentPlayers, rules)
+  ) {
+    return profile.nationality;
+  }
+
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    const nationality = generatePlayerNationality(team.country);
+    if (nationalityFitsRegistrationRules(nationality, team, currentPlayers, rules)) {
+      return nationality;
+    }
+  }
+
+  return team.country;
+}
+
+export function registrationStatusForPlayer(game, team, player) {
+  const rules = team.registration_rules ?? registrationRulesForCountry(team.country);
+  const currentPlayers = (game.players ?? []).filter(
+    (candidate) =>
+      candidate.team_id === team.id &&
+      !candidate.retired &&
+      candidate.id !== player.id,
+  );
+
+  if (
+    rules.max_foreign_players !== null &&
+    isForeignNationality(player.nationality, team.country) &&
+    countForeignPlayers(currentPlayers, team.country) >= rules.max_foreign_players
+  ) {
+    return {
+      allowed: false,
+      reason: "foreign_limit",
+      rules,
+      current: countForeignPlayers(currentPlayers, team.country),
+      limit: rules.max_foreign_players,
+    };
+  }
+
+  if (
+    rules.max_non_eu_players !== null &&
+    isNonEuNationality(player.nationality) &&
+    countNonEuPlayers(currentPlayers) >= rules.max_non_eu_players
+  ) {
+    return {
+      allowed: false,
+      reason: "non_eu_limit",
+      rules,
+      current: countNonEuPlayers(currentPlayers),
+      limit: rules.max_non_eu_players,
+    };
+  }
+
+  return {
+    allowed: true,
+    reason: null,
+    rules,
+    current: null,
+    limit: null,
+  };
 }
 
 function addDays(date, days) {
@@ -384,8 +626,9 @@ function ageForBand(ageBand) {
   }
 }
 
-function generatePlayer(team, slot, startYear, profile = null, slotPlan = null) {
-  const nationality = profile?.nationality ?? generatePlayerNationality(team.country);
+function generatePlayer(team, slot, startYear, profile = null, slotPlan = null, options = {}) {
+  const nationality =
+    options.nationality ?? profile?.nationality ?? generatePlayerNationality(team.country);
   const { firstName, lastName } = generateName(nationality);
   const position = profile?.position ?? slotPlan?.position ?? POSITIONS_BY_SLOT[slot] ?? "Midfielder";
   const detailPosition = profile?.detail_position ?? slotPlan?.detail_position ?? null;
@@ -447,20 +690,38 @@ function generatePlayer(team, slot, startYear, profile = null, slotPlan = null) 
 
 function generatePlayersForTeam(team, startYear) {
   const profiles = [...(team.player_profiles ?? [])];
+  const registrationRules = team.registration_rules ?? registrationRulesForCountry(team.country);
+  const roster = [];
 
-  const plannedPlayers = SQUAD_SLOT_PLAN.map((slotPlan, slot) =>
-    generatePlayer(
+  const plannedPlayers = SQUAD_SLOT_PLAN.map((slotPlan, slot) => {
+    const profile = playerProfileForSlot(profiles, slotPlan.position, slotPlan.detail_position);
+    const nationality = nationalityForRosterSlot(
+      team,
+      roster,
+      SQUAD_SLOT_PLAN.length - slot - 1,
+      profile,
+      registrationRules,
+    );
+    const player = generatePlayer(
       team,
       slot,
       startYear,
-      playerProfileForSlot(profiles, slotPlan.position, slotPlan.detail_position),
+      profile,
       slotPlan,
-    ),
-  );
+      { nationality },
+    );
+    roster.push(player);
+    return player;
+  });
 
-  const extraPlayers = profiles.map((profile, index) =>
-    generatePlayer(team, SQUAD_SLOT_PLAN.length + index, startYear, profile),
-  );
+  const extraPlayers = profiles.map((profile, index) => {
+    const nationality = nationalityForRosterSlot(team, roster, profiles.length - index - 1, profile, registrationRules);
+    const player = generatePlayer(team, SQUAD_SLOT_PLAN.length + index, startYear, profile, null, {
+      nationality,
+    });
+    roster.push(player);
+    return player;
+  });
 
   return [...plannedPlayers, ...extraPlayers];
 }
@@ -507,14 +768,30 @@ export function ensureSquadDepth(game) {
     );
     if (currentPlayers.length >= DEFAULT_SQUAD_SIZE) return;
 
+    const registrationRules = team.registration_rules ?? registrationRulesForCountry(team.country);
+    const teamRoster = [...currentPlayers];
     const missingPlans = missingSquadSlotPlans(currentPlayers);
     let teamAdded = 0;
 
     missingPlans.forEach((slotPlan) => {
-      if (currentPlayers.length + teamAdded >= DEFAULT_SQUAD_SIZE) return;
-      game.players.push(
-        generatePlayer(team, currentPlayers.length + teamAdded, startYear, null, slotPlan),
+      if (teamRoster.length >= DEFAULT_SQUAD_SIZE) return;
+      const nationality = nationalityForRosterSlot(
+        team,
+        teamRoster,
+        DEFAULT_SQUAD_SIZE - teamRoster.length - 1,
+        null,
+        registrationRules,
       );
+      const player = generatePlayer(
+        team,
+        currentPlayers.length + teamAdded,
+        startYear,
+        null,
+        slotPlan,
+        { nationality },
+      );
+      game.players.push(player);
+      teamRoster.push(player);
       teamAdded += 1;
       added += 1;
     });
@@ -590,6 +867,7 @@ function generateTeams(startYear, country = null) {
     const teamCountry = template.country ?? country?.code ?? "ENG";
     const leagueId = country?.league?.id ?? "league";
     const historyTeamCount = teamTemplates.length;
+    const registrationRules = registrationRulesForCountry(teamCountry);
 
     return {
       id: template.id ?? generatedTeamId(country, index),
@@ -614,6 +892,7 @@ function generateTeams(startYear, country = null) {
       play_style: template.play_style ?? "Balanced",
       is_external_context: Boolean(template.is_external_context),
       continental_seed: template.continental_seed ?? null,
+      registration_rules: template.registration_rules ?? registrationRules,
       squad_strength: template.squad_strength ?? null,
       player_profiles: template.key_players ?? [],
       training_focus: "Physical",
@@ -1131,6 +1410,7 @@ export function createGameState({
             entrants: tournament.entrants,
           })),
           competitions_enabled: country.league.competitions_enabled,
+          registration_rules: registrationRulesForCountry(country.code),
           legal_names: "fictional",
         }
       : null,
@@ -1177,6 +1457,7 @@ export function listPlayableCountries() {
           4,
       ),
     })),
+    registration_rules: registrationRulesForCountry(country.code),
   }));
 }
 

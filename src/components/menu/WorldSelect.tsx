@@ -71,6 +71,16 @@ export interface PlayableCountryInfo {
   name: string;
   confederation?: string | null;
   continent?: string | null;
+  registration_rules?: {
+    max_squad_size?: number;
+    min_domestic_players?: number;
+    max_foreign_players?: number | null;
+    matchday_foreign_limit?: number | null;
+    max_non_eu_players?: number | null;
+    matchday_non_eu_limit?: number | null;
+    homegrown_minimum?: number;
+    source_note?: string;
+  };
   league: PlayableLeagueInfo;
   team_count: number;
   teams: PlayableTeamPreview[];

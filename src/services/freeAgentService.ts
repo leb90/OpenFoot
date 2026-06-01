@@ -14,6 +14,13 @@ export interface FreeAgentContractProjection {
   projected_cash_runway_weeks: number | null;
   currently_over_budget: boolean;
   policy_allows: boolean;
+  registration_policy?: {
+    allowed: boolean;
+    reason: string | null;
+    current: number | null;
+    limit: number | null;
+    rules?: Record<string, unknown> | null;
+  };
 }
 
 export interface FreeAgentContractResponseData {

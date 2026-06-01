@@ -9,6 +9,7 @@ import {
   DEFAULT_SQUAD_SIZE,
   ensureSquadDepth,
   listPlayableCountries,
+  registrationRulesForCountry,
 } from "./gameFactory.js";
 
 const namesDefinition = JSON.parse(
@@ -82,6 +83,10 @@ function countRosterByPosition(players) {
     counts[player.position] = (counts[player.position] ?? 0) + 1;
     return counts;
   }, {});
+}
+
+function countForeign(players, countryCode) {
+  return players.filter((player) => player.nationality !== countryCode).length;
 }
 
 describe("default football name pools", () => {
@@ -250,6 +255,7 @@ describe("default football name pools", () => {
       (player) => player.team_id === "ar_buenos_aires_millionaires",
     );
     expect(millionairesPlayers).toHaveLength(DEFAULT_SQUAD_SIZE);
+    expect(countForeign(millionairesPlayers, "AR")).toBeLessThanOrEqual(6);
     expect(countRosterByPosition(millionairesPlayers)).toEqual({
       Goalkeeper: 3,
       Defender: 13,
@@ -290,6 +296,48 @@ describe("default football name pools", () => {
       Midfielder: 11,
       Forward: 9,
     });
+  });
+
+  it("applies country registration rules to generated squads", () => {
+    const argentinaRules = registrationRulesForCountry("AR");
+    const argentina = createGameState({
+      firstName: "Test",
+      lastName: "Manager",
+      dob: "1980-01-01",
+      nationality: "AR",
+      startupOptions: {
+        startYear: 2026,
+        startPhase: "seasonStart",
+        countryCode: "AR",
+      },
+    });
+    const brazil = createGameState({
+      firstName: "Test",
+      lastName: "Manager",
+      dob: "1980-01-01",
+      nationality: "BR",
+      startupOptions: {
+        startYear: 2026,
+        startPhase: "seasonStart",
+        countryCode: "BR",
+      },
+    });
+
+    expect(argentinaRules.max_foreign_players).toBe(6);
+    expect(argentinaRules.matchday_foreign_limit).toBe(5);
+    expect(argentina.world.registration_rules.max_foreign_players).toBe(6);
+    argentina.teams
+      .filter((team) => team.country === "AR")
+      .forEach((team) => {
+        const roster = argentina.players.filter((player) => player.team_id === team.id);
+        expect(countForeign(roster, "AR"), team.name).toBeLessThanOrEqual(6);
+      });
+    brazil.teams
+      .filter((team) => team.country === "BR")
+      .forEach((team) => {
+        const roster = brazil.players.filter((player) => player.team_id === team.id);
+        expect(countForeign(roster, "BR"), team.name).toBeLessThanOrEqual(9);
+      });
   });
 
   it("supports non-standard round-robin leg counts used by continental feeder leagues", () => {
