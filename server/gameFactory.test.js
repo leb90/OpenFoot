@@ -359,6 +359,57 @@ describe("default football name pools", () => {
       });
   });
 
+  it("builds full club-specific archetype squads when a club has no manual profiles", () => {
+    const game = createGameState({
+      firstName: "Test",
+      lastName: "Manager",
+      dob: "1980-01-01",
+      nationality: "AR",
+      startupOptions: {
+        startYear: 2026,
+        startPhase: "seasonStart",
+        countryCode: "ENG",
+      },
+    });
+    const team = game.teams.find((item) => item.id === "eng_manchester_red");
+    const roster = game.players.filter((player) => player.team_id === team.id);
+
+    expect(roster).toHaveLength(DEFAULT_SQUAD_SIZE);
+    expect(countRosterByPosition(roster)).toEqual({
+      Goalkeeper: 3,
+      Defender: 13,
+      Midfielder: 11,
+      Forward: 9,
+    });
+    expect(countForeign(roster, "ENG")).toBeGreaterThan(0);
+    expect(roster.some((player) => player.alternate_positions.length > 0)).toBe(true);
+    expect(Math.max(...roster.map((player) => player.ovr))).toBeGreaterThanOrEqual(80);
+  });
+
+  it("keeps auto-generated Argentine club foreigners inside the regional market", () => {
+    const game = createGameState({
+      firstName: "Test",
+      lastName: "Manager",
+      dob: "1980-01-01",
+      nationality: "AR",
+      startupOptions: {
+        startYear: 2026,
+        startPhase: "seasonStart",
+        countryCode: "AR",
+      },
+    });
+    const regionalMarket = new Set(["UY", "BR", "CO", "CL", "PY", "PE", "EC", "ES"]);
+    const team = game.teams.find((item) => item.id === "ar_avellaneda_red");
+    const foreigners = game.players.filter(
+      (player) => player.team_id === team.id && player.nationality !== "AR",
+    );
+
+    expect(foreigners.length).toBeGreaterThan(0);
+    foreigners.forEach((player) => {
+      expect(regionalMarket.has(player.nationality), player.full_name).toBe(true);
+    });
+  });
+
   it("supports non-standard round-robin leg counts used by continental feeder leagues", () => {
     const croatia = createGameState({
       firstName: "Test",

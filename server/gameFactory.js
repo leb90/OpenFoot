@@ -230,6 +230,19 @@ const GLOBAL_FOOTBALL_MARKET = [
   "SA",
 ];
 
+const SOUTH_AMERICAN_FOOTBALL_CODES = new Set([
+  "AR",
+  "BR",
+  "UY",
+  "CL",
+  "CO",
+  "PY",
+  "EC",
+  "PE",
+  "BO",
+  "VE",
+]);
+
 const REGIONAL_FOOTBALL_MARKETS = {
   ENG: ["SCO", "WAL", "NIR", "IE", "FR", "NL", "BE", "PT", "ES", "BR", "AR"],
   SCO: ["ENG", "WAL", "NIR", "IE", "GB"],
@@ -272,6 +285,10 @@ const REGIONAL_FOOTBALL_MARKETS = {
   UA: ["PL", "CZ", "HR", "RS", "TR"],
 };
 
+function isEuropeanFootballMarket(countryCode) {
+  return EU_EEA_FOOTBALL_CODES.has(countryCode) || ["ENG", "SCO", "WAL", "NIR", "TR"].includes(countryCode);
+}
+
 const MATCH_ROLE_DEFAULTS = {
   captain: null,
   vice_captain: null,
@@ -305,6 +322,16 @@ function clamp(value, min, max) {
 
 function choice(values) {
   return values[randomInt(0, values.length)];
+}
+
+function hashString(value) {
+  return [...String(value)].reduce((hash, char) => {
+    return (hash * 31 + char.charCodeAt(0)) >>> 0;
+  }, 2166136261);
+}
+
+function deterministicInt(seed, min, maxExclusive) {
+  return min + (hashString(seed) % (maxExclusive - min));
 }
 
 export function registrationRulesForCountry(countryCode) {
@@ -393,6 +420,28 @@ function nationalityForRosterSlot(team, currentPlayers, remainingSlotsAfter, pro
 function canonicalDetailPosition(value) {
   if (!value) return null;
   return DETAIL_POSITION_ALIASES[value] ?? value;
+}
+
+function detailPositionCode(value) {
+  const canonical = canonicalDetailPosition(value);
+  const codes = {
+    Goalkeeper: "GK",
+    RightBack: "RB",
+    CenterBack: "CB",
+    LeftBack: "LB",
+    FullBack: "FB",
+    WingBack: "WB",
+    DefensiveMidfielder: "CDM",
+    CentralMidfielder: "CM",
+    AttackingMidfielder: "CAM",
+    WideMidfielder: "WM",
+    RightWinger: "RW",
+    LeftWinger: "LW",
+    Winger: "W",
+    Striker: "ST",
+    SecondStriker: "CF",
+  };
+  return codes[canonical] ?? value;
 }
 
 function detailPositionFitsSlot(profileDetailPosition, slotDetailPosition) {
@@ -644,6 +693,12 @@ function generatedRatingForSlot(team, position, slot, slotPlan = null) {
   return clamp(Math.round(base + offset + randomInt(-2, 3)), 45, 92);
 }
 
+function deterministicRatingForSlot(team, slotPlan, slot) {
+  const base = ratingBaseForPosition(team, slotPlan.position);
+  const jitter = deterministicInt(`${team.id}:rating:${slot}`, -1, 2);
+  return clamp(Math.round(base + slotPlan.rating_offset + jitter), 45, 94);
+}
+
 function playerProfileForSlot(profiles, position, detailPosition = null) {
   if (detailPosition) {
     const detailIndex = profiles.findIndex(
@@ -673,6 +728,150 @@ function ageForBand(ageBand) {
     default:
       return randomInt(21, 33);
   }
+}
+
+function deterministicAgeForBand(team, slotPlan, slot) {
+  const seed = `${team.id}:age:${slot}`;
+  switch (slotPlan.age_band) {
+    case "prospect":
+      return deterministicInt(seed, 17, 22);
+    case "young":
+      return deterministicInt(seed, 20, 25);
+    case "prime":
+      return deterministicInt(seed, 23, 31);
+    case "veteran":
+      return deterministicInt(seed, 30, 36);
+    case "rotation":
+    default:
+      return deterministicInt(seed, 21, 33);
+  }
+}
+
+function plannedForeignProfileCount(team, rules) {
+  const maxByDomesticMinimum = Math.max(0, DEFAULT_SQUAD_SIZE - minimumDomesticPlayers(rules));
+  const foreignCap =
+    rules.max_foreign_players === null
+      ? Math.max(0, maxByDomesticMinimum)
+      : Math.min(rules.max_foreign_players, maxByDomesticMinimum || rules.max_foreign_players);
+  const reputation = team.reputation ?? 600;
+  const share = SOUTH_AMERICAN_FOOTBALL_CODES.has(team.country)
+    ? reputation >= 860
+      ? 0.22
+      : reputation >= 760
+        ? 0.18
+        : reputation >= 650
+          ? 0.14
+          : 0.08
+    : reputation >= 860
+      ? 0.44
+      : reputation >= 760
+        ? 0.32
+        : reputation >= 650
+          ? 0.22
+          : 0.11;
+  return clamp(Math.round(DEFAULT_SQUAD_SIZE * share), 0, foreignCap);
+}
+
+function foreignProfileSlots(team, foreignCount) {
+  return new Set(
+    SQUAD_SLOT_PLAN.map((slotPlan, slot) => ({
+      slot,
+      score:
+        slotPlan.rating_offset * 20 +
+        deterministicInt(`${team.id}:foreign-slot:${slot}`, 0, 12) -
+        slot / 100,
+    }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, foreignCount)
+      .map((entry) => entry.slot),
+  );
+}
+
+function foreignMarketCandidates(teamCountry, rules, plannedProfiles) {
+  const pools = namesDefinition.pools ?? {};
+  const regional = availableCodes(REGIONAL_FOOTBALL_MARKETS[teamCountry] ?? []).filter(
+    (code) => code !== teamCountry,
+  );
+  const global = availableCodes(GLOBAL_FOOTBALL_MARKET).filter((code) => code !== teamCountry);
+  const euForeign = [...EU_EEA_FOOTBALL_CODES].filter(
+    (code) => code !== teamCountry && Boolean(pools[code]),
+  );
+  const prefersEu =
+    rules.max_non_eu_players !== null &&
+    countNonEuPlayers(plannedProfiles) >= rules.max_non_eu_players;
+  const isEuropeanMarket = isEuropeanFootballMarket(teamCountry);
+  const isSouthAmericanMarket = SOUTH_AMERICAN_FOOTBALL_CODES.has(teamCountry);
+
+  return [
+    ...(prefersEu ? euForeign : []),
+    ...regional,
+    ...(isEuropeanMarket ? euForeign : []),
+    ...(isSouthAmericanMarket ? [] : global),
+  ].filter((code, index, values) => values.indexOf(code) === index);
+}
+
+function foreignNationalityForProfile(team, rules, plannedProfiles, slot) {
+  const candidates = foreignMarketCandidates(team.country, rules, plannedProfiles);
+  const isEuropeanMarket = isEuropeanFootballMarket(team.country);
+  const prioritizedCandidates = candidates.slice(
+    0,
+    isEuropeanMarket ? Math.min(candidates.length, 18) : candidates.length,
+  );
+  const start = deterministicInt(
+    `${team.id}:foreign-nationality:${slot}`,
+    0,
+    Math.max(prioritizedCandidates.length, 1),
+  );
+
+  for (let offset = 0; offset < prioritizedCandidates.length; offset += 1) {
+    const nationality = prioritizedCandidates[(start + offset) % prioritizedCandidates.length];
+    if (nationalityFitsRegistrationRules(nationality, team, plannedProfiles, rules)) {
+      return nationality;
+    }
+  }
+
+  for (let offset = 0; offset < candidates.length; offset += 1) {
+    const nationality = candidates[offset];
+    if (nationalityFitsRegistrationRules(nationality, team, plannedProfiles, rules)) {
+      return nationality;
+    }
+  }
+
+  return team.country;
+}
+
+function buildClubArchetypeProfiles(team) {
+  const rules = team.registration_rules ?? registrationRulesForCountry(team.country);
+  const foreignSlots = foreignProfileSlots(team, plannedForeignProfileCount(team, rules));
+  const profiles = [];
+
+  SQUAD_SLOT_PLAN.forEach((slotPlan, slot) => {
+    const nationality = foreignSlots.has(slot)
+      ? foreignNationalityForProfile(team, rules, profiles, slot)
+      : team.country;
+    const overall = deterministicRatingForSlot(team, slotPlan, slot);
+    const age = deterministicAgeForBand(team, slotPlan, slot);
+
+    profiles.push({
+      position: slotPlan.position,
+      detail_position: detailPositionCode(slotPlan.detail_position),
+      nationality,
+      overall,
+      potential: Math.min(
+        99,
+        overall +
+          deterministicInt(
+            `${team.id}:potential:${slot}`,
+            age <= 23 ? 5 : 0,
+            age <= 23 ? 15 : 6,
+          ),
+      ),
+      age,
+      squad_role: slotPlan.squad_role,
+    });
+  });
+
+  return profiles;
 }
 
 function generatePlayer(team, slot, startYear, profile = null, slotPlan = null, options = {}) {
@@ -746,8 +945,9 @@ function generatePlayer(team, slot, startYear, profile = null, slotPlan = null, 
 }
 
 function generatePlayersForTeam(team, startYear) {
-  const profiles = [...(team.player_profiles ?? [])];
-  const hasCuratedProfiles = profiles.length > 0;
+  const curatedProfiles = [...(team.player_profiles ?? [])];
+  const hasCuratedProfiles = curatedProfiles.length > 0;
+  const profiles = hasCuratedProfiles ? curatedProfiles : buildClubArchetypeProfiles(team);
   const registrationRules = team.registration_rules ?? registrationRulesForCountry(team.country);
   const roster = [];
 

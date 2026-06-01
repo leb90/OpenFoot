@@ -384,7 +384,8 @@ createGameState(startupOptions)
 |-- For each club:
 |   |-- Create Team with defined reputation, finances, stadium, colors, and strength profile
 |   |-- Generate 36 players (3 GK, 13 DEF, 11 MID, 9 FWD)
-|   |   |-- Pick nationality from local/regional/global football-market weights
+|   |   |-- Use manual key-player profiles when present, otherwise build a club-specific 36-player archetype pack
+|   |   |-- Pick nationality from domestic/regional football markets, with global markets only where they fit the league
 |   |   |-- Enforce country registration rules for foreign/non-EU/local squad quotas
 |   |   |-- Pick name from nationality pool
 |   |   |-- Generate attributes by position and OVR profile
@@ -398,7 +399,7 @@ createGameState(startupOptions)
 
 ### Player Generation
 
-- **Nationalities**: 60% weighted toward team country, 40% from any pool
+- **Nationalities**: Manual profiles keep their target nationality when registration rules allow it. Auto-generated club archetypes use domestic players plus regional football markets, then apply each country's foreign/non-EU/local limits.
 - **Names**: Picked from nationality-specific pools (first + last names)
 - **Attributes**: Randomized by position with different ranges:
   - GK: high handling/reflexes/aerial, lower outfield stats
