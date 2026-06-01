@@ -587,6 +587,18 @@ function generateName(nationality) {
   };
 }
 
+function deterministicChoice(values, seed) {
+  return values[hashString(seed) % values.length];
+}
+
+function generateDeterministicName(nationality, seed) {
+  const pool = namePoolFor(nationality);
+  return {
+    firstName: deterministicChoice(pool.first_names, `${seed}:first`),
+    lastName: deterministicChoice(pool.last_names, `${seed}:last`),
+  };
+}
+
 function generateAttributes(position) {
   const isGoalkeeper = position === "Goalkeeper";
   const isDefender = position === "Defender";
@@ -877,7 +889,15 @@ function buildClubArchetypeProfiles(team) {
 function generatePlayer(team, slot, startYear, profile = null, slotPlan = null, options = {}) {
   const nationality =
     options.nationality ?? profile?.nationality ?? generatePlayerNationality(team.country);
-  const { firstName, lastName } = generateName(nationality);
+  const nameSeed =
+    options.nameSeed ??
+    profile?.alias_seed ??
+    (profile
+      ? `${team.id}:${slot}:${profile.position}:${profile.detail_position ?? ""}:${profile.nationality}:${profile.overall}:${profile.age}`
+      : null);
+  const { firstName, lastName } = nameSeed
+    ? generateDeterministicName(nationality, nameSeed)
+    : generateName(nationality);
   const position = profile?.position ?? slotPlan?.position ?? POSITIONS_BY_SLOT[slot] ?? "Midfielder";
   const detailPosition = canonicalDetailPosition(
     profile?.detail_position ?? slotPlan?.detail_position ?? null,
@@ -967,7 +987,7 @@ function generatePlayersForTeam(team, startYear) {
       startYear,
       profile,
       slotPlan,
-      { nationality },
+      { nationality, nameSeed: profile?.alias_seed ?? `${team.id}:slot:${slot}` },
     );
     roster.push(player);
     return player;
@@ -982,9 +1002,14 @@ function generatePlayersForTeam(team, startYear) {
       registrationRules,
       { domesticFallbackOnly: hasCuratedProfiles },
     );
-    const player = generatePlayer(team, SQUAD_SLOT_PLAN.length + index, startYear, profile, null, {
-      nationality,
-    });
+    const player = generatePlayer(
+      team,
+      SQUAD_SLOT_PLAN.length + index,
+      startYear,
+      profile,
+      null,
+      { nationality, nameSeed: profile?.alias_seed ?? `${team.id}:extra:${index}` },
+    );
     roster.push(player);
     return player;
   });

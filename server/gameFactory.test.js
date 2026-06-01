@@ -256,9 +256,14 @@ describe("default football name pools", () => {
       (player) => player.team_id === "ar_buenos_aires_millionaires",
     );
     expect(millionairesPlayers).toHaveLength(DEFAULT_SQUAD_SIZE);
+    expect(
+      millionairesPlayers.filter((player) => player.squad_role !== "Youth"),
+    ).toHaveLength(35);
     expect(countForeign(millionairesPlayers, "AR")).toBeLessThanOrEqual(6);
     expect(millionairesPlayers.some((player) => player.nationality === "BR")).toBe(false);
     expect(millionairesPlayers.some((player) => player.nationality === "PE")).toBe(false);
+    expect(millionairesPlayers.some((player) => player.nationality === "EC")).toBe(false);
+    expect(millionairesPlayers.some((player) => player.nationality === "VE")).toBe(false);
     expect(
       millionairesPlayers.some(
         (player) =>
